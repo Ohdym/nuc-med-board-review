@@ -2,6 +2,7 @@ import { CATEGORY_CONFIG, IMPORT_TEMPLATE, QUESTION_BANK } from "./data.js";
 
 const STORAGE_KEYS = {
   importedQuestions: "nmb-review-imported-questions",
+  importedFlashcards: "nmb-review-imported-flashcards",
   performance: "nmb-review-performance",
   liveProfile: "nmb-review-live-profile",
   liveAuth: "nmb-review-live-auth",
@@ -30,6 +31,7 @@ const state = {
   activeView: "dashboard",
   sharedUserId: loadSharedUserId(),
   importedQuestions: loadJSON(STORAGE_KEYS.importedQuestions, []),
+  importedFlashcards: loadJSON(STORAGE_KEYS.importedFlashcards, []),
   performance: loadJSON(STORAGE_KEYS.performance, []),
   quizConfig: {
     category: "all",
@@ -51,6 +53,13 @@ const state = {
     activeTile: null,
     score: 0,
   },
+  flashcards: {
+    category: "all",
+    shuffled: false,
+    deck: [],
+    currentIndex: 0,
+    showingBack: false,
+  },
   live: {
     username: loadJSON(STORAGE_KEYS.liveProfile, { username: "" }).username || "",
     joinCode: "",
@@ -59,6 +68,7 @@ const state = {
     page: "board",
     answerIndex: null,
     lastQuestionKey: null,
+    lastRecordedRevealKey: null,
     connectionStatus: "idle",
     error: "",
     info: "Host a live multiplayer board with a join code and rotating chooser turns.",
@@ -67,6 +77,13 @@ const state = {
     manualDisconnect: false,
   },
   importDraft: "",
+  importConfig: {
+    categoryMode: "auto",
+    category: "",
+    customCategory: "",
+    formatHint: "auto",
+  },
+  importPreview: null,
   importFeedback: {
     tone: "info",
     message: "Import JSON or CSV to add your own board-style questions.",
@@ -74,6 +91,11 @@ const state = {
 };
 
 let mockTimerHandle = null;
+const FLASHCARD_IMPORT_TEMPLATE = `Term\tDefinition
+Tc-99m MDP\tCommon radiopharmaceutical for routine bone imaging
+ALARA\tRadiation safety principle focused on minimizing exposure
+Extravasation\tInadvertent infiltration of radiopharmaceutical into surrounding tissue
+Photopeak window\tEnergy acceptance range centered on the radionuclide photopeak`;
 
 function loadJSON(key, fallback) {
   try {
@@ -100,6 +122,14 @@ function firstDefined(...values) {
     }
   }
   return null;
+}
+
+function slugifyCategory(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function escapeHtml(value) {
@@ -142,9 +172,15 @@ function getAllQuestions() {
   return uniqueById([...QUESTION_BANK, ...state.importedQuestions]);
 }
 
+function getAllFlashcards() {
+  return uniqueById(state.importedFlashcards);
+}
+
 function getCategories() {
   const known = new Map(CATEGORY_CONFIG.map((item) => [item.name, item]));
-  for (const name of [...new Set(getAllQuestions().map((question) => question.category))]) {
+  for (const name of [
+    ...new Set([...getAllQuestions(), ...getAllFlashcards()].map((item) => item.category).filter(Boolean)),
+  ]) {
     if (!known.has(name)) {
       known.set(name, {
         id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
@@ -155,6 +191,20 @@ function getCategories() {
     }
   }
   return [...known.values()];
+}
+
+function getImportCategoryChoices() {
+  return getCategories().map((category) => category.name);
+}
+
+function getImportTargetCategory() {
+  if (state.importConfig.categoryMode === "create") {
+    return state.importConfig.customCategory.trim();
+  }
+  if (state.importConfig.categoryMode === "assign") {
+    return state.importConfig.category.trim();
+  }
+  return "";
 }
 
 function groupAttempts(entries, key) {
@@ -358,6 +408,11 @@ function buildMockExamQuestions(count, summary, adaptive) {
 }
 
 function recordAttempt(question, correct, mode) {
+  savePersonalAttempt(question, correct, mode);
+  reportSharedAttempt(question, correct, mode);
+}
+
+function savePersonalAttempt(question, correct, mode) {
   state.performance.push({
     questionId: question.id,
     category: question.category,
@@ -369,7 +424,6 @@ function recordAttempt(question, correct, mode) {
     timestamp: Date.now(),
   });
   saveJSON(STORAGE_KEYS.performance, state.performance);
-  reportSharedAttempt(question, correct, mode);
 }
 
 function reportSharedAttempt(question, correct, mode) {
@@ -590,7 +644,7 @@ function finalizeJeopardyTile() {
   const question = tile.question;
   const correct = activeTile.selectedIndex === question.answerIndex;
 
-  recordAttempt(question, correct, "jeopardy");
+  recordAttempt(question, correct, "solo-jeopardy");
   state.jeopardy.answered[question.id] = {
     correct,
     value: tile.value,
@@ -605,7 +659,28 @@ function closeJeopardyTile() {
   state.jeopardy.activeTile = null;
 }
 
-function normalizeQuestion(raw, index) {
+function normalizeFlashcard(raw, index, importOptions = {}) {
+  const category = String(
+    firstDefined(importOptions.categoryOverride, raw.category, raw.deck, raw.setCategory, "Imported Flashcards"),
+  ).trim();
+  const front = String(firstDefined(raw.term, raw.front, raw.word, raw.question, "")).trim();
+  const back = String(firstDefined(raw.definition, raw.back, raw.answer, raw.meaning, "")).trim();
+  const topic = String(firstDefined(raw.topic, front)).trim();
+
+  if (!front || !back) {
+    return null;
+  }
+
+  return {
+    id: String(firstDefined(raw.id, `flashcard-${Date.now()}-${index}`)),
+    category,
+    topic,
+    front,
+    back,
+  };
+}
+
+function normalizeQuestion(raw, index, importOptions = {}) {
   const options = Array.isArray(raw.options)
     ? raw.options
     : [raw.optionA, raw.optionB, raw.optionC, raw.optionD].filter(Boolean);
@@ -640,10 +715,12 @@ function normalizeQuestion(raw, index) {
   }
 
   const difficulty = clamp(Number(raw.difficulty) || 1, 1, 5);
-  const category = String(firstDefined(raw.category, "")).trim();
-  const topic = String(firstDefined(raw.topic, "Imported Topic")).trim();
-  const type = String(firstDefined(raw.type, "concept")).trim();
-  const question = String(firstDefined(raw.question, raw.prompt, "")).trim();
+  const category = String(
+    firstDefined(importOptions.categoryOverride, raw.category, raw.deck, raw.setCategory, "Imported Questions"),
+  ).trim();
+  const topic = String(firstDefined(raw.topic, raw.term, raw.front, "Imported Topic")).trim();
+  const type = String(firstDefined(raw.type, importOptions.defaultType, "concept")).trim();
+  const question = String(firstDefined(raw.question, raw.prompt, raw.stem, "")).trim();
 
   if (!category || !question || options.length < 2 || answerIndex < 0 || answerIndex >= options.length) {
     return null;
@@ -662,7 +739,7 @@ function normalizeQuestion(raw, index) {
   };
 }
 
-function parseCSV(text) {
+function parseDelimited(text, delimiter) {
   const rows = [];
   let current = "";
   let row = [];
@@ -683,7 +760,7 @@ function parseCSV(text) {
       continue;
     }
 
-    if (char === "," && !inQuotes) {
+    if (char === delimiter && !inQuotes) {
       row.push(current);
       current = "";
       continue;
@@ -724,48 +801,396 @@ function parseCSV(text) {
   });
 }
 
-function parseImportedText(text) {
+function parseCSV(text) {
+  return parseDelimited(text, ",");
+}
+
+function parseTSV(text) {
+  return parseDelimited(text, "\t");
+}
+
+function normalizeFlashcardPair(record) {
+  return normalizeFlashcard(record, 0);
+}
+
+function parseQuizletLikePairs(text, importOptions = {}) {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (lines.length < 2) {
+    return [];
+  }
+
+  const records = lines
+    .map((line) => {
+      const parts = line.split("\t").map((part) => part.trim());
+      if (parts.length < 2) {
+        return null;
+      }
+      return {
+        term: parts[0],
+        definition: parts.slice(1).join(" "),
+      };
+    })
+    .filter(Boolean);
+
+  if (records.length < 2) {
+    return [];
+  }
+
+  return records
+    .map((record, index) => normalizeFlashcard(record, index, importOptions))
+    .filter(Boolean);
+}
+
+function parsePlainTextQuestions(text, importOptions = {}) {
+  const blocks = text
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  return blocks
+    .map((block, index) => {
+      const raw = {};
+      const options = [];
+
+      block
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .forEach((line, lineIndex) => {
+          if (/^question\s*:/i.test(line)) {
+            raw.question = line.replace(/^question\s*:/i, "").trim();
+            return;
+          }
+          if (/^topic\s*:/i.test(line)) {
+            raw.topic = line.replace(/^topic\s*:/i, "").trim();
+            return;
+          }
+          if (/^category\s*:/i.test(line)) {
+            raw.category = line.replace(/^category\s*:/i, "").trim();
+            return;
+          }
+          if (/^type\s*:/i.test(line)) {
+            raw.type = line.replace(/^type\s*:/i, "").trim();
+            return;
+          }
+          if (/^difficulty\s*:/i.test(line)) {
+            raw.difficulty = line.replace(/^difficulty\s*:/i, "").trim();
+            return;
+          }
+          if (/^answer\s*:/i.test(line)) {
+            raw.correctAnswer = line.replace(/^answer\s*:/i, "").trim();
+            return;
+          }
+          if (/^explanation\s*:/i.test(line)) {
+            raw.explanation = line.replace(/^explanation\s*:/i, "").trim();
+            return;
+          }
+          if (/^(option\s*)?[a-d][\)\].:\- ]+/i.test(line)) {
+            options.push(line.replace(/^(option\s*)?[a-d][\)\].:\- ]+/i, "").trim());
+            return;
+          }
+          if (lineIndex === 0 && !raw.question) {
+            raw.question = line;
+          }
+        });
+
+      raw.options = options;
+      return normalizeQuestion(raw, index, importOptions);
+    })
+    .filter(Boolean);
+}
+
+function parseStructuredRecords(records, importOptions = {}) {
+  const questionLike = records.some((record) =>
+    firstDefined(record.question, record.prompt, record.options, record.optionA, record.correctAnswer) !== null,
+  );
+  if (questionLike) {
+    return {
+      kind: "questions",
+      items: records.map((record, index) => normalizeQuestion(record, index, importOptions)).filter(Boolean),
+    };
+  }
+
+  const flashcardLike = records.some((record) =>
+    firstDefined(record.term, record.definition, record.front, record.back, record.word, record.meaning) !== null,
+  );
+  if (flashcardLike) {
+    return {
+      kind: "flashcards",
+      items: records.map((record, index) => normalizeFlashcard(record, index, importOptions)).filter(Boolean),
+    };
+  }
+
+  return { kind: null, items: [] };
+}
+
+function parseImportedText(text, importOptions = {}) {
   const trimmed = text.trim();
   if (!trimmed) {
-    return [];
+    return { kind: null, items: [] };
   }
 
   if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
     const parsed = JSON.parse(trimmed);
     const records = Array.isArray(parsed) ? parsed : parsed.questions || [];
-    return records.map(normalizeQuestion).filter(Boolean);
+    return parseStructuredRecords(records, importOptions);
   }
 
-  return parseCSV(trimmed).map(normalizeQuestion).filter(Boolean);
+  if (importOptions.formatHint === "flashcards") {
+    const quizletLike = parseQuizletLikePairs(trimmed, importOptions);
+    if (quizletLike.length) {
+      return { kind: "flashcards", items: quizletLike };
+    }
+  }
+
+  if (importOptions.formatHint === "plain") {
+    const plain = parsePlainTextQuestions(trimmed, importOptions);
+    if (plain.length) {
+      return { kind: "questions", items: plain };
+    }
+  }
+
+  if (trimmed.includes("\t")) {
+    const tsvRecords = parseTSV(trimmed);
+    const structuredTSV = parseStructuredRecords(tsvRecords, importOptions);
+    if (structuredTSV.items.length) {
+      return structuredTSV;
+    }
+
+    const quizletLike = parseQuizletLikePairs(trimmed, importOptions);
+    if (quizletLike.length) {
+      return { kind: "flashcards", items: quizletLike };
+    }
+  }
+
+  const csvRecords = parseCSV(trimmed);
+  const structuredCSV = parseStructuredRecords(csvRecords, importOptions);
+  if (structuredCSV.items.length) {
+    return structuredCSV;
+  }
+
+  const plain = parsePlainTextQuestions(trimmed, importOptions);
+  if (plain.length) {
+    return { kind: "questions", items: plain };
+  }
+
+  return { kind: null, items: [] };
 }
 
-function importQuestions() {
-  try {
-    const parsedQuestions = parseImportedText(state.importDraft);
+function clearImportPreview() {
+  state.importPreview = null;
+}
 
-    if (!parsedQuestions.length) {
+function previewImport() {
+  try {
+    const categoryOverride = getImportTargetCategory();
+    if ((state.importConfig.categoryMode === "assign" || state.importConfig.categoryMode === "create") && !categoryOverride) {
       state.importFeedback = {
         tone: "error",
-        message:
-          "No valid questions were found. Confirm the data includes category, topic, type, difficulty, question, options, and the correct answer.",
+        message: "Choose an existing category or enter a new category name before importing.",
       };
+      clearImportPreview();
       return;
     }
 
-    const merged = uniqueById([...state.importedQuestions, ...parsedQuestions]);
-    state.importedQuestions = merged;
-    saveJSON(STORAGE_KEYS.importedQuestions, state.importedQuestions);
-    state.importFeedback = {
-      tone: "success",
-      message: `${parsedQuestions.length} question${parsedQuestions.length === 1 ? "" : "s"} imported successfully.`,
+    const parsed = parseImportedText(state.importDraft, {
+      categoryOverride: categoryOverride || null,
+      formatHint: state.importConfig.formatHint,
+    });
+
+    if (!parsed.items.length || !parsed.kind) {
+      state.importFeedback = {
+        tone: "error",
+        message:
+          "No valid import content was found. Try structured question files, Quizlet-style flashcards, or plain text question blocks.",
+      };
+      clearImportPreview();
+      return;
+    }
+
+    state.importPreview = {
+      kind: parsed.kind,
+      items: parsed.items,
+      categoryOverride: categoryOverride || "",
+      categories: [...new Set(parsed.items.map((item) => item.category).filter(Boolean))],
     };
-    buildJeopardyBoard();
+    state.importFeedback = {
+      tone: "info",
+      message: `Preview ready: ${parsed.items.length} ${parsed.kind === "flashcards" ? "flashcard" : "question"}${parsed.items.length === 1 ? "" : "s"} detected.`,
+    };
   } catch (error) {
     state.importFeedback = {
       tone: "error",
       message: `Import failed: ${error.message}`,
     };
+    clearImportPreview();
   }
+}
+
+function importQuestions() {
+  if (!state.importPreview || !state.importPreview.items.length || !state.importPreview.kind) {
+    previewImport();
+    return;
+  }
+
+  if (state.importPreview.kind === "questions") {
+    state.importedQuestions = uniqueById([...state.importedQuestions, ...state.importPreview.items]);
+    saveJSON(STORAGE_KEYS.importedQuestions, state.importedQuestions);
+    buildJeopardyBoard();
+  }
+
+  if (state.importPreview.kind === "flashcards") {
+    state.importedFlashcards = uniqueById([...state.importedFlashcards, ...state.importPreview.items]);
+    saveJSON(STORAGE_KEYS.importedFlashcards, state.importedFlashcards);
+    buildFlashcardDeck();
+  }
+
+  const importedCount = state.importPreview.items.length;
+  const importedKindLabel = state.importPreview.kind === "flashcards" ? "flashcard" : "question";
+  const targetLabel = state.importPreview.categoryOverride ? ` into ${state.importPreview.categoryOverride}` : "";
+  state.importFeedback = {
+    tone: "success",
+    message: `${importedCount} ${importedKindLabel}${importedCount === 1 ? "" : "s"} imported successfully${targetLabel}.`,
+  };
+  clearImportPreview();
+}
+
+function clearImportedFlashcards() {
+  state.importedFlashcards = [];
+  saveJSON(STORAGE_KEYS.importedFlashcards, state.importedFlashcards);
+  buildFlashcardDeck();
+  state.importFeedback = {
+    tone: "info",
+    message: "Imported flashcards cleared from this browser.",
+  };
+}
+
+function buildFlashcardDeck() {
+  const baseCards =
+    state.flashcards.category === "all"
+      ? getAllFlashcards()
+      : getAllFlashcards().filter((card) => card.category === state.flashcards.category);
+  state.flashcards.deck = state.flashcards.shuffled ? shuffle(baseCards) : [...baseCards];
+  state.flashcards.currentIndex = clamp(state.flashcards.currentIndex, 0, Math.max(0, state.flashcards.deck.length - 1));
+  state.flashcards.showingBack = false;
+}
+
+function getActiveFlashcard() {
+  return state.flashcards.deck[state.flashcards.currentIndex] || null;
+}
+
+function renderFlashcardsView() {
+  const categories = [...new Set(getAllFlashcards().map((card) => card.category).filter(Boolean))];
+
+  if (!state.flashcards.deck.length && getAllFlashcards().length) {
+    buildFlashcardDeck();
+  }
+  const activeCard = getActiveFlashcard();
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Flashcards",
+        "Study imported cards in a Quizlet-style review flow",
+        "Imported flashcards stay as front-and-back cards. Flip, shuffle, and filter by category without converting them into multiple-choice questions.",
+      )}
+      ${
+        !getAllFlashcards().length
+          ? `
+            <section class="panel">
+              <div class="panel__header">
+                <h3>No flashcards imported yet</h3>
+                <p>Import Quizlet-style term and definition content from the Import Bank to study it here as flashcards.</p>
+              </div>
+              <div class="question-card__actions">
+                <button type="button" class="button button--primary" data-view="import">Open Import Bank</button>
+                <button type="button" class="button button--ghost" data-action="load-flashcard-template">Load flashcard example</button>
+              </div>
+            </section>
+          `
+          : `
+            <div class="split-layout">
+              <section class="panel">
+                <div class="form-grid form-grid--two">
+                  <label class="field">
+                    <span>Category</span>
+                    <select id="flashcard-category">
+                      <option value="all" ${state.flashcards.category === "all" ? "selected" : ""}>All flashcards</option>
+                      ${categories
+                        .map(
+                          (category) =>
+                            `<option value="${escapeHtml(category)}" ${state.flashcards.category === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
+                        )
+                        .join("")}
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Deck order</span>
+                    <button type="button" class="toggle ${state.flashcards.shuffled ? "is-on" : ""}" data-action="toggle-flashcard-shuffle">
+                      ${state.flashcards.shuffled ? "Shuffled" : "In order"}
+                    </button>
+                  </label>
+                </div>
+                ${
+                  activeCard
+                    ? `
+                      <button type="button" class="flashcard-stage ${state.flashcards.showingBack ? "is-flipped" : ""}" data-action="flip-flashcard">
+                        <div class="flashcard-stage__face flashcard-stage__face--front">
+                          <span class="pill">${escapeHtml(activeCard.category)}</span>
+                          <h3>${escapeHtml(activeCard.front)}</h3>
+                          <p>Tap to reveal answer</p>
+                        </div>
+                        <div class="flashcard-stage__face flashcard-stage__face--back">
+                          <span class="pill">${escapeHtml(activeCard.topic)}</span>
+                          <h3>${escapeHtml(activeCard.back)}</h3>
+                          <p>Tap to return to front</p>
+                        </div>
+                      </button>
+                    `
+                    : `
+                      <div class="empty-state">
+                        <strong>No flashcards match this filter.</strong>
+                      </div>
+                    `
+                }
+                <div class="question-card__actions">
+                  <button type="button" class="button button--ghost" data-action="flashcard-prev" ${state.flashcards.currentIndex === 0 ? "disabled" : ""}>Previous</button>
+                  <button type="button" class="button button--primary" data-action="flip-flashcard" ${!activeCard ? "disabled" : ""}>${state.flashcards.showingBack ? "Show front" : "Flip card"}</button>
+                  <button type="button" class="button button--ghost" data-action="flashcard-next" ${!activeCard || state.flashcards.currentIndex >= state.flashcards.deck.length - 1 ? "disabled" : ""}>Next</button>
+                </div>
+              </section>
+              <section class="panel">
+                <div class="panel__header">
+                  <h3>Deck status</h3>
+                  <p>Use flashcards for fast active recall without changing them into multiple-choice items.</p>
+                </div>
+                <div class="insight-stack">
+                  <article class="insight-card">
+                    <span class="insight-card__label">Total flashcards</span>
+                    <strong>${getAllFlashcards().length}</strong>
+                  </article>
+                  <article class="insight-card">
+                    <span class="insight-card__label">Cards in current deck</span>
+                    <strong>${state.flashcards.deck.length}</strong>
+                  </article>
+                  <article class="insight-card">
+                    <span class="insight-card__label">Current position</span>
+                    <strong>${activeCard ? `${state.flashcards.currentIndex + 1} of ${state.flashcards.deck.length}` : "0 of 0"}</strong>
+                  </article>
+                </div>
+                <div class="question-card__actions">
+                  <button type="button" class="button button--ghost" data-view="import">Import more flashcards</button>
+                  <button type="button" class="button button--ghost" data-action="clear-flashcards">Clear flashcards</button>
+                </div>
+              </section>
+            </div>
+          `
+      }
+    </section>
+  `;
 }
 
 function clearImportedQuestions() {
@@ -944,6 +1369,7 @@ function closeLiveSocket(resetState) {
     state.live.session = null;
     state.live.answerIndex = null;
     state.live.lastQuestionKey = null;
+    state.live.lastRecordedRevealKey = null;
   }
 }
 
@@ -1013,6 +1439,30 @@ function connectLiveSocket() {
           message.session.activeQuestion.selectedIndex !== undefined
             ? message.session.activeQuestion.selectedIndex
             : state.live.answerIndex;
+      }
+      if (
+        message.session.activeQuestion &&
+        message.session.status === "reveal" &&
+        state.live.lastRecordedRevealKey !== nextKey
+      ) {
+        const activeQuestion = message.session.activeQuestion;
+        const viewerResult = activeQuestion.viewerResult;
+        if (viewerResult) {
+          savePersonalAttempt(
+            {
+              id:
+                activeQuestion.questionId ||
+                `live-${message.session.code}-${activeQuestion.columnIndex}-${activeQuestion.rowIndex}`,
+              category: activeQuestion.category,
+              topic: activeQuestion.topic,
+              type: activeQuestion.type || "concept",
+              difficulty: activeQuestion.difficulty || 1,
+            },
+            Boolean(viewerResult.correct),
+            "live-jeopardy",
+          );
+          state.live.lastRecordedRevealKey = nextKey;
+        }
       }
       state.live.lastQuestionKey = nextKey;
       if (!message.session.activeQuestion || message.session.status !== "question") {
@@ -1163,10 +1613,10 @@ function renderAppChrome(summary) {
   return `
     <header class="topbar">
       <div class="brand">
-        <div class="brand__mark">NM</div>
         <div class="brand__copy">
+          <span class="brand__eyebrow">Blue and gold review workspace</span>
           <strong>Nuclear Medicine Boards Review</strong>
-          <span>Solo prep, mock exams, and live multiplayer Jeopardy</span>
+          <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy with an Oregon Tech-inspired visual style</span>
         </div>
       </div>
       <div class="topbar__meta">
@@ -1184,15 +1634,25 @@ function renderAppChrome(summary) {
         </article>
       </div>
     </header>
-    <section class="headline">
+    <section class="headline headline--oregon-tech">
       <div class="headline__copy">
-        <span class="headline__eyebrow">Professional Review App</span>
-        <h1>Board-focused study with a tighter workflow and live join-code gameplay.</h1>
-        <p>Move between adaptive study modes and a Kahoot-style live board flow with randomized chooser turns and synchronized scoring.</p>
-      </div>
-      <div class="headline__actions">
-        <button type="button" class="button button--primary" data-action="set-jeopardy-mode" data-mode="online">Open Online Jeopardy</button>
-        <button type="button" class="button button--ghost" data-view="quiz">Start Quiz</button>
+        <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
+        <h1>Board-focused nuclear medicine prep with an Oregon Tech-inspired academic look.</h1>
+        <p>Study through adaptive quizzes, mock exams, and live Jeopardy rounds in a cleaner interface grounded in Oregon Tech color and campus atmosphere.</p>
+        <div class="headline__highlights">
+          <article class="headline-highlight">
+            <span>Built for review</span>
+            <strong>ARRT-style categories with stronger active recall flow</strong>
+          </article>
+          <article class="headline-highlight">
+            <span>Live multiplayer</span>
+            <strong>Join-code Jeopardy with host-controlled rounds</strong>
+          </article>
+          <article class="headline-highlight">
+            <span>Adaptive practice</span>
+            <strong>Difficulty placement informed by shared performance</strong>
+          </article>
+        </div>
       </div>
     </section>
   `;
@@ -1747,37 +2207,123 @@ function renderJeopardyModal() {
 
 function renderImportView() {
   const feedbackClass = `import-feedback import-feedback--${state.importFeedback.tone}`;
+  const categoryChoices = getImportCategoryChoices();
+  const importedCategoryCount = new Set(state.importedQuestions.map((question) => question.category)).size;
+  const preview = state.importPreview;
 
   return `
     <section class="view">
       ${renderSectionIntro(
         "Import Your Bank",
-        "Bring in your own board-review questions",
-        "Paste JSON or CSV, keep the structure simple, and the app will merge imported items into quiz, mock exam, and solo board selection.",
+        "Bring in your own board-review content",
+        "Import structured question banks, Quizlet-style flashcards, or plain text blocks. Preview the import before saving anything locally.",
       )}
       <div class="split-layout">
         <section class="panel">
           <div class="panel__header">
-            <h3>Paste or load question data</h3>
-            <p>Supported fields: category, topic, type, difficulty, question, options, answerIndex, explanation.</p>
+            <h3>Import setup</h3>
+            <p>Choose how categories should be handled, then paste text or load a file. The parser will try to detect the format automatically.</p>
           </div>
-          <textarea id="import-text" class="import-textarea" placeholder='Paste JSON array or CSV rows here'>${escapeHtml(state.importDraft)}</textarea>
+          <div class="form-grid form-grid--two">
+            <label class="field">
+              <span>Import format</span>
+              <select id="import-format-hint">
+                <option value="auto" ${state.importConfig.formatHint === "auto" ? "selected" : ""}>Auto-detect</option>
+                <option value="structured" ${state.importConfig.formatHint === "structured" ? "selected" : ""}>Structured JSON / CSV / TSV</option>
+                <option value="flashcards" ${state.importConfig.formatHint === "flashcards" ? "selected" : ""}>Flashcards / Quizlet-style</option>
+                <option value="plain" ${state.importConfig.formatHint === "plain" ? "selected" : ""}>Plain text Q&A blocks</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Category handling</span>
+              <select id="import-category-mode">
+                <option value="auto" ${state.importConfig.categoryMode === "auto" ? "selected" : ""}>Auto detect category</option>
+                <option value="assign" ${state.importConfig.categoryMode === "assign" ? "selected" : ""}>Import into existing category</option>
+                <option value="create" ${state.importConfig.categoryMode === "create" ? "selected" : ""}>Create new category</option>
+              </select>
+            </label>
+          </div>
+          ${
+            state.importConfig.categoryMode === "assign"
+              ? `
+                <div class="form-grid">
+                  <label class="field">
+                    <span>Existing category</span>
+                    <select id="import-category">
+                      <option value="">Choose category</option>
+                      ${categoryChoices
+                        .map(
+                          (category) =>
+                            `<option value="${escapeHtml(category)}" ${state.importConfig.category === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
+                        )
+                        .join("")}
+                    </select>
+                  </label>
+                </div>
+              `
+              : ""
+          }
+          ${
+            state.importConfig.categoryMode === "create"
+              ? `
+                <div class="form-grid">
+                  <label class="field">
+                    <span>New category name</span>
+                    <input id="import-custom-category" type="text" maxlength="48" placeholder="Enter custom category" value="${escapeHtml(state.importConfig.customCategory)}" />
+                  </label>
+                </div>
+              `
+              : ""
+          }
+          <textarea id="import-text" class="import-textarea" placeholder='Paste JSON, CSV, TSV, Quizlet-style term/definition rows, or plain text question blocks here'>${escapeHtml(state.importDraft)}</textarea>
           <div class="${feedbackClass}">
             <strong>${escapeHtml(state.importFeedback.message)}</strong>
           </div>
+          ${
+            preview
+              ? `
+                <div class="import-preview">
+                  <div class="panel__header">
+                    <h3>Preview</h3>
+                    <p>${preview.items.length} ${preview.kind === "flashcards" ? "flashcard" : "question"}${preview.items.length === 1 ? "" : "s"} ready to import.</p>
+                  </div>
+                  <div class="insight-stack">
+                    <article class="insight-card">
+                      <span class="insight-card__label">Import type</span>
+                      <strong>${preview.kind === "flashcards" ? "Flashcards" : "Questions"}</strong>
+                    </article>
+                    <article class="insight-card">
+                      <span class="insight-card__label">Categories found</span>
+                      <strong>${escapeHtml(preview.categories.join(", ") || "Uncategorized")}</strong>
+                    </article>
+                    <article class="insight-card">
+                      <span class="insight-card__label">Sample</span>
+                      <strong>${
+                        preview.kind === "flashcards"
+                          ? escapeHtml(preview.items[0].front)
+                          : escapeHtml(preview.items[0].question)
+                      }</strong>
+                    </article>
+                  </div>
+                </div>
+              `
+              : ""
+          }
           <div class="question-card__actions">
             <label class="button button--ghost file-button">
               Load file
-              <input id="import-file" type="file" accept=".json,.csv,text/csv,application/json" />
+              <input id="import-file" type="file" accept=".json,.csv,.tsv,.txt,text/plain,text/csv,application/json" />
             </label>
             <button type="button" class="button button--ghost" data-action="load-import-template">Load sample template</button>
-            <button type="button" class="button button--primary" data-action="run-import">Import questions</button>
+            <button type="button" class="button button--ghost" data-action="load-flashcard-template">Load flashcard example</button>
+            <button type="button" class="button button--ghost" data-action="preview-import">Preview import</button>
+            <button type="button" class="button button--primary" data-action="run-import">${preview ? "Confirm import" : "Import content"}</button>
           </div>
         </section>
         <section class="panel">
           <div class="panel__header">
-            <h3>Current import status</h3>
-            <p>Imported questions stay local to this browser. Live multiplayer uses the shared server-side bank so every player sees the same board.</p>
+            <h3>Import guide</h3>
+            <p>Imported questions stay local to this browser. Online multiplayer still uses the shared server-side live bank so every player sees the same board.</p>
           </div>
           <div class="insight-stack">
             <article class="insight-card">
@@ -1785,16 +2331,29 @@ function renderImportView() {
               <strong>${state.importedQuestions.length}</strong>
             </article>
             <article class="insight-card">
-              <span class="insight-card__label">Accepted formats</span>
-              <strong>JSON array or CSV with option columns</strong>
+              <span class="insight-card__label">Imported categories</span>
+              <strong>${importedCategoryCount}</strong>
             </article>
             <article class="insight-card">
-              <span class="insight-card__label">Quick CSV header</span>
-              <strong>category,topic,type,difficulty,question,optionA,optionB,optionC,optionD,correctAnswer,explanation</strong>
+              <span class="insight-card__label">Imported flashcards</span>
+              <strong>${state.importedFlashcards.length}</strong>
+            </article>
+            <article class="insight-card">
+              <span class="insight-card__label">Structured files</span>
+              <strong>JSON arrays, CSV, or TSV with fields like category, topic, question, options, answerIndex, explanation</strong>
+            </article>
+            <article class="insight-card">
+              <span class="insight-card__label">Flashcard imports</span>
+              <strong>Quizlet-style term and definition rows stay as flashcards and appear in the Flashcards section</strong>
+            </article>
+            <article class="insight-card">
+              <span class="insight-card__label">Plain text blocks</span>
+              <strong>Paste Question / A / B / C / D / Answer / Explanation blocks and the importer will try to map them</strong>
             </article>
           </div>
           <div class="question-card__actions">
             <button type="button" class="button button--ghost" data-action="clear-imported">Clear imported bank</button>
+            <button type="button" class="button button--ghost" data-action="clear-flashcards">Clear flashcards</button>
           </div>
         </section>
       </div>
@@ -2280,6 +2839,7 @@ function renderApp() {
     quiz: renderQuizView(summary),
     mock: renderMockView(),
     jeopardy: renderJeopardyView(summary),
+    flashcards: renderFlashcardsView(),
     live: renderLiveView(),
     import: renderImportView(),
   };
@@ -2293,6 +2853,7 @@ function renderApp() {
           ["quiz", "Quiz"],
           ["mock", "Mock Exam"],
           ["jeopardy", "Jeopardy"],
+          ["flashcards", "Flashcards"],
           ["import", "Import Bank"],
         ]
           .map(
@@ -2470,10 +3031,25 @@ app.addEventListener("click", (event) => {
 
   if (action === "load-import-template") {
     state.importDraft = JSON.stringify(IMPORT_TEMPLATE, null, 2);
+    clearImportPreview();
     state.importFeedback = {
       tone: "info",
       message: "Sample JSON template loaded into the editor.",
     };
+  }
+
+  if (action === "load-flashcard-template") {
+    state.importDraft = FLASHCARD_IMPORT_TEMPLATE;
+    state.importConfig.formatHint = "flashcards";
+    clearImportPreview();
+    state.importFeedback = {
+      tone: "info",
+      message: "Flashcard example loaded. This works well for Quizlet-style term and definition exports or copied sets.",
+    };
+  }
+
+  if (action === "preview-import") {
+    previewImport();
   }
 
   if (action === "run-import") {
@@ -2484,6 +3060,29 @@ app.addEventListener("click", (event) => {
     clearImportedQuestions();
   }
 
+  if (action === "clear-flashcards") {
+    clearImportedFlashcards();
+  }
+
+  if (action === "toggle-flashcard-shuffle") {
+    state.flashcards.shuffled = !state.flashcards.shuffled;
+    buildFlashcardDeck();
+  }
+
+  if (action === "flip-flashcard" && state.flashcards.deck.length) {
+    state.flashcards.showingBack = !state.flashcards.showingBack;
+  }
+
+  if (action === "flashcard-prev" && state.flashcards.currentIndex > 0) {
+    state.flashcards.currentIndex -= 1;
+    state.flashcards.showingBack = false;
+  }
+
+  if (action === "flashcard-next" && state.flashcards.currentIndex < state.flashcards.deck.length - 1) {
+    state.flashcards.currentIndex += 1;
+    state.flashcards.showingBack = false;
+  }
+
   renderApp();
 });
 
@@ -2492,6 +3091,12 @@ app.addEventListener("input", (event) => {
 
   if (target.id === "import-text") {
     state.importDraft = target.value;
+    clearImportPreview();
+  }
+
+  if (target.id === "import-custom-category") {
+    state.importConfig.customCategory = target.value;
+    clearImportPreview();
   }
 
   if (target.id === "live-username") {
@@ -2527,14 +3132,42 @@ app.addEventListener("change", (event) => {
     const reader = new FileReader();
     reader.onload = () => {
       state.importDraft = String(reader.result || "");
+      clearImportPreview();
       state.importFeedback = {
         tone: "info",
-        message: `Loaded ${target.files[0].name}. Review the content and click Import questions.`,
+        message: `Loaded ${target.files[0].name}. Review the content, choose category handling if needed, then click Import questions.`,
       };
       renderApp();
     };
     reader.readAsText(target.files[0]);
     return;
+  }
+
+  if (target.id === "import-category-mode") {
+    state.importConfig.categoryMode = ["auto", "assign", "create"].includes(target.value) ? target.value : "auto";
+    if (state.importConfig.categoryMode !== "assign") {
+      state.importConfig.category = "";
+    }
+    if (state.importConfig.categoryMode !== "create") {
+      state.importConfig.customCategory = "";
+    }
+    clearImportPreview();
+  }
+
+  if (target.id === "import-category") {
+    state.importConfig.category = target.value;
+    clearImportPreview();
+  }
+
+  if (target.id === "import-format-hint") {
+    state.importConfig.formatHint = target.value || "auto";
+    clearImportPreview();
+  }
+
+  if (target.id === "flashcard-category") {
+    state.flashcards.category = target.value || "all";
+    state.flashcards.currentIndex = 0;
+    buildFlashcardDeck();
   }
 
   renderApp();

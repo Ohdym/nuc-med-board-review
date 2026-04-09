@@ -319,11 +319,14 @@ class GameSession:
             opened_by = self.players.get(self.active_question["opened_by_player_id"])
             viewer_answer = self.active_question["answers"].get(viewer_id) if viewer_id else None
             active = {
+                "questionId": self.active_question["question"]["id"],
                 "columnIndex": self.active_question["column_index"],
                 "rowIndex": self.active_question["row_index"],
                 "value": self.active_question["value"],
                 "category": self.active_question["question"]["category"],
                 "topic": self.active_question["question"]["topic"],
+                "type": self.active_question["question"]["type"],
+                "difficulty": self.active_question["question"]["difficulty"],
                 "question": self.active_question["question"]["question"],
                 "options": self.active_question["question"]["options"],
                 "openedByPlayerId": self.active_question["opened_by_player_id"],
