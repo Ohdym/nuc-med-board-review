@@ -1,0 +1,710 @@
+import asyncio
+import json
+import os
+import random
+import secrets
+import time
+from pathlib import Path
+
+import esprima
+from aiohttp import WSMsgType, web
+
+
+ROOT = Path(__file__).parent
+DATA_PATH = ROOT / "data.js"
+ATTEMPTS_PATH = Path(os.getenv("ATTEMPTS_PATH", str(ROOT / ".shared_attempts.json")))
+BOARD_VALUES = [100, 200, 300, 400, 500]
+
+
+def parse_js_literal(node):
+    node_type = node.type
+
+    if node_type == "Literal":
+        return node.value
+    if node_type == "ArrayExpression":
+        return [parse_js_literal(element) for element in node.elements]
+    if node_type == "ObjectExpression":
+        output = {}
+        for prop in node.properties:
+            key_node = prop.key
+            key = getattr(key_node, "name", None)
+            if key is None:
+                key = key_node.value
+            output[key] = parse_js_literal(prop.value)
+        return output
+
+    raise ValueError(f"Unsupported AST node type: {node_type}")
+
+
+def load_data_exports():
+    module = esprima.parseModule(DATA_PATH.read_text())
+    exports = {}
+
+    for statement in module.body:
+        if statement.type != "ExportNamedDeclaration" or not statement.declaration:
+            continue
+        declaration = statement.declaration
+        if declaration.type != "VariableDeclaration":
+            continue
+        for item in declaration.declarations:
+            exports[item.id.name] = parse_js_literal(item.init)
+
+    return exports
+
+
+DATA_EXPORTS = load_data_exports()
+CATEGORY_CONFIG = DATA_EXPORTS["CATEGORY_CONFIG"]
+QUESTION_BANK = DATA_EXPORTS["QUESTION_BANK"]
+QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
+
+
+def load_attempt_store():
+    if ATTEMPTS_PATH.exists():
+        try:
+            return json.loads(ATTEMPTS_PATH.read_text())
+        except Exception:
+            pass
+    return {"questions": {}}
+
+
+ATTEMPT_STORE = load_attempt_store()
+
+
+def save_attempt_store():
+    ATTEMPTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ATTEMPTS_PATH.write_text(json.dumps(ATTEMPT_STORE))
+
+
+def record_shared_attempt(user_id, question_id, correct, mode):
+    question_bucket = ATTEMPT_STORE["questions"].setdefault(
+        question_id,
+        {"attempts": 0, "correct": 0, "users": {}, "modes": {}},
+    )
+    question_bucket["attempts"] += 1
+    question_bucket["correct"] += 1 if correct else 0
+    question_bucket["modes"][mode] = question_bucket["modes"].get(mode, 0) + 1
+
+    user_bucket = question_bucket["users"].setdefault(
+        user_id,
+        {"attempts": 0, "correct": 0},
+    )
+    user_bucket["attempts"] += 1
+    user_bucket["correct"] += 1 if correct else 0
+    save_attempt_store()
+
+
+def get_weighted_question_difficulty(question):
+    bucket = ATTEMPT_STORE["questions"].get(question["id"])
+    base_difficulty = float(question["difficulty"])
+
+    if not bucket or not bucket.get("users"):
+        return base_difficulty
+
+    user_accuracies = [
+        user_stats["correct"] / user_stats["attempts"]
+        for user_stats in bucket["users"].values()
+        if user_stats["attempts"]
+    ]
+    if not user_accuracies:
+        return base_difficulty
+
+    average_accuracy = sum(user_accuracies) / len(user_accuracies)
+    performance_difficulty = 1 + (1 - average_accuracy) * 4
+    confidence = min(1, len(user_accuracies) / 6)
+
+    return base_difficulty * (1 - confidence) + performance_difficulty * confidence
+
+
+def random_code(existing_codes):
+    while True:
+        code = "".join(random.choice("0123456789") for _ in range(6))
+        if code not in existing_codes:
+            return code
+
+
+def sanitize_username(value):
+    cleaned = " ".join(str(value or "").strip().split())
+    if len(cleaned) < 2:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Username must be at least 2 characters."}),
+            content_type="application/json",
+        )
+    if len(cleaned) > 20:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Username must be 20 characters or fewer."}),
+            content_type="application/json",
+        )
+    return cleaned
+
+
+def sorted_players(players):
+    return sorted(players.values(), key=lambda player: (-player["score"], player["joined_at"]))
+
+
+def choose_board_categories():
+    counts = {}
+    for question in QUESTION_BANK:
+        counts[question["category"]] = counts.get(question["category"], 0) + 1
+
+    categories = [category["name"] for category in CATEGORY_CONFIG if counts.get(category["name"], 0) >= 5]
+    if len(categories) < 5:
+        categories = list({question["category"] for question in QUESTION_BANK})
+
+    random.shuffle(categories)
+    return categories[: min(5, len(categories))]
+
+
+def pick_board_question(category, difficulty, used_ids):
+    pool = [
+        question
+        for question in QUESTION_BANK
+        if question["category"] == category and question["id"] not in used_ids
+    ]
+    if not pool:
+        return None
+
+    random.shuffle(pool)
+    scored = []
+    for question in pool:
+        weighted_difficulty = get_weighted_question_difficulty(question)
+        score_gap = abs(weighted_difficulty - difficulty)
+        scored.append((score_gap, weighted_difficulty, question))
+
+    scored.sort(key=lambda item: item[0])
+    top_choices = scored[: min(3, len(scored))]
+    return random.choice(top_choices)[2]
+
+
+def build_board():
+    categories = choose_board_categories()
+    used_ids = set()
+    board = []
+
+    for category in categories:
+        column = []
+        for row_index, value in enumerate(BOARD_VALUES, start=1):
+            question = pick_board_question(category, row_index, used_ids)
+            if question:
+                used_ids.add(question["id"])
+            column.append({
+                "value": value,
+                "question": question,
+                "answered": False,
+            })
+        board.append(column)
+
+    return categories, board
+
+
+class GameSession:
+    def __init__(self, code, host_name):
+        self.code = code
+        self.created_at = time.time()
+        self.status = "lobby"
+        self.players = {}
+        self.sockets = {}
+        self.host_player_id = None
+        self.categories = []
+        self.board = []
+        self.current_turn_player_id = None
+        self.active_question = None
+        self.question_task = None
+        self.last_results = []
+        self.lock = asyncio.Lock()
+        self._create_player(host_name, is_host=True)
+
+    def _create_player(self, username, is_host=False):
+        player_id = secrets.token_hex(6)
+        token = secrets.token_urlsafe(18)
+        player = {
+            "id": player_id,
+            "token": token,
+            "username": username,
+            "score": 0,
+            "is_host": is_host,
+            "connected": False,
+            "joined_at": time.time(),
+        }
+        self.players[player_id] = player
+        if is_host:
+            self.host_player_id = player_id
+        return player
+
+    def create_join_response(self, player):
+        return {
+            "code": self.code,
+            "playerId": player["id"],
+            "playerToken": player["token"],
+            "host": player["is_host"],
+        }
+
+    def get_player_by_token(self, token):
+        for player in self.players.values():
+            if player["token"] == token:
+                return player
+        return None
+
+    def join(self, username):
+        for player in self.players.values():
+            if player["username"].lower() == username.lower():
+                if player["connected"]:
+                    raise web.HTTPBadRequest(
+                        text=json.dumps({"error": "That username is already active in this game."}),
+                        content_type="application/json",
+                    )
+                player["token"] = secrets.token_urlsafe(18)
+                return player
+
+        if self.status != "lobby":
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "This game is already in progress. Rejoin using the same username you used before."}),
+                content_type="application/json",
+            )
+
+        return self._create_player(username)
+
+    def connected_player_ids(self):
+        return [player_id for player_id, player in self.players.items() if player["connected"]]
+
+    def choose_next_turn(self, exclude_player_id=None):
+        connected_ids = self.connected_player_ids()
+        if not connected_ids:
+            self.current_turn_player_id = None
+            return
+
+        candidates = [player_id for player_id in connected_ids if player_id != exclude_player_id]
+        if not candidates:
+            candidates = connected_ids
+        self.current_turn_player_id = random.choice(candidates)
+
+    def remaining_tiles(self):
+        return sum(1 for column in self.board for tile in column if tile["question"] and not tile["answered"])
+
+    def all_tiles_answered(self):
+        return self.remaining_tiles() == 0
+
+    def winner_names(self):
+        if not self.players:
+            return []
+        leaderboard = sorted_players(self.players)
+        top_score = leaderboard[0]["score"]
+        return [player["username"] for player in leaderboard if player["score"] == top_score]
+
+    def public_state(self, viewer_id=None):
+        players = [
+            {
+                "id": player["id"],
+                "username": player["username"],
+                "score": player["score"],
+                "connected": player["connected"],
+                "isHost": player["is_host"],
+            }
+            for player in sorted_players(self.players)
+        ]
+
+        board = []
+        for column_index, category in enumerate(self.categories):
+            tiles = []
+            for row_index, tile in enumerate(self.board[column_index]):
+                tiles.append({
+                    "columnIndex": column_index,
+                    "rowIndex": row_index,
+                    "value": tile["value"],
+                    "answered": tile["answered"] or not tile["question"],
+                })
+            board.append({"category": category, "tiles": tiles})
+
+        active = None
+        if self.active_question:
+            opened_by = self.players.get(self.active_question["opened_by_player_id"])
+            viewer_answer = self.active_question["answers"].get(viewer_id) if viewer_id else None
+            active = {
+                "columnIndex": self.active_question["column_index"],
+                "rowIndex": self.active_question["row_index"],
+                "value": self.active_question["value"],
+                "category": self.active_question["question"]["category"],
+                "topic": self.active_question["question"]["topic"],
+                "question": self.active_question["question"]["question"],
+                "options": self.active_question["question"]["options"],
+                "openedByPlayerId": self.active_question["opened_by_player_id"],
+                "openedByUsername": opened_by["username"] if opened_by else "Player",
+                "answerCount": len(self.active_question["answers"]),
+                "hasAnswered": viewer_id in self.active_question["answers"],
+                "selectedIndex": viewer_answer["selectedIndex"] if viewer_answer else None,
+                "selectionLocked": self.status in {"reveal", "board_complete", "finished"},
+                "hostCanReveal": self.status == "question" and viewer_id == self.host_player_id,
+                "hostCanAdvance": self.status == "reveal" and viewer_id == self.host_player_id,
+                "phase": self.status,
+            }
+
+            if self.status in {"reveal", "board_complete", "finished"}:
+                active["correctAnswerIndex"] = self.active_question["question"]["answerIndex"]
+                active["explanation"] = self.active_question["question"]["explanation"]
+                active["viewerResult"] = {
+                    "selectedIndex": viewer_answer["selectedIndex"] if viewer_answer else None,
+                    "correct": viewer_answer["selectedIndex"] == self.active_question["question"]["answerIndex"]
+                    if viewer_answer
+                    else False,
+                }
+
+        current_turn_name = None
+        if self.current_turn_player_id and self.current_turn_player_id in self.players:
+            current_turn_name = self.players[self.current_turn_player_id]["username"]
+
+        return {
+            "code": self.code,
+            "status": self.status,
+            "players": players,
+            "board": board,
+            "currentTurnPlayerId": self.current_turn_player_id,
+            "currentTurnUsername": current_turn_name,
+            "hostPlayerId": self.host_player_id,
+            "remainingTiles": self.remaining_tiles(),
+            "activeQuestion": active,
+            "winnerNames": self.winner_names() if self.status in {"board_complete", "finished"} else [],
+        }
+
+    async def broadcast_state(self):
+        stale = []
+        for player_id, socket in self.sockets.items():
+            if socket.closed:
+                stale.append(player_id)
+                continue
+            try:
+                await socket.send_json({"type": "state", "session": self.public_state(player_id)})
+            except Exception:
+                stale.append(player_id)
+
+        for player_id in stale:
+            await self.handle_disconnect(player_id)
+
+    async def send_error(self, player_id, message):
+        socket = self.sockets.get(player_id)
+        if socket and not socket.closed:
+            await socket.send_json({"type": "error", "message": message})
+
+    async def handle_connect(self, player_id, socket):
+        self.sockets[player_id] = socket
+        if player_id in self.players:
+            self.players[player_id]["connected"] = True
+
+        if self.status == "picking" and self.current_turn_player_id not in self.connected_player_ids():
+            self.choose_next_turn()
+
+        await self.broadcast_state()
+
+    async def handle_disconnect(self, player_id):
+        socket = self.sockets.pop(player_id, None)
+        if socket and not socket.closed:
+            await socket.close()
+
+        if player_id in self.players:
+            self.players[player_id]["connected"] = False
+
+        if self.status == "question" and self.active_question:
+            await self.broadcast_state()
+            return
+
+        if self.status == "picking" and self.current_turn_player_id == player_id:
+            self.choose_next_turn(exclude_player_id=player_id)
+
+        await self.broadcast_state()
+
+    async def start_game(self, player_id):
+        if player_id != self.host_player_id:
+            await self.send_error(player_id, "Only the host can start the game.")
+            return
+        if self.status != "lobby":
+            await self.send_error(player_id, "The game has already started.")
+            return
+        if len(self.connected_player_ids()) < 2:
+            await self.send_error(player_id, "At least 2 connected players are needed to start.")
+            return
+
+        self.categories, self.board = build_board()
+        self.status = "picking"
+        self.last_results = []
+        self.choose_next_turn()
+        await self.broadcast_state()
+
+    async def pick_tile(self, player_id, column_index, row_index):
+        if self.status != "picking":
+            await self.send_error(player_id, "Wait for the next selection turn.")
+            return
+        if player_id != self.current_turn_player_id:
+            await self.send_error(player_id, "It is not your turn to pick a tile.")
+            return
+
+        if column_index < 0 or column_index >= len(self.board):
+            await self.send_error(player_id, "That tile does not exist.")
+            return
+        if row_index < 0 or row_index >= len(self.board[column_index]):
+            await self.send_error(player_id, "That tile does not exist.")
+            return
+
+        tile = self.board[column_index][row_index]
+        if tile["answered"] or not tile["question"]:
+            await self.send_error(player_id, "That tile has already been used.")
+            return
+
+        self.cancel_question_task()
+
+        self.status = "question"
+        self.active_question = {
+            "column_index": column_index,
+            "row_index": row_index,
+            "value": tile["value"],
+            "question": tile["question"],
+            "opened_by_player_id": player_id,
+            "answers": {},
+        }
+        await self.broadcast_state()
+
+    async def select_answer(self, player_id, answer_index):
+        if self.status != "question" or not self.active_question:
+            await self.send_error(player_id, "There is no live question to answer.")
+            return
+
+        if answer_index < 0 or answer_index >= len(self.active_question["question"]["options"]):
+            await self.send_error(player_id, "That answer choice is not valid.")
+            return
+
+        self.active_question["answers"][player_id] = {
+            "selectedIndex": int(answer_index),
+            "answeredAt": time.time(),
+        }
+
+        await self.broadcast_state()
+
+    async def finalize_answers(self, player_id):
+        if self.status != "question" or not self.active_question:
+            await self.send_error(player_id, "There is no live question to finalize.")
+            return
+        if player_id != self.host_player_id:
+            await self.send_error(player_id, "Only the host can submit the answers.")
+            return
+
+        await self.reveal_active_question()
+
+    def cancel_question_task(self):
+        if self.question_task and not self.question_task.done():
+            self.question_task.cancel()
+        self.question_task = None
+
+    async def reveal_active_question(self):
+        if self.status != "question" or not self.active_question:
+            return
+
+        self.cancel_question_task()
+
+        question = self.active_question["question"]
+        value = self.active_question["value"]
+        answers = self.active_question["answers"]
+        results = []
+
+        for player in sorted_players(self.players):
+            player_answer = answers.get(player["id"])
+            selected_index = player_answer["selectedIndex"] if player_answer else None
+            correct = selected_index == question["answerIndex"]
+            if correct:
+                player["score"] += value
+            record_shared_attempt(player["id"], question["id"], correct, "live-jeopardy")
+
+            results.append({
+                "playerId": player["id"],
+                "username": player["username"],
+                "selectedIndex": selected_index,
+                "correct": correct,
+            })
+
+        self.last_results = results
+        tile = self.board[self.active_question["column_index"]][self.active_question["row_index"]]
+        tile["answered"] = True
+        self.status = "reveal"
+        self.choose_next_turn(exclude_player_id=self.active_question["opened_by_player_id"])
+        await self.broadcast_state()
+
+    async def advance_round(self, player_id):
+        if player_id != self.host_player_id:
+            await self.send_error(player_id, "Only the host can move to the next round.")
+            return
+        if self.status != "reveal":
+            await self.send_error(player_id, "There is no reveal screen to advance.")
+            return
+
+        if self.all_tiles_answered():
+            self.status = "board_complete"
+            self.active_question = None
+            await self.broadcast_state()
+            return
+
+        self.active_question = None
+        self.status = "picking"
+        await self.broadcast_state()
+
+    async def terminate_game(self, player_id):
+        if player_id != self.host_player_id:
+            await self.send_error(player_id, "Only the host can terminate the game.")
+            return
+
+        self.cancel_question_task()
+        self.active_question = None
+        self.status = "finished"
+        await self.broadcast_state()
+
+
+SESSIONS = {}
+
+
+async def json_body(request):
+    try:
+        return await request.json()
+    except Exception as error:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": f"Invalid JSON: {error}"}),
+            content_type="application/json",
+        )
+
+
+async def create_game(request):
+    payload = await json_body(request)
+    username = sanitize_username(payload.get("username"))
+    code = random_code(SESSIONS.keys())
+    session = GameSession(code, username)
+    SESSIONS[code] = session
+    host_player = session.players[session.host_player_id]
+    return web.json_response(session.create_join_response(host_player))
+
+
+async def join_game(request):
+    payload = await json_body(request)
+    username = sanitize_username(payload.get("username"))
+    code = str(payload.get("code", "")).strip()
+
+    if code not in SESSIONS:
+        raise web.HTTPNotFound(
+            text=json.dumps({"error": "Game not found. Check the join code and try again."}),
+            content_type="application/json",
+        )
+
+    session = SESSIONS[code]
+    player = session.join(username)
+    return web.json_response(session.create_join_response(player))
+
+
+async def record_attempts(request):
+    payload = await json_body(request)
+    user_id = str(payload.get("userId", "")).strip()
+    attempts = payload.get("attempts", [])
+
+    if not user_id:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "A userId is required."}),
+            content_type="application/json",
+        )
+
+    if not isinstance(attempts, list) or not attempts:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "At least one attempt is required."}),
+            content_type="application/json",
+        )
+
+    recorded = 0
+    for attempt in attempts:
+        question_id = str(attempt.get("questionId", "")).strip()
+        if question_id not in QUESTION_BY_ID:
+            continue
+        correct = bool(attempt.get("correct"))
+        mode = str(attempt.get("mode", "unknown")).strip() or "unknown"
+        record_shared_attempt(user_id, question_id, correct, mode)
+        recorded += 1
+
+    return web.json_response({"recorded": recorded})
+
+
+async def websocket_handler(request):
+    code = request.query.get("code", "").strip()
+    token = request.query.get("token", "").strip()
+
+    if code not in SESSIONS:
+        return web.Response(status=404, text="Game not found.")
+
+    session = SESSIONS[code]
+    player = session.get_player_by_token(token)
+    if not player:
+        return web.Response(status=403, text="Invalid player token.")
+
+    socket = web.WebSocketResponse(heartbeat=20)
+    await socket.prepare(request)
+
+    async with session.lock:
+        await session.handle_connect(player["id"], socket)
+
+    async for message in socket:
+        if message.type == WSMsgType.TEXT:
+            try:
+                payload = json.loads(message.data)
+            except json.JSONDecodeError:
+                async with session.lock:
+                    await session.send_error(player["id"], "Could not read that live game message.")
+                continue
+
+            action = payload.get("action")
+            async with session.lock:
+                if action == "start_game":
+                    await session.start_game(player["id"])
+                elif action == "pick_tile":
+                    await session.pick_tile(
+                        player["id"],
+                        int(payload.get("columnIndex", -1)),
+                        int(payload.get("rowIndex", -1)),
+                    )
+                elif action == "select_answer":
+                    await session.select_answer(player["id"], int(payload.get("answerIndex", -1)))
+                elif action == "submit_answer":
+                    await session.finalize_answers(player["id"])
+                elif action == "advance_round":
+                    await session.advance_round(player["id"])
+                elif action == "terminate_game":
+                    await session.terminate_game(player["id"])
+                else:
+                    await session.send_error(player["id"], "Unsupported live game action.")
+
+        if message.type in {WSMsgType.ERROR, WSMsgType.CLOSE, WSMsgType.CLOSED}:
+            break
+
+    async with session.lock:
+        await session.handle_disconnect(player["id"])
+
+    return socket
+
+
+async def serve_app(request):
+    requested = request.match_info.get("path", "").strip("/")
+    candidate = ROOT / requested if requested else ROOT / "index.html"
+
+    if requested.startswith("api/") or requested == "ws":
+        raise web.HTTPNotFound()
+
+    if candidate.is_dir():
+        candidate = candidate / "index.html"
+
+    if candidate.exists() and candidate.is_file():
+        return web.FileResponse(candidate)
+
+    return web.FileResponse(ROOT / "index.html")
+
+
+def create_app():
+    app = web.Application()
+    app.router.add_post("/api/games/create", create_game)
+    app.router.add_post("/api/games/join", join_game)
+    app.router.add_post("/api/attempts", record_attempts)
+    app.router.add_get("/ws", websocket_handler)
+    app.router.add_get("/{path:.*}", serve_app)
+    return app
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", "4173"))
+    web.run_app(create_app(), host="0.0.0.0", port=port)

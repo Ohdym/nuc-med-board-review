@@ -1,0 +1,2 @@
+aiohttp>=3.10,<4
+esprima>=4.0,<5
