@@ -132,6 +132,17 @@ function slugifyCategory(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+function createStableId(prefix, parts) {
+  const source = parts
+    .map((part) => String(part === undefined || part === null ? "" : part).trim().toLowerCase())
+    .join("|");
+  let hash = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash * 31 + source.charCodeAt(index)) >>> 0;
+  }
+  return `${prefix}-${hash.toString(36)}`;
+}
+
 function escapeHtml(value) {
   return String(value === undefined || value === null ? "" : value)
     .replace(/&/g, "&amp;")
@@ -170,6 +181,14 @@ function uniqueById(questions) {
 
 function getAllQuestions() {
   return uniqueById([...QUESTION_BANK, ...state.importedQuestions]);
+}
+
+function hasStudyQuestions() {
+  return getAllQuestions().length > 0;
+}
+
+function hasSharedLiveBank() {
+  return QUESTION_BANK.length > 0;
 }
 
 function getAllFlashcards() {
@@ -456,6 +475,11 @@ function startQuiz() {
       : getAllQuestions().filter((question) => question.category === state.quizConfig.category);
   const questions = selectQuestions(pool, state.quizConfig.count, summary, state.quizConfig.adaptive);
 
+  if (!questions.length) {
+    state.quizSession = null;
+    return;
+  }
+
   state.quizSession = {
     questions,
     index: 0,
@@ -473,6 +497,12 @@ function startMock() {
     summary,
     state.mockConfig.adaptive,
   );
+
+  if (!questions.length) {
+    state.mockSession = null;
+    clearMockTimer();
+    return;
+  }
 
   state.mockSession = {
     questions,
@@ -586,6 +616,17 @@ function chooseJeopardyCategories(summary) {
 }
 
 function buildJeopardyBoard() {
+  if (!hasStudyQuestions()) {
+    state.jeopardy = {
+      categories: [],
+      board: [],
+      answered: {},
+      activeTile: null,
+      score: 0,
+    };
+    return;
+  }
+
   const summary = computePerformanceSummary();
   const categories = chooseJeopardyCategories(summary);
   const usedIds = new Set();
@@ -672,7 +713,7 @@ function normalizeFlashcard(raw, index, importOptions = {}) {
   }
 
   return {
-    id: String(firstDefined(raw.id, `flashcard-${Date.now()}-${index}`)),
+    id: String(firstDefined(raw.id, createStableId("flashcard", [category, topic, front, back]))),
     category,
     topic,
     front,
@@ -727,7 +768,12 @@ function normalizeQuestion(raw, index, importOptions = {}) {
   }
 
   return {
-    id: String(firstDefined(raw.id, `imported-${Date.now()}-${index}`)),
+    id: String(
+      firstDefined(
+        raw.id,
+        createStableId("question", [category, topic, type, question, options.join("||"), answerIndex]),
+      ),
+    ),
     category,
     topic,
     type,
@@ -1198,7 +1244,7 @@ function clearImportedQuestions() {
   saveJSON(STORAGE_KEYS.importedQuestions, state.importedQuestions);
   state.importFeedback = {
     tone: "info",
-    message: "Imported questions cleared. Seeded study bank remains available.",
+    message: "Imported questions cleared. Solo study modes will stay empty until you import more content.",
   };
   buildJeopardyBoard();
 }
@@ -1608,6 +1654,24 @@ function renderSectionIntro(eyebrow, title, body) {
   `;
 }
 
+function renderQuestionBankEmptyState(title, body, detail) {
+  return `
+    <section class="panel">
+      <div class="panel__header">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(body)}</p>
+      </div>
+      <div class="empty-state">
+        <strong>No seeded study bank is included in this build.</strong>
+        <p>${escapeHtml(detail)}</p>
+      </div>
+      <div class="question-card__actions">
+        <button type="button" class="button button--primary" data-view="import">Open Import Bank</button>
+      </div>
+    </section>
+  `;
+}
+
 function renderAppChrome(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
   return `
@@ -1661,6 +1725,7 @@ function renderAppChrome(summary) {
 function renderDashboard(summary) {
   const categories = getCategories();
   const weakAreas = [...summary.weakTopics].slice(0, 3);
+  const hasQuestions = hasStudyQuestions();
 
   return `
     <section class="view view--dashboard">
@@ -1675,11 +1740,24 @@ function renderDashboard(summary) {
         ${renderMetric("Question Bank", `${getAllQuestions().length} total`, "default")}
         ${renderMetric("Weakest Category", summary.weakestCategory || "Not enough data yet", "default")}
       </div>
+      ${
+        hasQuestions
+          ? ""
+          : renderQuestionBankEmptyState(
+              "Import your exam bank to begin",
+              "This build is now import-first, so solo study modes stay empty until you load your own questions.",
+              "When your real 800-question set is ready, it can fully replace the placeholder bank. For now, imported questions are the only solo study source.",
+            )
+      }
       <div class="split-layout">
         <section class="panel">
           <div class="panel__header">
             <h3>ARRT / NM Board-style categories</h3>
-            <p>Organized for quick topic selection, targeted drilling, and full-board review.</p>
+            <p>${
+              hasQuestions
+                ? "Organized for quick topic selection, targeted drilling, and full-board review."
+                : "Your imported bank will appear here once questions are loaded."
+            }</p>
           </div>
           <div class="category-list">
             ${categories
@@ -1732,6 +1810,23 @@ function renderDashboard(summary) {
 function renderQuizView(summary) {
   const categories = getCategories();
   const session = state.quizSession;
+
+  if (!hasStudyQuestions()) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Quiz Builder",
+          "Target a domain and get immediate feedback",
+          "Quiz mode is ready, but this build no longer includes placeholder questions.",
+        )}
+        ${renderQuestionBankEmptyState(
+          "Import questions before starting a quiz",
+          "Once you import your real bank, quiz mode will adapt to your own history only.",
+          "Your solo quiz attempts still sync to the shared server, but no other user's accuracy will change your personal quiz selection.",
+        )}
+      </section>
+    `;
+  }
 
   if (!session) {
     return `
@@ -1884,6 +1979,23 @@ function renderQuizView(summary) {
 
 function renderMockView() {
   const session = state.mockSession;
+
+  if (!hasStudyQuestions()) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Mock Exam",
+          "Timed full-board rehearsal",
+          "Mock exams will unlock as soon as you import your exam bank.",
+        )}
+        ${renderQuestionBankEmptyState(
+          "Import questions before running a mock exam",
+          "This build is set up so the final product can use only your imported exam content instead of placeholder questions.",
+          "When your real bank is loaded, mock exams will still post attempts to the shared server while adapting only to your own history.",
+        )}
+      </section>
+    `;
+  }
 
   if (!session) {
     return `
@@ -2055,6 +2167,23 @@ function renderJeopardyModeSwitch() {
 }
 
 function renderSoloJeopardyView(summary) {
+  if (!hasStudyQuestions()) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Solo Jeopardy",
+          "Adaptive practice board with escalating difficulty",
+          "Solo Jeopardy is waiting for your imported content.",
+        )}
+        ${renderQuestionBankEmptyState(
+          "Import questions before generating a solo board",
+          "The seeded sample clues are gone, so solo Jeopardy now depends entirely on your imported study bank.",
+          "Once your exam content is loaded, the board will place easier questions near $100 and harder questions near $500 based on your own personal performance history.",
+        )}
+      </section>
+    `;
+  }
+
   const answeredCount = Object.keys(state.jeopardy.answered).length;
   const weakTopics = [...summary.weakTopics].slice(0, 2).join(", ") || "No weak topics detected yet";
 
@@ -2323,7 +2452,7 @@ function renderImportView() {
         <section class="panel">
           <div class="panel__header">
             <h3>Import guide</h3>
-            <p>Imported questions stay local to this browser. Online multiplayer still uses the shared server-side live bank so every player sees the same board.</p>
+            <p>Solo study now uses imported questions only. Online multiplayer still needs a shared server-side live bank so every player sees the same board.</p>
           </div>
           <div class="insight-stack">
             <article class="insight-card">
@@ -2341,6 +2470,10 @@ function renderImportView() {
             <article class="insight-card">
               <span class="insight-card__label">Structured files</span>
               <strong>JSON arrays, CSV, or TSV with fields like category, topic, question, options, answerIndex, explanation</strong>
+            </article>
+            <article class="insight-card">
+              <span class="insight-card__label">Study bank status</span>
+              <strong>${hasStudyQuestions() ? "Questions are loaded for solo study." : "No seeded bank is included. Import your own questions to unlock solo study modes."}</strong>
             </article>
             <article class="insight-card">
               <span class="insight-card__label">Flashcard imports</span>
@@ -2763,6 +2896,53 @@ function renderLiveGame(session) {
 function renderLiveEntry() {
   const connectionClass = `import-feedback import-feedback--${state.live.error ? "error" : "info"}`;
 
+  if (!hasSharedLiveBank()) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Live Jeopardy",
+          "Host or join with a code",
+          "Online play is reserved for the shared server bank, so it stays off until your real exam set is loaded on the backend.",
+        )}
+        <div class="split-layout">
+          <section class="panel">
+            <div class="panel__header">
+              <h3>Shared live bank not loaded yet</h3>
+              <p>The placeholder questions were removed. Solo study can use imported questions in this browser, but online multiplayer needs the real shared exam bank on the server.</p>
+            </div>
+            <div class="empty-state">
+              <strong>Live Jeopardy will come back once the shared exam bank is loaded.</strong>
+              <p>When you are ready with the full set, we can wire the same real questions into the backend so every device sees the same board.</p>
+            </div>
+            <div class="question-card__actions">
+              <button type="button" class="button button--primary" data-view="import">Open Import Bank</button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel__header">
+              <h3>Current behavior</h3>
+              <p>Solo modes are import-first now, and they keep using only your own personal performance history.</p>
+            </div>
+            <div class="insight-stack">
+              <article class="insight-card">
+                <span class="insight-card__label">Solo study</span>
+                <strong>Uses imported local questions and your own answer history.</strong>
+              </article>
+              <article class="insight-card">
+                <span class="insight-card__label">Shared stats</span>
+                <strong>Solo attempts can still post to the shared server without affecting your personal solo adaptation.</strong>
+              </article>
+              <article class="insight-card">
+                <span class="insight-card__label">Live play</span>
+                <strong>Requires the final shared exam bank to be loaded on the backend.</strong>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+    `;
+  }
+
   return `
     <section class="view">
       ${renderSectionIntro(
@@ -2821,6 +3001,10 @@ function renderLiveEntry() {
 }
 
 function renderLiveView() {
+  if (!hasSharedLiveBank()) {
+    return renderLiveEntry();
+  }
+
   if (!state.live.auth || !state.live.session) {
     return renderLiveEntry();
   }
@@ -3186,6 +3370,6 @@ window.setInterval(() => {
 buildJeopardyBoard();
 renderApp();
 
-if (state.live.auth) {
+if (state.live.auth && hasSharedLiveBank()) {
   connectLiveSocket();
 }

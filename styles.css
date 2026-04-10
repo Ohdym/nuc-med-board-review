@@ -307,7 +307,7 @@ button {
 .nav-tab {
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 210, 79, 0.92);
   color: var(--blue);
   padding: 0.8rem 1.15rem;
   font-weight: 700;

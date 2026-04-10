@@ -115,6 +115,10 @@ def get_weighted_question_difficulty(question):
     return base_difficulty * (1 - confidence) + performance_difficulty * confidence
 
 
+def has_live_question_bank():
+    return bool(QUESTION_BANK)
+
+
 def random_code(existing_codes):
     while True:
         code = "".join(random.choice("0123456789") for _ in range(6))
@@ -142,6 +146,9 @@ def sorted_players(players):
 
 
 def choose_board_categories():
+    if not QUESTION_BANK:
+        return []
+
     counts = {}
     for question in QUESTION_BANK:
         counts[question["category"]] = counts.get(question["category"], 0) + 1
@@ -423,8 +430,14 @@ class GameSession:
         if len(self.connected_player_ids()) < 2:
             await self.send_error(player_id, "At least 2 connected players are needed to start.")
             return
+        if not has_live_question_bank():
+            await self.send_error(player_id, "No shared live question bank is loaded on the server yet.")
+            return
 
         self.categories, self.board = build_board()
+        if not self.categories or not any(tile["question"] for column in self.board for tile in column):
+            await self.send_error(player_id, "The shared live question bank does not have enough content to build a board yet.")
+            return
         self.status = "picking"
         self.last_results = []
         self.choose_next_turn()
@@ -570,6 +583,12 @@ async def json_body(request):
 
 
 async def create_game(request):
+    if not has_live_question_bank():
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "No shared live question bank is loaded on the server yet."}),
+            content_type="application/json",
+        )
+
     payload = await json_body(request)
     username = sanitize_username(payload.get("username"))
     code = random_code(SESSIONS.keys())
@@ -615,7 +634,7 @@ async def record_attempts(request):
     recorded = 0
     for attempt in attempts:
         question_id = str(attempt.get("questionId", "")).strip()
-        if question_id not in QUESTION_BY_ID:
+        if not question_id:
             continue
         correct = bool(attempt.get("correct"))
         mode = str(attempt.get("mode", "unknown")).strip() or "unknown"
