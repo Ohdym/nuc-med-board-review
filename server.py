@@ -1312,6 +1312,9 @@ async def serve_app(request):
     if candidate.exists() and candidate.is_file():
         return web.FileResponse(candidate)
 
+    if requested.lower().endswith(".pdf") or requested.startswith("Book Pdf/"):
+        raise web.HTTPNotFound(text="PDF source file was not found on this server.")
+
     return web.FileResponse(ROOT / "index.html")
 
 

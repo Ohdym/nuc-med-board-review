@@ -275,6 +275,139 @@ function formatScientificText(value) {
     });
 }
 
+const SOURCE_PDF_BOOKS = [
+  {
+    key: "earlySodee",
+    title: "Principles and Practice of Nuclear Medicine",
+    file: "Book Pdf/Principles and Practice of Nuclear Medicine (Principles & Practice of Nuclear Medicine ( Early)).pdf",
+    authorPattern: /Early and Sodee/i,
+    pageOffset: 22,
+    minPrintedPage: 3,
+    maxPrintedPage: 881,
+  },
+  {
+    key: "waterstramGilmore",
+    title: "Nuclear Medicine and PET/CT Technology and Techniques",
+    file: "Book Pdf/Kristen Waterstram-Rich (editor), David Gilmore (editor) - Nuclear Medicine and PET_CT_ Technology and Techniques (2016, Mosby) - libgen.li.pdf",
+    authorPattern: /Waterstram-Rich|Gilmore/i,
+    pageOffset: 15,
+    minPrintedPage: 1,
+    maxPrintedPage: 689,
+  },
+  {
+    key: "saha",
+    title: "Physics and Radiobiology of Nuclear Medicine",
+    file: "Book Pdf/Gopal B. Saha (auth.) - Physics and Radiobiology of Nuclear Medicine (2013, Springer) [10.1007_978-1-4614-4012-3] - libgen.li (1).pdf",
+    authorPattern: /Saha/i,
+    pageSegments: [
+      [1, 45, 15],
+      [47, 61, 14],
+      [63, 77, 13],
+      [79, 151, 12],
+      [153, 201, 11],
+      [203, 241, 10],
+      [243, 261, 9],
+      [263, 299, 8],
+      [301, 341, 7],
+      [343, 356, 6],
+    ],
+  },
+  {
+    key: "shackett",
+    title: "Nuclear Medicine Technology: Procedures and Quick Reference",
+    file: "Book Pdf/Pete Shackett - Nuclear medicine technology _ procedures and quick reference (2020) - libgen.li.pdf",
+    authorPattern: /Shackett/i,
+    pageOffset: 0,
+    minPrintedPage: 1,
+    maxPrintedPage: 745,
+  },
+  {
+    key: "adlerCarlton",
+    title: "Introduction to Radiologic Sciences and Patient Care",
+    file: "Book Pdf/Introduction to Radiologic Sciences and Patient Care Adler MEd RT(R) FAEIRS, Arlene M., Carlton.pdf",
+    authorPattern: /Adler|Carlton/i,
+    pageOffset: 16,
+    minPrintedPage: 1,
+    maxPrintedPage: 515,
+  },
+];
+
+const SOURCE_CITATION_PATTERN =
+  /(Early and Sodee|Waterstram-Rich\s*(?:and|&)\s*Gilmore(?:,\s*et al\.)?|Christian and Waterstram-Rich|Saha|Shackett|Adler and Carlton)[^.;]*?(?:;|,)?\s*pp?\.?\s*(\d+)(?:\s*[-–]\s*(\d+))?/gi;
+
+function getBookForCitation(authorText) {
+  return SOURCE_PDF_BOOKS.find((book) => book.authorPattern.test(authorText)) || null;
+}
+
+function getPdfPageForPrintedPage(book, printedPage) {
+  if (!book || !Number.isFinite(printedPage)) {
+    return null;
+  }
+
+  if (book.pageSegments) {
+    const segment = book.pageSegments.find(([start, end]) => printedPage >= start && printedPage <= end);
+    return segment ? printedPage + segment[2] : null;
+  }
+
+  if (printedPage < book.minPrintedPage || printedPage > book.maxPrintedPage) {
+    return null;
+  }
+  return printedPage + book.pageOffset;
+}
+
+function buildSourcePdfHref(book, printedPage) {
+  const pdfPage = getPdfPageForPrintedPage(book, printedPage);
+  if (!pdfPage) {
+    return null;
+  }
+  return {
+    href: `${encodeURI(book.file)}#page=${pdfPage}`,
+    pdfPage,
+  };
+}
+
+function buildSourcePdfHrefForRange(book, startPrintedPage, endPrintedPage) {
+  const lastPage = Number.isFinite(endPrintedPage) ? endPrintedPage : startPrintedPage;
+  for (let printedPage = startPrintedPage; printedPage <= lastPage; printedPage += 1) {
+    const link = buildSourcePdfHref(book, printedPage);
+    if (link) {
+      return {
+        ...link,
+        printedPage,
+      };
+    }
+  }
+  return null;
+}
+
+function formatTextWithSourceLinks(value) {
+  const normalized = normalizeIsotopeText(value);
+  let output = "";
+  let lastIndex = 0;
+
+  normalized.replace(SOURCE_CITATION_PATTERN, (match, authorText, pageText, endPageText, offset) => {
+    const printedPage = Number(pageText);
+    const endPrintedPage = Number(endPageText);
+    const book = getBookForCitation(authorText);
+    const link = buildSourcePdfHrefForRange(book, printedPage, endPrintedPage);
+
+    output += formatScientificText(normalized.slice(lastIndex, offset));
+    if (link) {
+      const pageLabel = endPageText ? `${pageText}-${endPageText}` : pageText;
+      output += `<a class="source-link" href="${escapeHtml(link.href)}" target="_blank" rel="noopener" title="${escapeHtml(
+        `${book.title}, printed page ${link.printedPage} from cited range ${pageLabel} (PDF page ${link.pdfPage})`,
+      )}">${formatScientificText(match)}</a>`;
+    } else {
+      output += formatScientificText(match);
+    }
+    lastIndex = offset + match.length;
+    return match;
+  });
+
+  output += formatScientificText(normalized.slice(lastIndex));
+  return output;
+}
+
 function formatPercent(value) {
   if (!Number.isFinite(value)) {
     return "0%";
@@ -2197,8 +2330,8 @@ function renderExplanationContent(entry) {
     entry && entry.id
       ? `<p><strong>Difficulty rating:</strong> ${escapeHtml(getEffectiveDifficulty(entry, summary))} / 5</p>`
       : "";
-  const explanation = entry && entry.explanation ? `<p>${formatScientificText(entry.explanation)}</p>` : "";
-  const source = entry && entry.source ? `<p><em>${formatScientificText(entry.source)}</em></p>` : "";
+  const explanation = entry && entry.explanation ? `<p>${formatTextWithSourceLinks(entry.explanation)}</p>` : "";
+  const source = entry && entry.source ? `<p><em>${formatTextWithSourceLinks(entry.source)}</em></p>` : "";
   return `${difficulty}${explanation}${source}`;
 }
 

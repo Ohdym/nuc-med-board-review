@@ -955,6 +955,20 @@ button {
   color: var(--blue);
 }
 
+.source-link {
+  color: var(--blue);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 210, 79, 0.85);
+  text-decoration-thickness: 0.16em;
+  text-underline-offset: 0.16em;
+}
+
+.source-link:hover {
+  color: var(--blue-deep);
+  background: rgba(255, 210, 79, 0.22);
+}
+
 .question-card__meta {
   display: flex;
   flex-wrap: wrap;
