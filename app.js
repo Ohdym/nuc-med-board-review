@@ -3504,7 +3504,6 @@ function renderPageHero() {
   return `
     <section class="headline headline--oregon-tech">
       <div class="headline__copy">
-        <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
         <h1>${escapeHtml(copy.title)}</h1>
         <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
         <div class="headline__highlights">
