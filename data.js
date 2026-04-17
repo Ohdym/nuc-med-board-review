@@ -4401,6 +4401,53 @@ export const QUESTION_BANK = [
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg"
   },
   {
+    "id": "exam2-099",
+    "examNumber": 2,
+    "questionNumber": 99,
+    "category": "Instrumentation & QC",
+    "topic": "Dose Calibrator QC",
+    "type": "calculation",
+    "difficulty": 1,
+    "question": "A 57Co source used to determine dose calibrator constancy was originally calibrated to contain 325.8 uCi 35 days ago. If the source is measured today, the dose calibrator reading must fall within what range of activities to meet the accepted standard?",
+    "options": [
+      "238.2-357 uCi",
+      "258.0-337.6 uCi",
+      "268.0-327.6 uCi",
+      "280.3-342.7 uCi",
+      "271.5-331.9 uCi"
+    ],
+    "answerIndex": 2,
+    "explanation": "The 35-day decay factor can be determined by multiplying the 30-day factor by the 5-day factor: 0.926 x 0.987 = 0.914. The expected activity is 325.8 uCi x 0.914 = 297.8 uCi. Dose calibrator constancy readings should be within +/-10% of the calculated value, so the acceptable range is 268.0-327.6 uCi.",
+    "source": "Source: provided retake photo IMG_1316; answer/explanation page not available in the supplied answer-photo set.",
+    "image": "assets/question-bank/exam2-q99-decay-factor-table.jpg",
+    "imageAlt": "57Co decay factor table for Exam 2 Question 99",
+    "imageCaption": "57Co decay factors used to calculate the 35-day expected activity.",
+    "sourcePhoto": "Question photos/Retake Photos/IMG_1316.jpeg",
+    "answerPhoto": ""
+  },
+  {
+    "id": "exam2-100",
+    "examNumber": 2,
+    "questionNumber": 100,
+    "category": "Instrumentation & QC",
+    "topic": "Dose Calibrator QC",
+    "type": "calculation",
+    "difficulty": 1,
+    "question": "It has been determined that a correction factor of 1.15 must be used when a 5 mL syringe containing about 25 mCi is measured in a particular dose calibrator. If a unit dosage activity reads 26.2 mCi, what is the true activity?",
+    "options": [
+      "22.7 mCi",
+      "25.1 mCi",
+      "30.1 mCi",
+      "40.1 mCi",
+      "47.4 mCi"
+    ],
+    "answerIndex": 2,
+    "explanation": "Apply the dose calibrator correction factor to the displayed activity: 26.2 mCi x 1.15 = 30.13 mCi, which rounds to 30.1 mCi.",
+    "source": "Source: provided retake photo IMG_1316; answer/explanation page not available in the supplied answer-photo set.",
+    "sourcePhoto": "Question photos/Retake Photos/IMG_1316.jpeg",
+    "answerPhoto": ""
+  },
+  {
     "id": "exam3-001",
     "examNumber": 3,
     "questionNumber": 1,

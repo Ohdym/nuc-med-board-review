@@ -125,6 +125,31 @@ button {
   gap: 0.65rem;
 }
 
+.account-corner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.account-corner__user {
+  min-height: 34px;
+  border: 1px solid rgba(0, 55, 103, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--blue-deep);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.86rem;
+  font-weight: 900;
+  box-shadow: 0 10px 20px rgba(0, 29, 56, 0.08);
+}
+
+.account-corner__user:hover {
+  border-color: rgba(0, 55, 103, 0.34);
+  background: rgba(255, 210, 79, 0.28);
+}
+
 .top-login {
   display: flex;
   flex-wrap: wrap;
@@ -1631,6 +1656,10 @@ button {
   .topbar,
   .headline {
     margin-bottom: 0.6rem;
+  }
+
+  .account-corner {
+    margin-bottom: 0.45rem;
   }
 
   .shell--login {

@@ -3171,6 +3171,21 @@ function renderTopbarLogin() {
   `;
 }
 
+function renderAccountCorner() {
+  if (!state.account.auth) {
+    return "";
+  }
+
+  return `
+    <aside class="account-corner" aria-label="Signed-in account controls">
+      <button type="button" class="account-corner__user" data-view="profile">
+        ${escapeHtml(state.account.auth.displayName || state.account.auth.username)}
+      </button>
+      <button type="button" class="button button--tiny button--ghost" data-action="account-logout">Sign out</button>
+    </aside>
+  `;
+}
+
 function getPrimaryNavItems() {
   return [
     ["dashboard", "Dashboard"],
@@ -3302,7 +3317,6 @@ function renderAppChrome(summary) {
         </div>
       </div>
       <div class="topbar__right">
-        ${renderTopbarLogin()}
         <div class="topbar__meta">
           <article class="status-chip">
             <span>Readiness</span>
@@ -4690,6 +4704,7 @@ function renderApp() {
 
   app.innerHTML = `
     <div class="shell">
+      ${renderAccountCorner()}
       ${renderAppChrome(summary)}
       ${renderPrimaryNav()}
       ${renderPageHero()}
