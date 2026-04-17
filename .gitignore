@@ -8,3 +8,17 @@ user_credentials.json
 .bin/
 .tmp_ocr/
 Question photos/
+Book Pdf/
+
+# Local transcription/import working files. Keep these off GitHub unless they
+# are intentionally cleaned up and reviewed for publication.
+answer-transcription-audit-report.md
+question-bank-cleanup-report.md
+question-bank-retake-report.md
+question-bank-spelling-isotope-audit.md
+question-bank-text-only-audit-report.md
+question-bank-validation-report.md
+scripts/audit_seed_bank_quality.py
+scripts/build_seed_bank.py
+scripts/vision_ocr.m
+assets/question-bank/exam1-q05-lung-perfusion.png
