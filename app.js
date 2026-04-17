@@ -537,11 +537,11 @@ function sortStatEntries(statMap, limit = 5, direction = "weak") {
 }
 
 function isInstructor() {
-  return Boolean(state.account.auth && state.account.auth.role === "instructor");
+  return Boolean(hasAccountSession() && state.account.auth.role === "instructor");
 }
 
 function getSignedInLiveName() {
-  return state.account.auth ? state.account.auth.displayName || state.account.auth.username : "";
+  return hasAccountSession() ? state.account.auth.displayName || state.account.auth.username : "";
 }
 
 function getPreferredLiveUsername() {
@@ -1696,11 +1696,15 @@ function setLiveMessage(tone, message) {
 }
 
 function persistAccountAuth() {
-  if (state.account.auth) {
+  if (hasAccountSession()) {
     saveJSON(STORAGE_KEYS.accountAuth, state.account.auth);
     return;
   }
   localStorage.removeItem(STORAGE_KEYS.accountAuth);
+}
+
+function hasAccountSession() {
+  return Boolean(state.account.auth && state.account.auth.token);
 }
 
 function setAccountMessage(tone, message) {
@@ -1817,6 +1821,11 @@ async function logoutAccount() {
 
 async function restoreAccountSession() {
   if (!state.account.auth || !state.account.auth.token) {
+    if (state.account.auth) {
+      state.account.auth = null;
+      persistAccountAuth();
+      renderApp();
+    }
     return;
   }
 
@@ -3140,7 +3149,7 @@ function renderAccountView() {
 }
 
 function renderTopbarLogin() {
-  if (state.account.auth) {
+  if (hasAccountSession()) {
     return `
       <section class="top-login top-login--signed-in">
         <button type="button" class="top-login__user-link" data-view="profile">
@@ -3172,7 +3181,7 @@ function renderTopbarLogin() {
 }
 
 function renderAccountCorner() {
-  if (!state.account.auth) {
+  if (!hasAccountSession()) {
     return "";
   }
 
@@ -4681,7 +4690,7 @@ function renderLiveView() {
 function renderApp() {
   const summary = computePerformanceSummary();
 
-  if (!state.account.auth) {
+  if (!hasAccountSession()) {
     app.innerHTML = `
       <div class="shell shell--login">
         ${renderLoginGate()}
