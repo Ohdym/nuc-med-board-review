@@ -3211,9 +3211,9 @@ function getHeroCopy(view) {
   const copyByView = {
     dashboard: {
       title: "Dashboard",
-      eyebrow: "Focused Nuclear Medicine preparation",
+      subtitle: "Your home base for Nuclear Medicine board review.",
       body:
-        "Train by registry-style content areas, close knowledge gaps with adaptive practice, and move into live recall sessions with shared Jeopardy play.",
+        "Use the dashboard to check readiness, review category progress, and decide where to study next based on your personal practice history.",
       highlights: [
         ["Progress snapshot", "See readiness, accuracy, and question-bank size at a glance"],
         ["Category overview", "Find stronger and weaker board-review domains quickly"],
@@ -3222,9 +3222,9 @@ function getHeroCopy(view) {
     },
     profile: {
       title: "Profile",
-      eyebrow: "Personal performance tracking",
+      subtitle: "Review your saved performance and live-game history.",
       body:
-        "Review question-answer performance, category trends, recent misses, saved practice history, and online Jeopardy placements tied to your account.",
+        "The profile page brings your quiz, mock exam, solo Jeopardy, and online Jeopardy results together so you can track patterns over time.",
       highlights: [
         ["Personal stats", "See accuracy by mode, category, and recent attempts"],
         ["Saved history", "Signed-in practice follows your account across devices"],
@@ -3233,9 +3233,9 @@ function getHeroCopy(view) {
     },
     instructor: {
       title: "Instructor View",
-      eyebrow: "Class performance dashboard",
+      subtitle: "Monitor class performance and individual student progress.",
       body:
-        "Monitor roster-wide success rates, identify weak content areas, compare performance by mode, and drill into individual student answer history.",
+        "Instructor View summarizes roster-wide success rates, weak content areas, and individual answer histories for signed-in users.",
       highlights: [
         ["Class trends", "Compare performance across board-style categories"],
         ["Student drilldown", "Select a learner to review individual history"],
@@ -3244,9 +3244,9 @@ function getHeroCopy(view) {
     },
     bank: {
       title: "Question Bank",
-      eyebrow: "Shared registry-style question library",
+      subtitle: "Browse, filter, and maintain the shared review question set.",
       body:
-        "Browse questions by exam, question number, source, category, and topic. Instructor accounts can edit question text, answers, explanations, and source details.",
+        "The question bank lets you inspect exam questions by exam number, question number, source, and category. Instructor accounts can edit and save question text.",
       highlights: [
         ["Full review bank", "Search stems, options, explanations, topics, and sources"],
         ["Exam filters", "Jump by exam number or specific question number"],
@@ -3255,9 +3255,9 @@ function getHeroCopy(view) {
     },
     quiz: {
       title: "Quiz",
-      eyebrow: "Targeted untimed active recall",
+      subtitle: "Fast untimed active recall in small question sets.",
       body:
-        "Choose a category and a 5, 10, 15, 20, or 25-question set. Solo quiz selection adapts to your personal history while explanations reinforce missed concepts.",
+        "Quiz mode is best for focused practice. Choose a category and a short untimed set, answer one question at a time, and use explanations immediately.",
       highlights: [
         ["Untimed sets", "Choose 5, 10, 15, 20, or 25 questions"],
         ["Personal adaptive mode", "Solo question selection follows your own answer history"],
@@ -3266,9 +3266,9 @@ function getHeroCopy(view) {
     },
     mock: {
       title: "Mock Exam",
-      eyebrow: "Timed board-style exam rehearsal",
+      subtitle: "Timed board-style exam rehearsal.",
       body:
-        "Build exam stamina with 60-question, 120-question, or 220-question timed sessions, then review explanations and performance patterns after submission.",
+        "Mock Exam mode creates a longer timed session for exam pacing, endurance, and post-test review across Nuclear Medicine registry categories.",
       highlights: [
         ["Timed formats", "Choose 60, 120, or 220 questions"],
         ["Exam pacing", "Practice with 1-hour, 2-hour, or 4-hour timing"],
@@ -3277,9 +3277,9 @@ function getHeroCopy(view) {
     },
     jeopardy: {
       title: "Jeopardy",
-      eyebrow: "Solo or online board-review recall game",
+      subtitle: "Solo or online board-review recall game.",
       body:
-        "Generate active-recall boards from registry categories. Solo boards adapt to your own history, while online games use join codes, live turns, and shared performance weighting.",
+        "Jeopardy turns board categories into an active recall game. Solo boards adapt to your personal history, while online boards use shared performance and live multiplayer turns.",
       highlights: [
         ["Solo practice", "Generate an adaptive board for independent review"],
         ["Online play", "Host or join with a code and compete from multiple devices"],
@@ -3351,9 +3351,9 @@ function renderPageHero() {
   return `
     <section class="headline headline--oregon-tech">
       <div class="headline__copy">
-        <span class="headline__eyebrow">${escapeHtml(copy.eyebrow)}</span>
+        <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
         <h1>${escapeHtml(copy.title)}</h1>
-        <p>${escapeHtml(copy.body)}</p>
+        <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
         <div class="headline__highlights">
           ${copy.highlights
             .map(
@@ -3376,7 +3376,7 @@ function renderLoginGate() {
     <main class="login-gate">
       <section class="login-card">
         <div class="login-card__header">
-          <span class="headline__eyebrow">Registry Review Workspace</span>
+          <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
           <h1>Nuclear Medicine Boards Review</h1>
           <p>Sign in to access quizzes, mock exams, the question bank, profile stats, and live Jeopardy review.</p>
         </div>
