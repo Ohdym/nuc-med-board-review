@@ -3533,7 +3533,6 @@ function renderLoginGate() {
     <main class="login-gate">
       <section class="login-card">
         <div class="login-card__header">
-          <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
           <h1>Nuclear Medicine Boards Review</h1>
           <p>${isCheckingSession ? "Verifying your saved login before opening the review workspace." : "Sign in to access quizzes, mock exams, the question bank, profile stats, and live Jeopardy review."}</p>
         </div>
