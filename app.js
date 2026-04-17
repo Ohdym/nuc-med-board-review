@@ -413,6 +413,21 @@ function groupAttempts(entries, key) {
   return map;
 }
 
+function getQuestionStats(question, summary) {
+  return summary && summary.questionMap ? summary.questionMap[question.id] : null;
+}
+
+function getEffectiveDifficulty(question, summary, rounded = true) {
+  const stats = getQuestionStats(question, summary);
+  if (!stats || !stats.attempts) {
+    return 1;
+  }
+
+  const rawDifficulty = 1 + stats.missRate * 4;
+  const difficulty = rounded ? Math.round(rawDifficulty) : rawDifficulty;
+  return clamp(difficulty, 1, 5);
+}
+
 function getWeakSet(map) {
   return new Set(
     Object.entries(map)
@@ -436,6 +451,7 @@ function computePerformanceSummary() {
   const categoryMap = groupAttempts(state.performance, "category");
   const topicMap = groupAttempts(state.performance, "topic");
   const typeMap = groupAttempts(state.performance, "type");
+  const questionMap = groupAttempts(state.performance, "questionId");
   const weakCategories = getWeakSet(categoryMap);
   const weakTopics = getWeakSet(topicMap);
   const weakTypes = getWeakSet(typeMap);
@@ -457,6 +473,7 @@ function computePerformanceSummary() {
     categoryMap,
     topicMap,
     typeMap,
+    questionMap,
     weakCategories,
     weakTopics,
     weakTypes,
@@ -540,12 +557,8 @@ function syncLiveNameToAccount() {
   persistLiveProfile();
 }
 
-function getQuestionWeight(question, summary, adaptive) {
+function getQuestionWeight(question, summary) {
   let weight = 1;
-
-  if (!adaptive) {
-    return weight;
-  }
 
   const categoryMissRate = summary.categoryMap[question.category]
     ? summary.categoryMap[question.category].missRate
@@ -575,7 +588,7 @@ function getQuestionWeight(question, summary, adaptive) {
 }
 
 function pickWeightedQuestion(pool, summary, options = {}) {
-  const { adaptive = true, targetDifficulty = null, allowUsedIds = new Set() } = options;
+  const { targetDifficulty = null, allowUsedIds = new Set() } = options;
   const eligible = pool.filter((question) => !allowUsedIds.has(question.id));
 
   if (!eligible.length) {
@@ -583,16 +596,17 @@ function pickWeightedQuestion(pool, summary, options = {}) {
   }
 
   const scored = eligible.map((question) => {
-    let weight = getQuestionWeight(question, summary, adaptive);
+    let weight = getQuestionWeight(question, summary);
 
     if (targetDifficulty !== null) {
-      const difficultyGap = Math.abs(question.difficulty - targetDifficulty);
+      const effectiveDifficulty = getEffectiveDifficulty(question, summary, false);
+      const difficultyGap = Math.abs(effectiveDifficulty - targetDifficulty);
       weight += Math.max(0, 3 - difficultyGap) * 1.4;
       if (
         (summary.weakCategories.has(question.category) ||
           summary.weakTopics.has(question.topic) ||
           summary.weakTypes.has(question.type)) &&
-        question.difficulty >= targetDifficulty
+        effectiveDifficulty >= targetDifficulty
       ) {
         weight += 1.2;
       }
@@ -614,13 +628,13 @@ function pickWeightedQuestion(pool, summary, options = {}) {
   return scored[scored.length - 1].question;
 }
 
-function selectQuestions(pool, count, summary, adaptive) {
+function selectQuestions(pool, count, summary) {
   const selected = [];
   const usedIds = new Set();
   const maxCount = Math.min(count, pool.length);
 
   while (selected.length < maxCount) {
-    const question = pickWeightedQuestion(pool, summary, { adaptive, allowUsedIds: usedIds });
+    const question = pickWeightedQuestion(pool, summary, { allowUsedIds: usedIds });
     if (!question) {
       break;
     }
@@ -631,7 +645,7 @@ function selectQuestions(pool, count, summary, adaptive) {
   return selected;
 }
 
-function buildMockExamQuestions(count, summary, adaptive) {
+function buildMockExamQuestions(count, summary) {
   const categories = [...new Set(getAllQuestions().map((question) => question.category))];
   const buckets = new Map();
 
@@ -654,7 +668,7 @@ function buildMockExamQuestions(count, summary, adaptive) {
       : [];
     const overallPool = getAllQuestions().filter((question) => !usedIds.has(question.id));
     const pool = categoryPool.length ? categoryPool : overallPool;
-    const question = pickWeightedQuestion(pool, summary, { adaptive, allowUsedIds: usedIds });
+    const question = pickWeightedQuestion(pool, summary, { allowUsedIds: usedIds });
 
     if (!question) {
       break;
@@ -674,12 +688,13 @@ function recordAttempt(question, correct, mode) {
 }
 
 function savePersonalAttempt(question, correct, mode) {
+  const summary = computePerformanceSummary();
   const attempt = {
     questionId: question.id,
     category: question.category,
     topic: question.topic,
     type: question.type,
-    difficulty: question.difficulty,
+    difficulty: getEffectiveDifficulty(question, summary),
     mode,
     correct,
     timestamp: Date.now(),
@@ -690,6 +705,7 @@ function savePersonalAttempt(question, correct, mode) {
 }
 
 function reportSharedAttempt(question, correct, mode) {
+  const summary = computePerformanceSummary();
   const headers = {
     "Content-Type": "application/json",
   };
@@ -708,7 +724,7 @@ function reportSharedAttempt(question, correct, mode) {
           category: question.category,
           topic: question.topic,
           type: question.type,
-          difficulty: question.difficulty,
+          difficulty: getEffectiveDifficulty(question, summary),
           correct,
           mode,
           timestamp: Date.now(),
@@ -727,7 +743,7 @@ function startQuiz() {
     state.quizConfig.category === "all"
       ? getAllQuestions()
       : getAllQuestions().filter((question) => question.category === state.quizConfig.category);
-  const questions = selectQuestions(pool, state.quizConfig.count, summary, state.quizConfig.adaptive);
+  const questions = selectQuestions(pool, state.quizConfig.count, summary);
 
   if (!questions.length) {
     state.quizSession = null;
@@ -750,11 +766,7 @@ function startMock() {
     MOCK_EXAM_OPTIONS.find((option) => option.count === state.mockConfig.count) || MOCK_EXAM_OPTIONS[0];
   state.mockConfig.count = selectedFormat.count;
   state.mockConfig.durationMinutes = selectedFormat.durationMinutes;
-  const questions = buildMockExamQuestions(
-    selectedFormat.count,
-    summary,
-    state.mockConfig.adaptive,
-  );
+  const questions = buildMockExamQuestions(selectedFormat.count, summary);
 
   if (!questions.length) {
     state.mockSession = null;
@@ -893,7 +905,6 @@ function buildJeopardyBoard() {
       const targetDifficulty = valueIndex + 1;
       const categoryPool = getAllQuestions().filter((question) => question.category === category);
       const question = pickWeightedQuestion(categoryPool, summary, {
-        adaptive: true,
         allowUsedIds: usedIds,
         targetDifficulty,
       });
@@ -2172,9 +2183,10 @@ function renderQuestionBankEmptyState(title, body, detail) {
 }
 
 function renderExplanationContent(entry) {
+  const summary = computePerformanceSummary();
   const difficulty =
-    entry && entry.difficulty
-      ? `<p><strong>Difficulty rating:</strong> ${escapeHtml(entry.difficulty)} / 5</p>`
+    entry && entry.id
+      ? `<p><strong>Difficulty rating:</strong> ${escapeHtml(getEffectiveDifficulty(entry, summary))} / 5</p>`
       : "";
   const explanation = entry && entry.explanation ? `<p>${formatScientificText(entry.explanation)}</p>` : "";
   const source = entry && entry.source ? `<p><em>${formatScientificText(entry.source)}</em></p>` : "";
@@ -2251,12 +2263,6 @@ function renderQuestionBankEditor(question) {
           <span>Type</span>
           <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="type" type="text" value="${escapeHtml(
             getQuestionBankEditValue(question, "type"),
-          )}" />
-        </label>
-        <label class="bank-edit-field">
-          <span>Difficulty</span>
-          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="difficulty" type="number" min="1" max="5" value="${escapeHtml(
-            getQuestionBankEditValue(question, "difficulty"),
           )}" />
         </label>
       </div>
@@ -3516,12 +3522,6 @@ function renderQuizView(summary) {
                   .join("")}
               </select>
             </label>
-            <label class="field field--toggle">
-              <span>Adaptive focus</span>
-              <button type="button" class="toggle ${state.quizConfig.adaptive ? "is-on" : ""}" data-action="toggle-quiz-adaptive">
-                ${state.quizConfig.adaptive ? "On" : "Off"}
-              </button>
-            </label>
           </div>
           <div class="panel__footer">
             <p>Current weak topic: <strong>${escapeHtml(summary.weakestTopic || "None yet")}</strong></p>
@@ -3568,7 +3568,7 @@ function renderQuizView(summary) {
       )}
       <div class="progress-row">
         <span>Question ${session.index + 1} of ${session.questions.length}</span>
-        <span>${state.quizConfig.adaptive ? "Adaptive weighting active" : "Standard random draw"}</span>
+        <span>Adaptive weighting active</span>
       </div>
       <article class="question-card question-card--practice">
         <div class="question-card__meta">
@@ -3673,12 +3673,6 @@ function renderMockView() {
                   )
                   .join("")}
               </select>
-            </label>
-            <label class="field field--toggle">
-              <span>Adaptive weighting</span>
-              <button type="button" class="toggle ${state.mockConfig.adaptive ? "is-on" : ""}" data-action="toggle-mock-adaptive">
-                ${state.mockConfig.adaptive ? "On" : "Off"}
-              </button>
             </label>
           </div>
           <div class="panel__footer">
@@ -4749,14 +4743,6 @@ app.addEventListener("click", (event) => {
 
   if (action === "set-live-page") {
     state.live.page = button.dataset.page === "leaderboard" ? "leaderboard" : "board";
-  }
-
-  if (action === "toggle-quiz-adaptive") {
-    state.quizConfig.adaptive = !state.quizConfig.adaptive;
-  }
-
-  if (action === "toggle-mock-adaptive") {
-    state.mockConfig.adaptive = !state.mockConfig.adaptive;
   }
 
   if (action === "start-quiz") {

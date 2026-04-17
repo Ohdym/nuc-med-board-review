@@ -321,7 +321,7 @@ def normalize_attempt_entry(attempt):
         "category": str(attempt.get("category") or question.get("category") or "Unknown"),
         "topic": str(attempt.get("topic") or question.get("topic") or "Unknown"),
         "type": str(attempt.get("type") or question.get("type") or "unknown"),
-        "difficulty": int(attempt.get("difficulty") or question.get("difficulty") or 1),
+        "difficulty": int(attempt.get("difficulty") or 1),
         "mode": str(attempt.get("mode", "unknown")).strip() or "unknown",
         "correct": bool(attempt.get("correct")),
         "timestamp": int(attempt.get("timestamp") or time.time() * 1000),
@@ -511,7 +511,7 @@ def public_attempt(attempt):
         "category": attempt.get("category") or question.get("category") or "Unknown",
         "topic": attempt.get("topic") or question.get("topic") or "Unknown",
         "type": attempt.get("type") or question.get("type") or "unknown",
-        "difficulty": attempt.get("difficulty") or question.get("difficulty") or 1,
+        "difficulty": attempt.get("difficulty") or 1,
         "mode": attempt.get("mode") or "unknown",
         "correct": bool(attempt.get("correct")),
         "timestamp": attempt.get("timestamp") or 0,
@@ -596,10 +596,9 @@ def build_instructor_stats():
 
 def get_weighted_question_difficulty(question):
     bucket = ATTEMPT_STORE["questions"].get(question["id"])
-    base_difficulty = float(question["difficulty"])
 
     if not bucket or not bucket.get("users"):
-        return base_difficulty
+        return 1
 
     user_accuracies = [
         user_stats["correct"] / user_stats["attempts"]
@@ -607,13 +606,10 @@ def get_weighted_question_difficulty(question):
         if user_stats["attempts"]
     ]
     if not user_accuracies:
-        return base_difficulty
+        return 1
 
     average_accuracy = sum(user_accuracies) / len(user_accuracies)
-    performance_difficulty = 1 + (1 - average_accuracy) * 4
-    confidence = min(1, len(user_accuracies) / 6)
-
-    return base_difficulty * (1 - confidence) + performance_difficulty * confidence
+    return 1 + (1 - average_accuracy) * 4
 
 
 def has_live_question_bank():
@@ -873,7 +869,7 @@ class GameSession:
                 "category": self.active_question["question"]["category"],
                 "topic": self.active_question["question"]["topic"],
                 "type": self.active_question["question"]["type"],
-                "difficulty": self.active_question["question"]["difficulty"],
+                "difficulty": round(get_weighted_question_difficulty(self.active_question["question"])),
                 "question": self.active_question["question"]["question"],
                 "image": self.active_question["question"].get("image"),
                 "imageAlt": self.active_question["question"].get("imageAlt"),
