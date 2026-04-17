@@ -2,4 +2,9 @@ __pycache__/
 *.pyc
 .DS_Store
 .shared_attempts.json
+.users.json
+.user_passwords.csv
+user_credentials.json
 .bin/
+.tmp_ocr/
+Question photos/

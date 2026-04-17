@@ -3,13 +3,60 @@ import { CATEGORY_CONFIG, IMPORT_TEMPLATE, QUESTION_BANK } from "./data.js";
 const STORAGE_KEYS = {
   importedQuestions: "nmb-review-imported-questions",
   importedFlashcards: "nmb-review-imported-flashcards",
+  questionEdits: "nmb-review-question-edits",
   performance: "nmb-review-performance",
   liveProfile: "nmb-review-live-profile",
   liveAuth: "nmb-review-live-auth",
   sharedUserId: "nmb-review-shared-user-id",
+  accountAuth: "nmb-review-account-auth",
 };
 
 const BOARD_VALUES = [100, 200, 300, 400, 500];
+const MOCK_EXAM_OPTIONS = [
+  { count: 60, durationMinutes: 60, label: "60 questions • 1 hour" },
+  { count: 120, durationMinutes: 120, label: "120 questions • 2 hours" },
+  { count: 220, durationMinutes: 240, label: "220 questions • 4 hours" },
+];
+const SEEDED_QUESTION_IDS = new Set(QUESTION_BANK.map((question) => question.id));
+const ISOTOPE_MASSES_BY_SYMBOL = {
+  Ac: ["225", "227"],
+  At: ["211"],
+  Ba: ["133"],
+  Bi: ["213"],
+  C: ["11", "14"],
+  Co: ["57", "60"],
+  Cr: ["51"],
+  Cs: ["137"],
+  Cu: ["62", "64", "67"],
+  F: ["18"],
+  Ga: ["67", "68"],
+  Gd: ["153"],
+  Ge: ["68"],
+  I: ["123", "124", "125", "131"],
+  In: ["111"],
+  Ir: ["192"],
+  Kr: ["81m", "85"],
+  Lu: ["177"],
+  Mo: ["99"],
+  N: ["13"],
+  O: ["15"],
+  P: ["32"],
+  Ra: ["223"],
+  Rb: ["82"],
+  Re: ["186", "188"],
+  Se: ["75"],
+  Sm: ["153"],
+  Sr: ["89"],
+  Tc: ["99", "99m"],
+  Tl: ["201"],
+  W: ["188"],
+  Xe: ["127", "133"],
+  Y: ["90"],
+  Zr: ["89"],
+};
+const ISOTOPE_SYMBOL_PATTERN = Object.keys(ISOTOPE_MASSES_BY_SYMBOL)
+  .sort((first, second) => second.length - first.length)
+  .join("|");
 
 const app = document.querySelector("#app");
 
@@ -32,7 +79,24 @@ const state = {
   sharedUserId: loadSharedUserId(),
   importedQuestions: loadJSON(STORAGE_KEYS.importedQuestions, []),
   importedFlashcards: loadJSON(STORAGE_KEYS.importedFlashcards, []),
+  questionEdits: loadJSON(STORAGE_KEYS.questionEdits, {}),
   performance: loadJSON(STORAGE_KEYS.performance, []),
+  account: {
+    auth: loadJSON(STORAGE_KEYS.accountAuth, null),
+    username: "",
+    password: "",
+    busy: false,
+    message: "Sign in to save and review your quiz history across devices.",
+    tone: "info",
+    placements: [],
+  },
+  instructor: {
+    data: null,
+    selectedUser: "all",
+    loading: false,
+    message: "Instructor metrics load after an instructor signs in.",
+    tone: "info",
+  },
   quizConfig: {
     category: "all",
     count: 10,
@@ -40,8 +104,8 @@ const state = {
   },
   quizSession: null,
   mockConfig: {
-    count: 25,
-    durationMinutes: 32,
+    count: 60,
+    durationMinutes: 60,
     adaptive: true,
   },
   mockSession: null,
@@ -60,6 +124,18 @@ const state = {
     currentIndex: 0,
     showingBack: false,
   },
+  questionBank: {
+    category: "all",
+    exam: "all",
+    question: "all",
+    source: "all",
+    search: "",
+    hasUnsavedChanges: false,
+    feedback: {
+      tone: "info",
+      message: "Edit question text directly in the bank, then press Save Changes to keep your updates on this device.",
+    },
+  },
   live: {
     username: loadJSON(STORAGE_KEYS.liveProfile, { username: "" }).username || "",
     joinCode: "",
@@ -69,6 +145,7 @@ const state = {
     answerIndex: null,
     lastQuestionKey: null,
     lastRecordedRevealKey: null,
+    lastProfileRefreshCode: null,
     connectionStatus: "idle",
     error: "",
     info: "Host a live multiplayer board with a join code and rotating chooser turns.",
@@ -152,6 +229,52 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function normalizeIsotopeText(value) {
+  return String(value === undefined || value === null ? "" : value)
+    .replace(/\b13lI\b/g, "131I")
+    .replace(/\bI-13l\b/g, "I-131")
+    .replace(/\b1l1In\b/g, "111In");
+}
+
+function isKnownIsotope(symbol, massNumber) {
+  const knownMasses = ISOTOPE_MASSES_BY_SYMBOL[symbol];
+  return Boolean(knownMasses && knownMasses.includes(String(massNumber).toLowerCase()));
+}
+
+function renderIsotope(openBracket, massNumber, symbol, closeBracket) {
+  return `${openBracket || ""}<sup>${massNumber}</sup>${symbol}${closeBracket || ""}`;
+}
+
+function formatScientificText(value) {
+  const escaped = escapeHtml(normalizeIsotopeText(value));
+  const massFirstPattern = new RegExp(
+    `(\\[?)(\\d{1,3}m?)\\s*[- ]?\\s*(${ISOTOPE_SYMBOL_PATTERN})(\\]?)(?![a-z])`,
+    "g"
+  );
+  const symbolFirstPattern = new RegExp(
+    `(\\[?)\\b(${ISOTOPE_SYMBOL_PATTERN})\\s*[- ]\\s*(\\d{1,3}m?)(\\]?)`,
+    "g"
+  );
+
+  return escaped
+    .replace(symbolFirstPattern, (match, openBracket, symbol, massNumber, closeBracket) => {
+      if (!isKnownIsotope(symbol, massNumber)) {
+        return match;
+      }
+      return renderIsotope(openBracket, massNumber, symbol, closeBracket);
+    })
+    .replace(massFirstPattern, (match, openBracket, massNumber, symbol, closeBracket, offset, fullText) => {
+      const previous = fullText[offset - 1] || "";
+      if (!openBracket && /[A-Za-z0-9]/.test(previous)) {
+        return match;
+      }
+      if (!isKnownIsotope(symbol, massNumber)) {
+        return match;
+      }
+      return renderIsotope(openBracket, massNumber, symbol, closeBracket);
+    });
+}
+
 function formatPercent(value) {
   if (!Number.isFinite(value)) {
     return "0%";
@@ -179,8 +302,21 @@ function uniqueById(questions) {
   });
 }
 
+function applyQuestionEdits(question) {
+  const edit = state.questionEdits[question.id];
+  if (!edit) {
+    return question;
+  }
+
+  return {
+    ...question,
+    ...edit,
+    options: Array.isArray(edit.options) ? [...edit.options] : question.options,
+  };
+}
+
 function getAllQuestions() {
-  return uniqueById([...QUESTION_BANK, ...state.importedQuestions]);
+  return uniqueById([...QUESTION_BANK, ...state.importedQuestions]).map((question) => applyQuestionEdits(question));
 }
 
 function hasStudyQuestions() {
@@ -189,6 +325,37 @@ function hasStudyQuestions() {
 
 function hasSharedLiveBank() {
   return QUESTION_BANK.length > 0;
+}
+
+function getQuestionOrigin(question) {
+  return SEEDED_QUESTION_IDS.has(question.id) ? "shared" : "imported";
+}
+
+function getQuestionExamInfo(question) {
+  const explicitExam = Number(question.examNumber);
+  const explicitQuestion = Number(question.questionNumber);
+
+  if (Number.isFinite(explicitExam) && Number.isFinite(explicitQuestion)) {
+    return { examNumber: explicitExam, questionNumber: explicitQuestion };
+  }
+
+  const idMatch = String(question.id || "").match(/^exam(\d+)-0*(\d+)$/i);
+  if (!idMatch) {
+    return { examNumber: null, questionNumber: null };
+  }
+
+  return {
+    examNumber: Number(idMatch[1]),
+    questionNumber: Number(idMatch[2]),
+  };
+}
+
+function formatQuestionBankLabel(question) {
+  const { examNumber, questionNumber } = getQuestionExamInfo(question);
+  if (!examNumber || !questionNumber) {
+    return "Unlabeled question";
+  }
+  return `Exam ${examNumber} • Question ${questionNumber}`;
 }
 
 function getAllFlashcards() {
@@ -296,6 +463,81 @@ function computePerformanceSummary() {
     weakestCategory,
     weakestTopic,
   };
+}
+
+function getPlacementSummary(placements = state.account.placements) {
+  const safePlacements = Array.isArray(placements) ? placements : [];
+  const podiumCounts = safePlacements.reduce(
+    (counts, placement) => {
+      if (placement.placement === 1) {
+        counts.first += 1;
+      }
+      if (placement.placement === 2) {
+        counts.second += 1;
+      }
+      if (placement.placement === 3) {
+        counts.third += 1;
+      }
+      return counts;
+    },
+    { first: 0, second: 0, third: 0 },
+  );
+  const bestPlacement = safePlacements.reduce(
+    (best, placement) =>
+      best === null || Number(placement.placement) < Number(best.placement) ? placement : best,
+    null,
+  );
+  const bestScore = safePlacements.reduce(
+    (best, placement) => Math.max(best, Number(placement.score) || 0),
+    0,
+  );
+  const recent = [...safePlacements].sort((first, second) => {
+    return Number(second.finishedAt || 0) - Number(first.finishedAt || 0);
+  });
+
+  return {
+    gamesPlayed: safePlacements.length,
+    podiumCounts,
+    bestPlacement,
+    bestScore,
+    recent,
+  };
+}
+
+function sortStatEntries(statMap, limit = 5, direction = "weak") {
+  return Object.entries(statMap)
+    .sort((first, second) => {
+      const accuracyDelta =
+        direction === "strong"
+          ? second[1].accuracy - first[1].accuracy
+          : first[1].accuracy - second[1].accuracy;
+      if (accuracyDelta !== 0) {
+        return accuracyDelta;
+      }
+      return second[1].attempts - first[1].attempts;
+    })
+    .slice(0, limit);
+}
+
+function isInstructor() {
+  return Boolean(state.account.auth && state.account.auth.role === "instructor");
+}
+
+function getSignedInLiveName() {
+  return state.account.auth ? state.account.auth.username : "";
+}
+
+function getPreferredLiveUsername() {
+  return getSignedInLiveName() || state.live.username.trim();
+}
+
+function syncLiveNameToAccount() {
+  const signedInName = getSignedInLiveName();
+  if (!signedInName) {
+    return;
+  }
+  state.live.username = signedInName;
+  persistLiveProfile();
 }
 
 function getQuestionWeight(question, summary, adaptive) {
@@ -432,7 +674,7 @@ function recordAttempt(question, correct, mode) {
 }
 
 function savePersonalAttempt(question, correct, mode) {
-  state.performance.push({
+  const attempt = {
     questionId: question.id,
     category: question.category,
     topic: question.topic,
@@ -441,23 +683,35 @@ function savePersonalAttempt(question, correct, mode) {
     mode,
     correct,
     timestamp: Date.now(),
-  });
+  };
+  state.performance.push(attempt);
   saveJSON(STORAGE_KEYS.performance, state.performance);
+  return attempt;
 }
 
 function reportSharedAttempt(question, correct, mode) {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  if (state.account.auth && state.account.auth.token) {
+    headers.Authorization = `Bearer ${state.account.auth.token}`;
+  }
+
   fetch(getLiveServerHttpUrl("/api/attempts"), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
-      userId: state.sharedUserId,
+      userId: state.account.auth ? state.account.auth.username : state.sharedUserId,
       attempts: [
         {
           questionId: question.id,
+          category: question.category,
+          topic: question.topic,
+          type: question.type,
+          difficulty: question.difficulty,
           correct,
           mode,
+          timestamp: Date.now(),
         },
       ],
     }),
@@ -492,8 +746,12 @@ function startQuiz() {
 
 function startMock() {
   const summary = computePerformanceSummary();
+  const selectedFormat =
+    MOCK_EXAM_OPTIONS.find((option) => option.count === state.mockConfig.count) || MOCK_EXAM_OPTIONS[0];
+  state.mockConfig.count = selectedFormat.count;
+  state.mockConfig.durationMinutes = selectedFormat.durationMinutes;
   const questions = buildMockExamQuestions(
-    state.mockConfig.count,
+    selectedFormat.count,
     summary,
     state.mockConfig.adaptive,
   );
@@ -510,7 +768,7 @@ function startMock() {
     answers: {},
     submitted: false,
     startedAt: Date.now(),
-    durationMinutes: state.mockConfig.durationMinutes,
+    durationMinutes: selectedFormat.durationMinutes,
     results: null,
   };
 
@@ -1186,12 +1444,12 @@ function renderFlashcardsView() {
                       <button type="button" class="flashcard-stage ${state.flashcards.showingBack ? "is-flipped" : ""}" data-action="flip-flashcard">
                         <div class="flashcard-stage__face flashcard-stage__face--front">
                           <span class="pill">${escapeHtml(activeCard.category)}</span>
-                          <h3>${escapeHtml(activeCard.front)}</h3>
+                          <h3>${formatScientificText(activeCard.front)}</h3>
                           <p>Tap to reveal answer</p>
                         </div>
                         <div class="flashcard-stage__face flashcard-stage__face--back">
                           <span class="pill">${escapeHtml(activeCard.topic)}</span>
-                          <h3>${escapeHtml(activeCard.back)}</h3>
+                          <h3>${formatScientificText(activeCard.back)}</h3>
                           <p>Tap to return to front</p>
                         </div>
                       </button>
@@ -1247,6 +1505,74 @@ function clearImportedQuestions() {
     message: "Imported questions cleared. Solo study modes will stay empty until you import more content.",
   };
   buildJeopardyBoard();
+}
+
+function findQuestionById(questionId) {
+  return getAllQuestions().find((question) => question.id === questionId) || null;
+}
+
+function updateQuestionBankDraft(target) {
+  if (!isInstructor()) {
+    return;
+  }
+
+  const questionId = target.dataset.bankEditId;
+  const field = target.dataset.bankEditField;
+  if (!questionId || !field) {
+    return;
+  }
+
+  const question = findQuestionById(questionId);
+  if (!question) {
+    return;
+  }
+
+  const edit = {
+    ...(state.questionEdits[questionId] || {}),
+  };
+
+  if (field === "option") {
+    const optionIndex = Number(target.dataset.bankEditIndex);
+    const options = Array.isArray(question.options) ? [...question.options] : ["", "", "", "", ""];
+    if (Number.isFinite(optionIndex) && optionIndex >= 0 && optionIndex < 5) {
+      while (options.length < 5) {
+        options.push("");
+      }
+      options[optionIndex] = target.value;
+      edit.options = options.slice(0, 5);
+    }
+  } else if (["answerIndex", "difficulty", "examNumber", "questionNumber"].includes(field)) {
+    const numericValue = Number(target.value);
+    if (Number.isFinite(numericValue)) {
+      edit[field] = field === "answerIndex" ? clamp(numericValue, 0, 4) : numericValue;
+    }
+  } else {
+    edit[field] = target.value;
+  }
+
+  state.questionEdits[questionId] = edit;
+  state.questionBank.hasUnsavedChanges = true;
+  state.questionBank.feedback = {
+    tone: "info",
+    message: "Unsaved edits are ready. Press Save Changes to keep them after refresh.",
+  };
+}
+
+function saveQuestionBankEdits() {
+  if (!isInstructor()) {
+    state.questionBank.feedback = {
+      tone: "error",
+      message: "Only the instructor login can edit and save question bank changes.",
+    };
+    return;
+  }
+
+  saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
+  state.questionBank.hasUnsavedChanges = false;
+  state.questionBank.feedback = {
+    tone: "success",
+    message: "Question bank changes saved locally on this device.",
+  };
 }
 
 function getActiveQuizQuestion() {
@@ -1358,12 +1684,47 @@ function setLiveMessage(tone, message) {
   state.live.info = message;
 }
 
+function persistAccountAuth() {
+  if (state.account.auth) {
+    saveJSON(STORAGE_KEYS.accountAuth, state.account.auth);
+    return;
+  }
+  localStorage.removeItem(STORAGE_KEYS.accountAuth);
+}
+
+function setAccountMessage(tone, message) {
+  state.account.tone = tone;
+  state.account.message = message;
+}
+
+function applyAccountSession(data) {
+  state.account.auth = {
+    token: data.token || (state.account.auth && state.account.auth.token),
+    username: data.user.username,
+    displayName: data.user.displayName || data.user.username,
+    role: data.user.role || "student",
+  };
+  if (Array.isArray(data.performance)) {
+    state.performance = data.performance;
+    saveJSON(STORAGE_KEYS.performance, state.performance);
+  }
+  state.account.placements = Array.isArray(data.placements) ? data.placements : [];
+  persistAccountAuth();
+  syncLiveNameToAccount();
+  setAccountMessage("success", `Signed in as ${state.account.auth.displayName}.`);
+}
+
 async function apiRequest(path, method, payload) {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  if (state.account.auth && state.account.auth.token) {
+    headers.Authorization = `Bearer ${state.account.auth.token}`;
+  }
+
   const response = await fetch(getLiveServerHttpUrl(path), {
     method,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: payload ? JSON.stringify(payload) : undefined,
   });
 
@@ -1375,11 +1736,87 @@ async function apiRequest(path, method, payload) {
   }
 
   if (!response.ok) {
-    const message = body && body.error ? body.error : `Request failed with status ${response.status}.`;
+    const message =
+      body && body.error
+        ? body.error
+        : response.status === 405
+          ? "This page is running from a static preview server. For login and online play, start the backend with `python3 server.py` and open http://localhost:4173."
+          : `Request failed with status ${response.status}.`;
     throw new Error(message);
   }
 
   return body;
+}
+
+async function loginAccount() {
+  if (state.account.busy) {
+    return;
+  }
+
+  const username = state.account.username.trim();
+  const password = state.account.password;
+
+  if (!username || !password) {
+    setAccountMessage("error", "Enter both username and password.");
+    renderApp();
+    return;
+  }
+
+  state.account.busy = true;
+  try {
+    const data = await apiRequest("/api/auth/login", "POST", { username, password });
+    state.account.password = "";
+    applyAccountSession(data);
+    if (isInstructor()) {
+      await loadInstructorStats(false);
+      state.activeView = "instructor";
+    }
+  } catch (error) {
+    setAccountMessage("error", error.message || "Could not sign in.");
+  } finally {
+    state.account.busy = false;
+    renderApp();
+  }
+}
+
+async function logoutAccount() {
+  if (state.account.auth) {
+    try {
+      await apiRequest("/api/auth/logout", "POST", {});
+    } catch (error) {
+      // Logging out locally is enough if the server token is already gone.
+    }
+  }
+
+  state.account.auth = null;
+  state.account.password = "";
+  state.account.placements = [];
+  state.instructor.data = null;
+  state.instructor.selectedUser = "all";
+  state.instructor.message = "Instructor metrics load after an instructor signs in.";
+  state.instructor.tone = "info";
+  persistAccountAuth();
+  setAccountMessage("info", "Signed out. This browser will keep local history, but new attempts will not sync to an account.");
+  renderApp();
+}
+
+async function restoreAccountSession() {
+  if (!state.account.auth || !state.account.auth.token) {
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/api/auth/me", "GET");
+    applyAccountSession(data);
+    if (isInstructor()) {
+      await loadInstructorStats(false);
+    }
+  } catch (error) {
+    state.account.auth = null;
+    persistAccountAuth();
+    setAccountMessage("error", "Saved sign-in expired. Please sign in again.");
+  }
+  renderApp();
 }
 
 function getSelfPlayer() {
@@ -1416,6 +1853,54 @@ function closeLiveSocket(resetState) {
     state.live.answerIndex = null;
     state.live.lastQuestionKey = null;
     state.live.lastRecordedRevealKey = null;
+  }
+}
+
+async function refreshAccountSession() {
+  if (!state.account.auth || !state.account.auth.token) {
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/api/auth/me", "GET");
+    applyAccountSession(data);
+    renderApp();
+  } catch (error) {
+    setAccountMessage("error", "Could not refresh profile history from the server.");
+  }
+}
+
+async function loadInstructorStats(renderWhenDone = true) {
+  if (!isInstructor()) {
+    state.instructor.data = null;
+    state.instructor.message = "Instructor metrics require an instructor login.";
+    state.instructor.tone = "error";
+    if (renderWhenDone) {
+      renderApp();
+    }
+    return;
+  }
+
+  state.instructor.loading = true;
+  state.instructor.message = "Loading instructor performance metrics...";
+  state.instructor.tone = "info";
+  if (renderWhenDone) {
+    renderApp();
+  }
+
+  try {
+    const data = await apiRequest("/api/instructor/stats", "GET");
+    state.instructor.data = data;
+    state.instructor.message = "Instructor metrics are up to date.";
+    state.instructor.tone = "success";
+  } catch (error) {
+    state.instructor.message = error.message || "Could not load instructor metrics.";
+    state.instructor.tone = "error";
+  } finally {
+    state.instructor.loading = false;
+    if (renderWhenDone) {
+      renderApp();
+    }
   }
 }
 
@@ -1494,7 +1979,7 @@ function connectLiveSocket() {
         const activeQuestion = message.session.activeQuestion;
         const viewerResult = activeQuestion.viewerResult;
         if (viewerResult) {
-          savePersonalAttempt(
+          recordAttempt(
             {
               id:
                 activeQuestion.questionId ||
@@ -1513,6 +1998,14 @@ function connectLiveSocket() {
       state.live.lastQuestionKey = nextKey;
       if (!message.session.activeQuestion || message.session.status !== "question") {
         state.live.answerIndex = null;
+      }
+      if (
+        message.session.status === "finished" &&
+        state.account.auth &&
+        state.live.lastProfileRefreshCode !== message.session.code
+      ) {
+        state.live.lastProfileRefreshCode = message.session.code;
+        refreshAccountSession();
       }
       renderApp();
     }
@@ -1539,7 +2032,7 @@ async function createLiveGame() {
     return;
   }
 
-  const username = state.live.username.trim();
+  const username = getPreferredLiveUsername();
   if (username.length < 2) {
     setLiveMessage("error", "Enter a username with at least 2 characters.");
     renderApp();
@@ -1547,6 +2040,7 @@ async function createLiveGame() {
   }
 
   state.live.busy = true;
+  state.live.username = username;
   persistLiveProfile();
 
   try {
@@ -1575,7 +2069,7 @@ async function joinLiveGame() {
     return;
   }
 
-  const username = state.live.username.trim();
+  const username = getPreferredLiveUsername();
   const code = normalizeLiveCode(state.live.joinCode);
 
   if (username.length < 2) {
@@ -1591,6 +2085,7 @@ async function joinLiveGame() {
   }
 
   state.live.busy = true;
+  state.live.username = username;
   persistLiveProfile();
 
   try {
@@ -1672,6 +2167,1000 @@ function renderQuestionBankEmptyState(title, body, detail) {
   `;
 }
 
+function renderExplanationContent(entry) {
+  const difficulty =
+    entry && entry.difficulty
+      ? `<p><strong>Difficulty rating:</strong> ${escapeHtml(entry.difficulty)} / 5</p>`
+      : "";
+  const explanation = entry && entry.explanation ? `<p>${formatScientificText(entry.explanation)}</p>` : "";
+  const source = entry && entry.source ? `<p><em>${formatScientificText(entry.source)}</em></p>` : "";
+  return `${difficulty}${explanation}${source}`;
+}
+
+function renderQuestionMedia(entry) {
+  if (!entry || !entry.image) {
+    return "";
+  }
+
+  return `
+    <figure class="question-media">
+      <img src="${escapeHtml(entry.image)}" alt="${escapeHtml(entry.imageAlt || "Question reference image")}" />
+      ${entry.imageCaption ? `<figcaption>${escapeHtml(entry.imageCaption)}</figcaption>` : ""}
+    </figure>
+  `;
+}
+
+function getQuestionBankEditValue(question, field) {
+  const value = question[field];
+  return value === undefined || value === null ? "" : value;
+}
+
+function renderQuestionBankEditor(question) {
+  const answerIndex = Number.isFinite(Number(question.answerIndex)) ? Number(question.answerIndex) : 0;
+  const options = Array.isArray(question.options) ? question.options : [];
+
+  if (!isInstructor()) {
+    return `
+      <div class="bank-readonly">
+        <h3>${formatScientificText(question.question)}</h3>
+        <div class="option-list option-list--bank">
+          ${[0, 1, 2, 3, 4]
+            .map(
+              (index) => `
+                <div class="option ${index === answerIndex ? "is-correct" : ""}">
+                  <span>${String.fromCharCode(65 + index)}</span>
+                  <strong>${formatScientificText(options[index] || "")}</strong>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+        <div class="feedback feedback--correct">
+          ${renderExplanationContent(question)}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="bank-editor">
+      <label class="bank-edit-field bank-edit-field--wide">
+        <span>Question Stem</span>
+        <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="question" rows="3">${escapeHtml(
+          getQuestionBankEditValue(question, "question"),
+        )}</textarea>
+      </label>
+      <div class="bank-edit-grid">
+        <label class="bank-edit-field">
+          <span>Category</span>
+          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="category" type="text" value="${escapeHtml(
+            getQuestionBankEditValue(question, "category"),
+          )}" />
+        </label>
+        <label class="bank-edit-field">
+          <span>Topic</span>
+          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="topic" type="text" value="${escapeHtml(
+            getQuestionBankEditValue(question, "topic"),
+          )}" />
+        </label>
+        <label class="bank-edit-field">
+          <span>Type</span>
+          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="type" type="text" value="${escapeHtml(
+            getQuestionBankEditValue(question, "type"),
+          )}" />
+        </label>
+        <label class="bank-edit-field">
+          <span>Difficulty</span>
+          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="difficulty" type="number" min="1" max="5" value="${escapeHtml(
+            getQuestionBankEditValue(question, "difficulty"),
+          )}" />
+        </label>
+      </div>
+      <div class="bank-options-editor">
+        ${[0, 1, 2, 3, 4]
+          .map(
+            (index) => `
+              <label class="bank-option-edit ${index === answerIndex ? "is-correct" : ""}">
+                <span>${String.fromCharCode(65 + index)}</span>
+                <input
+                  data-bank-edit-id="${escapeHtml(question.id)}"
+                  data-bank-edit-field="option"
+                  data-bank-edit-index="${index}"
+                  type="text"
+                  value="${escapeHtml(options[index] || "")}"
+                />
+              </label>
+            `,
+          )
+          .join("")}
+      </div>
+      <div class="bank-edit-grid bank-edit-grid--answer">
+        <label class="bank-edit-field">
+          <span>Correct Answer</span>
+          <select data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="answerIndex">
+            ${[0, 1, 2, 3, 4]
+              .map(
+                (index) =>
+                  `<option value="${index}" ${index === answerIndex ? "selected" : ""}>${String.fromCharCode(65 + index)}: ${escapeHtml(
+                    options[index] || "Blank option",
+                  )}</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+        <label class="bank-edit-field">
+          <span>Exam #</span>
+          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="examNumber" type="number" min="1" value="${escapeHtml(
+            getQuestionBankEditValue(question, "examNumber"),
+          )}" />
+        </label>
+        <label class="bank-edit-field">
+          <span>Question #</span>
+          <input data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="questionNumber" type="number" min="1" value="${escapeHtml(
+            getQuestionBankEditValue(question, "questionNumber"),
+          )}" />
+        </label>
+      </div>
+      <label class="bank-edit-field bank-edit-field--wide">
+        <span>Explanation</span>
+        <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="explanation" rows="4">${escapeHtml(
+          getQuestionBankEditValue(question, "explanation"),
+        )}</textarea>
+      </label>
+      <label class="bank-edit-field bank-edit-field--wide">
+        <span>Source</span>
+        <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="source" rows="2">${escapeHtml(
+          getQuestionBankEditValue(question, "source"),
+        )}</textarea>
+      </label>
+    </div>
+  `;
+}
+
+function getFilteredQuestionBank() {
+  const search = state.questionBank.search.trim().toLowerCase();
+
+  return getAllQuestions().filter((question) => {
+    const { examNumber, questionNumber } = getQuestionExamInfo(question);
+
+    if (state.questionBank.exam !== "all" && String(examNumber) !== state.questionBank.exam) {
+      return false;
+    }
+
+    if (state.questionBank.question !== "all" && String(questionNumber) !== state.questionBank.question) {
+      return false;
+    }
+
+    if (state.questionBank.category !== "all" && question.category !== state.questionBank.category) {
+      return false;
+    }
+
+    if (state.questionBank.source !== "all" && getQuestionOrigin(question) !== state.questionBank.source) {
+      return false;
+    }
+
+    if (!search) {
+      return true;
+    }
+
+    const haystack = [
+      question.question,
+      question.category,
+      question.topic,
+      question.type,
+      ...(question.options || []),
+      question.explanation || "",
+      question.source || "",
+      formatQuestionBankLabel(question),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(search);
+  });
+}
+
+function renderQuestionBankView() {
+  const categories = getCategories();
+  const allQuestions = getAllQuestions();
+  const examOptions = [
+    ...new Set(
+      allQuestions
+        .map((question) => getQuestionExamInfo(question).examNumber)
+        .filter((examNumber) => Number.isFinite(examNumber)),
+    ),
+  ].sort((first, second) => first - second);
+  const questionOptions = [
+    ...new Set(
+      allQuestions
+        .filter((question) => {
+          if (state.questionBank.exam === "all") {
+            return true;
+          }
+          return String(getQuestionExamInfo(question).examNumber) === state.questionBank.exam;
+        })
+        .map((question) => getQuestionExamInfo(question).questionNumber)
+        .filter((questionNumber) => Number.isFinite(questionNumber)),
+    ),
+  ].sort((first, second) => first - second);
+  const questions = getFilteredQuestionBank();
+  const totalQuestions = allQuestions.length;
+  const sharedCount = allQuestions.filter((question) => getQuestionOrigin(question) === "shared").length;
+  const importedCount = totalQuestions - sharedCount;
+  const bankFeedbackClass = `import-feedback import-feedback--${state.questionBank.feedback.tone}`;
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Question Bank",
+        "Browse every loaded question in one place",
+        "Search, filter, and review the full question bank without starting a quiz. This includes the shared seeded bank plus any questions you import locally.",
+      )}
+      <div class="card-grid card-grid--metrics">
+        ${renderMetric("Visible Questions", `${questions.length}`, "gold")}
+        ${renderMetric("Shared Seeded", `${sharedCount}`, "blue")}
+        ${renderMetric("Imported Local", `${importedCount}`, "default")}
+      </div>
+      <section class="panel bank-save-bar">
+        <div>
+          <h3>${isInstructor() ? "Editable Question Bank" : "Question Bank Review"}</h3>
+          <p>${
+            isInstructor()
+              ? "Changes are staged as you type. Press Save Changes to keep them locally on this device."
+              : "Only the instructor login can edit question text, answers, explanations, and source details."
+          }</p>
+        </div>
+        ${
+          isInstructor()
+            ? `
+              <div class="bank-save-bar__actions">
+                <span class="pill">${state.questionBank.hasUnsavedChanges ? "Unsaved edits" : "No unsaved edits"}</span>
+                <button type="button" class="button button--primary" data-action="save-question-bank-edits">Save Changes</button>
+              </div>
+              <div class="${bankFeedbackClass}">
+                <strong>${escapeHtml(state.questionBank.feedback.message)}</strong>
+              </div>
+            `
+            : `<div class="bank-save-bar__actions"><span class="pill">Read only</span></div>`
+        }
+      </section>
+      <section class="panel panel--form">
+        <div class="form-grid form-grid--bank">
+          <label class="field">
+            <span>Search</span>
+            <input
+              id="question-bank-search"
+              type="text"
+              placeholder="Search by stem, topic, option, or explanation"
+              value="${escapeHtml(state.questionBank.search)}"
+            />
+          </label>
+          <label class="field">
+            <span>Exam #</span>
+            <select id="question-bank-exam">
+              <option value="all" ${state.questionBank.exam === "all" ? "selected" : ""}>All exams</option>
+              ${examOptions
+                .map(
+                  (examNumber) =>
+                    `<option value="${examNumber}" ${
+                      state.questionBank.exam === String(examNumber) ? "selected" : ""
+                    }>Exam ${examNumber}</option>`,
+                )
+                .join("")}
+            </select>
+          </label>
+          <label class="field">
+            <span>Question #</span>
+            <select id="question-bank-question">
+              <option value="all" ${state.questionBank.question === "all" ? "selected" : ""}>All questions</option>
+              ${questionOptions
+                .map(
+                  (questionNumber) =>
+                    `<option value="${questionNumber}" ${
+                      state.questionBank.question === String(questionNumber) ? "selected" : ""
+                    }>Question ${questionNumber}</option>`,
+                )
+                .join("")}
+            </select>
+          </label>
+          <label class="field">
+            <span>Category</span>
+            <select id="question-bank-category">
+              <option value="all" ${state.questionBank.category === "all" ? "selected" : ""}>All categories</option>
+              ${categories
+                .map(
+                  (category) =>
+                    `<option value="${escapeHtml(category.name)}" ${
+                      state.questionBank.category === category.name ? "selected" : ""
+                    }>${escapeHtml(category.name)}</option>`,
+                )
+                .join("")}
+            </select>
+          </label>
+          <label class="field">
+            <span>Source</span>
+            <select id="question-bank-source">
+              <option value="all" ${state.questionBank.source === "all" ? "selected" : ""}>All questions</option>
+              <option value="shared" ${state.questionBank.source === "shared" ? "selected" : ""}>Shared seeded bank</option>
+              <option value="imported" ${state.questionBank.source === "imported" ? "selected" : ""}>Imported local questions</option>
+            </select>
+          </label>
+        </div>
+      </section>
+      ${
+        !questions.length
+          ? `
+            <section class="panel">
+              <div class="empty-state">
+                <strong>No questions match the current filters.</strong>
+                <p>Try clearing the search, switching categories, or importing more content.</p>
+              </div>
+            </section>
+          `
+          : `
+            <div class="review-list review-list--bank">
+              ${questions
+                .map((question) => {
+                  const origin = getQuestionOrigin(question);
+                  return `
+                    <article class="review-card review-card--bank">
+                      <div class="review-card__header">
+                        <span>${escapeHtml(formatQuestionBankLabel(question))}</span>
+                        <strong>${origin === "shared" ? "Shared Seeded" : "Imported Local"}</strong>
+                      </div>
+                      <div class="question-card__meta">
+                        <span class="pill">${escapeHtml(question.category)}</span>
+                        <span class="pill">${escapeHtml(question.topic)}</span>
+                        <span class="pill">${escapeHtml(question.type)}</span>
+                      </div>
+                      ${renderQuestionMedia(question)}
+                      ${renderQuestionBankEditor(question)}
+                    </article>
+                  `;
+                })
+                .join("")}
+            </div>
+          `
+      }
+    </section>
+  `;
+}
+
+function renderProfileView(summary) {
+  const placements = getPlacementSummary();
+  const recentAttempts = [...state.performance].slice(-8).reverse();
+  const feedbackClass = `import-feedback import-feedback--${state.account.tone}`;
+  const modeEntries = Object.entries(groupAttempts(state.performance, "mode")).sort(
+    (first, second) => second[1].attempts - first[1].attempts,
+  );
+  const weakCategories = sortStatEntries(summary.categoryMap, 5, "weak");
+  const strongCategories = sortStatEntries(summary.categoryMap, 5, "strong");
+  const missed = Math.max(0, summary.total - summary.correct);
+  const displayName = state.account.auth ? state.account.auth.displayName : "Local tester";
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Profile",
+        `${displayName} stats`,
+        "Review your question-answer performance, category trends, and saved live Jeopardy placements.",
+      )}
+      ${
+        state.account.auth
+          ? `
+            <section class="panel profile-callout">
+              <div>
+                <h3>Account</h3>
+                <p>Signed in as ${escapeHtml(state.account.auth.username)}. Your quiz, mock exam, solo Jeopardy, and live Jeopardy history syncs to this profile.</p>
+              </div>
+              <button type="button" class="button button--ghost" data-action="account-logout">Sign out</button>
+            </section>
+          `
+          : `
+            <div class="split-layout">
+              <section class="panel panel--form">
+                <div class="panel__header">
+                  <h3>Sign in to save this profile across devices</h3>
+                  <p>Question stats below are from this browser until you sign in. Online Jeopardy placements save to your profile when you play while signed in.</p>
+                </div>
+                <div class="form-grid form-grid--two">
+                  <label class="field">
+                    <span>Username</span>
+                    <input id="account-username" type="text" autocomplete="username" placeholder="username" value="${escapeHtml(state.account.username)}" />
+                  </label>
+                  <label class="field">
+                    <span>Password</span>
+                    <input id="account-password" type="password" autocomplete="current-password" placeholder="Password" value="${escapeHtml(state.account.password)}" />
+                  </label>
+                </div>
+                <div class="${feedbackClass}">
+                  <strong>${escapeHtml(state.account.message)}</strong>
+                </div>
+                <div class="question-card__actions">
+                  <button type="button" class="button button--primary" data-action="account-login" ${state.account.busy ? "disabled" : ""}>Sign in</button>
+                </div>
+              </section>
+              <section class="panel">
+                <div class="panel__header">
+                  <h3>What gets saved</h3>
+                  <p>Attempts are still saved locally for speed, and signed-in users also sync them to the server account file.</p>
+                </div>
+                <div class="insight-stack">
+                  <article class="insight-card">
+                    <span class="insight-card__label">Saved modes</span>
+                    <strong>Quiz, mock exam, solo Jeopardy, and live Jeopardy review attempts.</strong>
+                  </article>
+                  <article class="insight-card">
+                    <span class="insight-card__label">Adaptive study</span>
+                    <strong>Solo practice uses the signed-in user's own saved history.</strong>
+                  </article>
+                  <article class="insight-card">
+                    <span class="insight-card__label">Live placements</span>
+                    <strong>Online Jeopardy placements save when the host ends the game.</strong>
+                  </article>
+                </div>
+              </section>
+            </div>
+          `
+      }
+      <div class="card-grid card-grid--metrics">
+        ${renderMetric("Questions Answered", `${summary.total}`, "gold")}
+        ${renderMetric("Correct Answers", `${summary.correct}`, "blue")}
+        ${renderMetric("Missed Answers", `${missed}`, "default")}
+        ${renderMetric("Accuracy", formatPercent(summary.accuracy), "default")}
+      </div>
+      <div class="split-layout">
+        <section class="panel">
+          <div class="panel__header">
+            <h3>Question and answer stats</h3>
+            <p>Accuracy by mode, using your saved quiz, mock exam, solo Jeopardy, and live Jeopardy attempts.</p>
+          </div>
+          <div class="profile-stat-list">
+            ${
+              modeEntries.length
+                ? modeEntries
+                    .map(
+                      ([mode, stats]) => `
+                        <article class="profile-stat-row">
+                          <div>
+                            <strong>${escapeHtml(mode)}</strong>
+                            <span>${stats.correct} correct • ${stats.attempts - stats.correct} missed</span>
+                          </div>
+                          <strong>${formatPercent(stats.accuracy)}</strong>
+                        </article>
+                      `,
+                    )
+                    .join("")
+                : `<div class="empty-state"><strong>No question attempts yet.</strong><p>Start a quiz, mock exam, or Jeopardy board to build your stats.</p></div>`
+            }
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel__header">
+            <h3>Category trends</h3>
+            <p>Quickly compare your strongest and weakest board-review areas.</p>
+          </div>
+          <div class="profile-columns">
+            <div>
+              <h4>Needs review</h4>
+              <div class="profile-stat-list">
+                ${
+                  weakCategories.length
+                    ? weakCategories
+                        .map(
+                          ([category, stats]) => `
+                            <article class="profile-mini-row">
+                              <span>${escapeHtml(category)}</span>
+                              <strong>${formatPercent(stats.accuracy)}</strong>
+                            </article>
+                          `,
+                        )
+                        .join("")
+                    : `<p class="muted-copy">No category data yet.</p>`
+                }
+              </div>
+            </div>
+            <div>
+              <h4>Strongest</h4>
+              <div class="profile-stat-list">
+                ${
+                  strongCategories.length
+                    ? strongCategories
+                        .map(
+                          ([category, stats]) => `
+                            <article class="profile-mini-row">
+                              <span>${escapeHtml(category)}</span>
+                              <strong>${formatPercent(stats.accuracy)}</strong>
+                            </article>
+                          `,
+                        )
+                        .join("")
+                    : `<p class="muted-copy">No category data yet.</p>`
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Online Jeopardy placements</h3>
+          <p>Placements are saved when the host ends a live game. Ties share the same placement.</p>
+        </div>
+        <div class="placement-podium">
+          <article>
+            <span>1st</span>
+            <strong>${placements.podiumCounts.first}</strong>
+          </article>
+          <article>
+            <span>2nd</span>
+            <strong>${placements.podiumCounts.second}</strong>
+          </article>
+          <article>
+            <span>3rd</span>
+            <strong>${placements.podiumCounts.third}</strong>
+          </article>
+          <article>
+            <span>Games</span>
+            <strong>${placements.gamesPlayed}</strong>
+          </article>
+          <article>
+            <span>Best score</span>
+            <strong>${placements.bestScore}</strong>
+          </article>
+        </div>
+        <div class="history-list">
+          ${
+            placements.recent.length
+              ? placements.recent
+                  .slice(0, 8)
+                  .map(
+                    (placement) => `
+                      <article class="history-row">
+                        <div>
+                          <strong>${escapeHtml(placement.placementLabel || `${placement.placement}`)} place • ${Number(placement.score) || 0} points</strong>
+                          <span>Game ${escapeHtml(placement.gameCode || "Unknown")} • ${Number(placement.playerCount) || 0} players • ${
+                            placement.finishedAt ? new Date(placement.finishedAt).toLocaleDateString() : "No date"
+                          }</span>
+                        </div>
+                        <strong>${placement.isHost ? "Host" : "Player"}</strong>
+                      </article>
+                    `,
+                  )
+                  .join("")
+              : `<div class="empty-state"><strong>No live placements yet.</strong><p>Sign in, play online Jeopardy, and have the host end the game to save final placements.</p></div>`
+          }
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Recent question history</h3>
+          <p>Your latest saved answers.</p>
+        </div>
+        <div class="history-list">
+          ${
+            recentAttempts.length
+              ? recentAttempts
+                  .map((attempt) => {
+                    const question = getAllQuestions().find((item) => item.id === attempt.questionId);
+                    return `
+                      <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
+                        <div>
+                          <strong>${formatScientificText(question ? question.question : attempt.questionId)}</strong>
+                          <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${new Date(attempt.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
+                      </article>
+                    `;
+                  })
+                  .join("")
+              : `<div class="empty-state"><strong>No recent answers yet.</strong><p>Your latest practice attempts will appear here.</p></div>`
+          }
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderStatBars(statMap, limit = 8) {
+  const entries = Object.entries(statMap || {})
+    .sort((first, second) => second[1].attempts - first[1].attempts)
+    .slice(0, limit);
+
+  if (!entries.length) {
+    return `<div class="empty-state"><strong>No data yet.</strong><p>Student attempts will appear here after practice sessions.</p></div>`;
+  }
+
+  return `
+    <div class="stat-bars">
+      ${entries
+        .map(([label, stats]) => {
+          const accuracy = Number(stats.accuracy) || 0;
+          return `
+            <article class="stat-bar">
+              <div class="stat-bar__label">
+                <strong>${escapeHtml(label)}</strong>
+                <span>${stats.correct}/${stats.attempts} correct • ${formatPercent(accuracy)}</span>
+              </div>
+              <div class="stat-bar__track">
+                <span style="width: ${clamp(accuracy, 0, 100)}%"></span>
+              </div>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderInstructorUserDetail(user) {
+  if (!user) {
+    return `<div class="empty-state"><strong>Select a user.</strong><p>Choose a student from the dropdown to review individual performance.</p></div>`;
+  }
+
+  const summary = user.summary || {};
+  const placements = user.placements || { gamesPlayed: 0, podiumCounts: { first: 0, second: 0, third: 0 }, bestScore: 0 };
+  const recentAttempts = Array.isArray(user.recentAttempts) ? user.recentAttempts.slice(0, 12) : [];
+
+  return `
+    <div class="instructor-detail">
+      <div class="card-grid card-grid--metrics">
+        ${renderMetric("Attempts", `${summary.attempts || 0}`, "gold")}
+        ${renderMetric("Accuracy", formatPercent(Number(summary.accuracy) || 0), "blue")}
+        ${renderMetric("Live Games", `${placements.gamesPlayed || 0}`, "default")}
+        ${renderMetric("Best Score", `${placements.bestScore || 0}`, "default")}
+      </div>
+      <div class="split-layout">
+        <section class="panel">
+          <div class="panel__header">
+            <h3>${escapeHtml(user.displayName)} by category</h3>
+            <p>Category accuracy and volume for this user.</p>
+          </div>
+          ${renderStatBars(summary.categoryStats || {}, 8)}
+        </section>
+        <section class="panel">
+          <div class="panel__header">
+            <h3>Mode breakdown</h3>
+            <p>Quiz, mock, solo Jeopardy, and live Jeopardy activity.</p>
+          </div>
+          ${renderStatBars(summary.modeStats || {}, 6)}
+        </section>
+      </div>
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Recent answer history</h3>
+          <p>Latest saved answers for the selected user.</p>
+        </div>
+        <div class="history-list">
+          ${
+            recentAttempts.length
+              ? recentAttempts
+                  .map(
+                    (attempt) => `
+                      <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
+                        <div>
+                          <strong>${formatScientificText(attempt.question || attempt.questionId)}</strong>
+                          <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${attempt.timestamp ? new Date(attempt.timestamp).toLocaleDateString() : "No date"}</span>
+                        </div>
+                        <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
+                      </article>
+                    `,
+                  )
+                  .join("")
+              : `<div class="empty-state"><strong>No attempts for this user yet.</strong><p>Once they answer questions, their history will populate here.</p></div>`
+          }
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderInstructorView() {
+  if (!isInstructor()) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Instructor",
+          "Instructor login required",
+          "Use the instructor account to review class performance, answer histories, and individual success rates.",
+        )}
+        <section class="panel profile-callout">
+          <div>
+            <h3>Sign in as an instructor</h3>
+            <p>The instructor dashboard is protected so student histories are only visible to instructor-role accounts.</p>
+          </div>
+          <button type="button" class="button button--primary" data-view="profile">Open Profile Login</button>
+        </section>
+      </section>
+    `;
+  }
+
+  const data = state.instructor.data;
+  const aggregate = data ? data.aggregate : null;
+  const users = data ? data.users.filter((user) => user.role !== "instructor") : [];
+  const selectedUser =
+    state.instructor.selectedUser === "all"
+      ? null
+      : users.find((user) => user.username === state.instructor.selectedUser) || null;
+  const feedbackClass = `import-feedback import-feedback--${state.instructor.tone}`;
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Instructor",
+        "Class performance dashboard",
+        "Monitor roster-wide success rates, identify weak content areas, and drill into individual answer history.",
+      )}
+      <section class="panel instructor-toolbar">
+        <label class="field">
+          <span>View individual performance</span>
+          <select id="instructor-user-select">
+            <option value="all" ${state.instructor.selectedUser === "all" ? "selected" : ""}>Class overview</option>
+            ${users
+              .map(
+                (user) =>
+                  `<option value="${escapeHtml(user.username)}" ${state.instructor.selectedUser === user.username ? "selected" : ""}>${escapeHtml(user.displayName)} (${escapeHtml(user.username)})</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+        <button type="button" class="button button--primary" data-action="refresh-instructor-stats" ${state.instructor.loading ? "disabled" : ""}>
+          ${state.instructor.loading ? "Refreshing..." : "Refresh Stats"}
+        </button>
+        <div class="${feedbackClass}">
+          <strong>${escapeHtml(state.instructor.message)}</strong>
+        </div>
+      </section>
+      ${
+        !aggregate
+          ? `<section class="panel"><div class="empty-state"><strong>No instructor metrics loaded yet.</strong><p>Press Refresh Stats to pull the latest roster data from the server.</p></div></section>`
+          : state.instructor.selectedUser !== "all"
+            ? renderInstructorUserDetail(selectedUser)
+            : `
+              <div class="card-grid card-grid--metrics">
+                ${renderMetric("Roster Users", `${aggregate.totalUsers || 0}`, "gold")}
+                ${renderMetric("Active Users", `${aggregate.activeUsers || 0}`, "blue")}
+                ${renderMetric("Total Attempts", `${aggregate.totalAttempts || 0}`, "default")}
+                ${renderMetric("Class Accuracy", formatPercent(Number(aggregate.accuracy) || 0), "default")}
+              </div>
+              <div class="split-layout">
+                <section class="panel">
+                  <div class="panel__header">
+                    <h3>Class accuracy by category</h3>
+                    <p>Bars show success rate; labels show correct answers over total attempts.</p>
+                  </div>
+                  ${renderStatBars(aggregate.categoryStats, 8)}
+                </section>
+                <section class="panel">
+                  <div class="panel__header">
+                    <h3>Practice volume by mode</h3>
+                    <p>See where students are spending their review time.</p>
+                  </div>
+                  ${renderStatBars(aggregate.modeStats, 6)}
+                </section>
+              </div>
+              <section class="panel">
+                <div class="panel__header">
+                  <h3>Student success rates</h3>
+                  <p>Sorted by attempt volume so active users are easy to find.</p>
+                </div>
+                <div class="instructor-roster">
+                  ${users
+                    .sort((first, second) => second.summary.attempts - first.summary.attempts)
+                    .map(
+                      (user) => `
+                        <article class="instructor-roster-row">
+                          <div>
+                            <strong>${escapeHtml(user.displayName)}</strong>
+                            <span>${escapeHtml(user.username)} • ${user.summary.attempts} attempts</span>
+                          </div>
+                          <div class="stat-bar__track">
+                            <span style="width: ${clamp(Number(user.summary.accuracy) || 0, 0, 100)}%"></span>
+                          </div>
+                          <strong>${formatPercent(Number(user.summary.accuracy) || 0)}</strong>
+                        </article>
+                      `,
+                    )
+                    .join("")}
+                </div>
+              </section>
+              <section class="panel">
+                <div class="panel__header">
+                  <h3>Recent class answer history</h3>
+                  <p>Latest answers submitted by signed-in users.</p>
+                </div>
+                <div class="history-list">
+                  ${
+                    aggregate.recentAttempts.length
+                      ? aggregate.recentAttempts
+                          .slice(0, 20)
+                          .map(
+                            (attempt) => `
+                              <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
+                                <div>
+                                  <strong>${escapeHtml(attempt.displayName)} • ${formatScientificText(attempt.question || attempt.questionId)}</strong>
+                                  <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${attempt.timestamp ? new Date(attempt.timestamp).toLocaleDateString() : "No date"}</span>
+                                </div>
+                                <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
+                              </article>
+                            `,
+                          )
+                          .join("")
+                      : `<div class="empty-state"><strong>No class attempts yet.</strong><p>Student answers will appear here once they practice while signed in.</p></div>`
+                  }
+                </div>
+              </section>
+            `
+      }
+    </section>
+  `;
+}
+
+function renderAccountView() {
+  const summary = computePerformanceSummary();
+  const recentAttempts = [...state.performance].slice(-12).reverse();
+  const modeMap = groupAttempts(state.performance, "mode");
+  const modeEntries = Object.entries(modeMap).sort((first, second) => second[1].attempts - first[1].attempts);
+  const feedbackClass = `import-feedback import-feedback--${state.account.tone}`;
+
+  if (!state.account.auth) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Account",
+          "Sign in to save your review history",
+          "Each tester can use an assigned username and password so quiz, mock exam, and practice history follows them across devices.",
+        )}
+        <div class="split-layout">
+          <section class="panel panel--form">
+            <div class="panel__header">
+              <h3>Tester sign in</h3>
+              <p>Use one of the assigned roster accounts. Credentials are managed in the server roster file and are not stored in the browser.</p>
+            </div>
+            <div class="form-grid form-grid--two">
+              <label class="field">
+                <span>Username</span>
+                <input id="account-username" type="text" autocomplete="username" placeholder="username" value="${escapeHtml(state.account.username)}" />
+              </label>
+              <label class="field">
+                <span>Password</span>
+                <input id="account-password" type="password" autocomplete="current-password" placeholder="Password" value="${escapeHtml(state.account.password)}" />
+              </label>
+            </div>
+            <div class="${feedbackClass}">
+              <strong>${escapeHtml(state.account.message)}</strong>
+            </div>
+            <div class="question-card__actions">
+              <button type="button" class="button button--primary" data-action="account-login" ${state.account.busy ? "disabled" : ""}>Sign in</button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel__header">
+              <h3>What gets saved</h3>
+              <p>Attempts are still saved locally for speed, and signed-in users also sync them to the server account file.</p>
+            </div>
+            <div class="insight-stack">
+              <article class="insight-card">
+                <span class="insight-card__label">Saved modes</span>
+                <strong>Quiz, mock exam, solo Jeopardy, and live Jeopardy review attempts.</strong>
+              </article>
+              <article class="insight-card">
+                <span class="insight-card__label">Adaptive study</span>
+                <strong>Solo practice uses the signed-in user's own saved history.</strong>
+              </article>
+              <article class="insight-card">
+                <span class="insight-card__label">Roster size</span>
+                <strong>The helper script creates 50 testing accounts by default.</strong>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Account",
+        `Signed in as ${state.account.auth.displayName}`,
+        "Review your saved practice history and continue building your personal adaptive profile.",
+      )}
+      <div class="card-grid card-grid--metrics">
+        ${renderMetric("Saved Attempts", `${state.performance.length}`, "gold")}
+        ${renderMetric("Accuracy", formatPercent(summary.accuracy), "blue")}
+        ${renderMetric("Coverage", formatPercent(summary.coverage), "default")}
+        ${renderMetric("Weakest Topic", summary.weakestTopic || "Not enough data yet", "default")}
+      </div>
+      <div class="split-layout">
+        <section class="panel">
+          <div class="panel__header">
+            <h3>Performance by mode</h3>
+            <p>Use this to see where your saved review work is coming from.</p>
+          </div>
+          <div class="insight-stack">
+            ${
+              modeEntries.length
+                ? modeEntries
+                    .map(
+                      ([mode, stats]) => `
+                        <article class="insight-card">
+                          <span class="insight-card__label">${escapeHtml(mode)}</span>
+                          <strong>${stats.correct}/${stats.attempts} correct • ${formatPercent(stats.accuracy)}</strong>
+                        </article>
+                      `,
+                    )
+                    .join("")
+                : `<article class="insight-card"><strong>No saved attempts yet.</strong></article>`
+            }
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel__header">
+            <h3>Recent attempts</h3>
+            <p>Your latest saved answers across quiz, mock exam, and practice modes.</p>
+          </div>
+          <div class="history-list">
+            ${
+              recentAttempts.length
+                ? recentAttempts
+                    .map((attempt) => {
+                      const question = getAllQuestions().find((item) => item.id === attempt.questionId);
+                      return `
+                        <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
+                          <div>
+                            <strong>${formatScientificText(question ? question.question : attempt.questionId)}</strong>
+                            <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${new Date(attempt.timestamp).toLocaleDateString()}</span>
+                          </div>
+                          <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
+                        </article>
+                      `;
+                    })
+                    .join("")
+                : `<div class="empty-state"><strong>No account attempts yet.</strong><p>Start a quiz or mock exam after signing in.</p></div>`
+            }
+          </div>
+          <div class="question-card__actions">
+            <button type="button" class="button button--ghost" data-action="account-logout">Sign out</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+function renderTopbarLogin() {
+  if (state.account.auth) {
+    return `
+      <section class="top-login top-login--signed-in">
+        <button type="button" class="top-login__user-link" data-view="profile">
+          <strong>${escapeHtml(state.account.auth.username)}</strong>
+        </button>
+        <button type="button" class="button button--tiny button--ghost" data-action="account-logout">Sign out</button>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="top-login">
+      <label>
+        <span>Username</span>
+        <input id="top-account-username" type="text" autocomplete="username" placeholder="login" value="${escapeHtml(state.account.username)}" />
+      </label>
+      <label>
+        <span>Password</span>
+        <input id="top-account-password" type="password" autocomplete="current-password" placeholder="password" value="${escapeHtml(state.account.password)}" />
+      </label>
+      <button type="button" class="button button--tiny button--primary" data-action="account-login" ${state.account.busy ? "disabled" : ""}>Login</button>
+      ${
+        state.account.tone === "error"
+          ? `<strong class="top-login__message">${escapeHtml(state.account.message)}</strong>`
+          : ""
+      }
+    </section>
+  `;
+}
+
 function renderAppChrome(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
   return `
@@ -1683,19 +3172,22 @@ function renderAppChrome(summary) {
           <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy with an Oregon Tech-inspired visual style</span>
         </div>
       </div>
-      <div class="topbar__meta">
-        <article class="status-chip">
-          <span>Readiness</span>
-          <strong>${formatPercent(summary.readiness)}</strong>
-        </article>
-        <article class="status-chip">
-          <span>Question Bank</span>
-          <strong>${getAllQuestions().length}</strong>
-        </article>
-        <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
-          <span>Last live code used</span>
-          <strong>${escapeHtml(liveCode)}</strong>
-        </article>
+      <div class="topbar__right">
+        ${renderTopbarLogin()}
+        <div class="topbar__meta">
+          <article class="status-chip">
+            <span>Readiness</span>
+            <strong>${formatPercent(summary.readiness)}</strong>
+          </article>
+          <article class="status-chip">
+            <span>Question Bank</span>
+            <strong>${getAllQuestions().length}</strong>
+          </article>
+          <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
+            <span>Last live code used</span>
+            <strong>${escapeHtml(liveCode)}</strong>
+          </article>
+        </div>
       </div>
     </header>
     <section class="headline headline--oregon-tech">
@@ -1855,7 +3347,7 @@ function renderQuizView(summary) {
             <label class="field">
               <span>Question count</span>
               <select id="quiz-count">
-                ${[5, 10, 15]
+                ${[5, 10, 15, 20, 25]
                   .map(
                     (count) =>
                       `<option value="${count}" ${state.quizConfig.count === count ? "selected" : ""}>${count}</option>`,
@@ -1911,18 +3403,19 @@ function renderQuizView(summary) {
       ${renderSectionIntro(
         "Quiz In Progress",
         `${question.category}`,
-        `${question.topic} • Difficulty ${question.difficulty}`,
+        `${question.topic}`,
       )}
       <div class="progress-row">
         <span>Question ${session.index + 1} of ${session.questions.length}</span>
         <span>${state.quizConfig.adaptive ? "Adaptive weighting active" : "Standard random draw"}</span>
       </div>
-      <article class="question-card">
+      <article class="question-card question-card--practice">
         <div class="question-card__meta">
           <span class="pill">${escapeHtml(question.type)}</span>
           <span class="pill">${escapeHtml(question.topic)}</span>
         </div>
-        <h3>${escapeHtml(question.question)}</h3>
+        <h3>${formatScientificText(question.question)}</h3>
+        ${renderQuestionMedia(question)}
         <div class="option-list">
           ${question.options
             .map((option, index) => {
@@ -1946,7 +3439,7 @@ function renderQuizView(summary) {
                   ${session.submitted ? "disabled" : ""}
                 >
                   <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${escapeHtml(option)}</strong>
+                  <strong>${formatScientificText(option)}</strong>
                 </button>
               `;
             })
@@ -1957,7 +3450,7 @@ function renderQuizView(summary) {
             ? `
               <div class="feedback ${result && result.correct ? "feedback--correct" : "feedback--wrong"}">
                 <strong>${result && result.correct ? "Correct" : "Not quite"}</strong>
-                <p>${escapeHtml(question.explanation)}</p>
+                ${renderExplanationContent(question)}
               </div>
             `
             : ""
@@ -1998,6 +3491,8 @@ function renderMockView() {
   }
 
   if (!session) {
+    const selectedFormat =
+      MOCK_EXAM_OPTIONS.find((option) => option.count === state.mockConfig.count) || MOCK_EXAM_OPTIONS[0];
     return `
       <section class="view">
         ${renderSectionIntro(
@@ -2008,27 +3503,20 @@ function renderMockView() {
         <div class="panel panel--form">
           <div class="form-grid">
             <label class="field">
-              <span>Exam length</span>
-              <select id="mock-count">
-                ${[20, 25, 35]
+              <span>Exam format</span>
+              <select id="mock-format">
+                ${MOCK_EXAM_OPTIONS
                   .map(
-                    (count) =>
-                      `<option value="${count}" ${state.mockConfig.count === count ? "selected" : ""}>${count} questions</option>`,
+                    (option) =>
+                      `<option value="${option.count}" ${selectedFormat.count === option.count ? "selected" : ""}>${escapeHtml(option.label)}</option>`,
                   )
                   .join("")}
               </select>
             </label>
-            <label class="field">
-              <span>Timer</span>
-              <select id="mock-duration">
-                ${[25, 32, 45]
-                  .map(
-                    (minutes) =>
-                      `<option value="${minutes}" ${state.mockConfig.durationMinutes === minutes ? "selected" : ""}>${minutes} minutes</option>`,
-                  )
-                  .join("")}
-              </select>
-            </label>
+            <article class="insight-card">
+              <span class="insight-card__label">Timer</span>
+              <strong>${selectedFormat.durationMinutes / 60} hour${selectedFormat.durationMinutes === 60 ? "" : "s"}</strong>
+            </article>
             <label class="field field--toggle">
               <span>Adaptive weighting</span>
               <button type="button" class="toggle ${state.mockConfig.adaptive ? "is-on" : ""}" data-action="toggle-mock-adaptive">
@@ -2037,7 +3525,7 @@ function renderMockView() {
             </label>
           </div>
           <div class="panel__footer">
-            <p>Mixes categories for a board-style review run, then feeds your weaker topics back into solo board practice.</p>
+            <p>Choose a fixed board-style exam length. The timer is automatically matched to the selected format.</p>
             <button type="button" class="button button--primary" data-action="start-mock">Start mock exam</button>
           </div>
         </div>
@@ -2073,14 +3561,14 @@ function renderMockView() {
                     <span>${escapeHtml(question.category)}</span>
                     <strong>${correct ? "Correct" : "Missed"}</strong>
                   </div>
-                  <h4>${escapeHtml(question.question)}</h4>
+                  <h4>${formatScientificText(question.question)}</h4>
                   <p><strong>Your answer:</strong> ${
                     selectedIndex !== undefined
-                      ? escapeHtml(question.options[selectedIndex] || "No answer")
+                      ? formatScientificText(question.options[selectedIndex] || "No answer")
                       : "No answer"
                   }</p>
-                  <p><strong>Correct answer:</strong> ${escapeHtml(question.options[question.answerIndex])}</p>
-                  <p>${escapeHtml(question.explanation)}</p>
+                  <p><strong>Correct answer:</strong> ${formatScientificText(question.options[question.answerIndex])}</p>
+                  ${renderExplanationContent(question)}
                 </article>
               `,
             )
@@ -2103,14 +3591,15 @@ function renderMockView() {
       ${renderSectionIntro(
         "Mock Exam In Progress",
         currentQuestion.category,
-        `${currentQuestion.topic} • Difficulty ${currentQuestion.difficulty}`,
+        `${currentQuestion.topic}`,
       )}
       <div class="progress-row">
         <span>Question ${session.currentIndex + 1} of ${session.questions.length}</span>
         <span class="timer">Time remaining ${minutes}:${seconds}</span>
       </div>
-      <article class="question-card">
-        <h3>${escapeHtml(currentQuestion.question)}</h3>
+      <article class="question-card question-card--practice">
+        <h3>${formatScientificText(currentQuestion.question)}</h3>
+        ${renderQuestionMedia(currentQuestion)}
         <div class="option-list">
           ${currentQuestion.options
             .map(
@@ -2122,7 +3611,7 @@ function renderMockView() {
                   data-index="${index}"
                 >
                   <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${escapeHtml(option)}</strong>
+                  <strong>${formatScientificText(option)}</strong>
                 </button>
               `,
             )
@@ -2275,7 +3764,7 @@ function renderJeopardyModal() {
 
   return `
     <div class="modal-backdrop">
-      <article class="modal">
+      <article class="modal modal--question">
         <div class="modal__header">
           <div>
             <span class="pill">$${tile.value}</span>
@@ -2283,7 +3772,8 @@ function renderJeopardyModal() {
           </div>
           <button type="button" class="icon-button" data-action="close-jeopardy">&times;</button>
         </div>
-        <h3>${escapeHtml(question.question)}</h3>
+        <h3>${formatScientificText(question.question)}</h3>
+        ${renderQuestionMedia(question)}
         <div class="option-list">
           ${question.options
             .map((option, index) => {
@@ -2304,7 +3794,7 @@ function renderJeopardyModal() {
                   ${submitted ? "disabled" : ""}
                 >
                   <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${escapeHtml(option)}</strong>
+                  <strong>${formatScientificText(option)}</strong>
                 </button>
               `;
             })
@@ -2315,7 +3805,7 @@ function renderJeopardyModal() {
             ? `
               <div class="feedback ${correct ? "feedback--correct" : "feedback--wrong"}">
                 <strong>${correct ? "Correct" : "Use this miss for review"}</strong>
-                <p>${escapeHtml(question.explanation)}</p>
+                ${renderExplanationContent(question)}
               </div>
             `
             : ""
@@ -2660,7 +4150,7 @@ function renderLiveQuestionPanel(session) {
 
     return `
       <div class="modal-backdrop modal-backdrop--live">
-        <article class="modal live-modal">
+        <article class="modal live-modal modal--question">
           <div class="modal__header">
             <div>
               <span class="pill">$${active.value}</span>
@@ -2676,7 +4166,8 @@ function renderLiveQuestionPanel(session) {
             <div class="question-card__meta">
               <span class="pill">${escapeHtml(formatOnlineCategoryLabel(active.category))}</span>
             </div>
-            <h3>${escapeHtml(active.question)}</h3>
+            <h3>${formatScientificText(active.question)}</h3>
+            ${renderQuestionMedia(active)}
             <div class="option-list">
               ${active.options
                 .map(
@@ -2688,7 +4179,7 @@ function renderLiveQuestionPanel(session) {
                       data-index="${index}"
                     >
                       <span>${String.fromCharCode(65 + index)}</span>
-                      <strong>${escapeHtml(option)}</strong>
+                      <strong>${formatScientificText(option)}</strong>
                     </button>
                   `,
                 )
@@ -2734,7 +4225,7 @@ function renderLiveQuestionPanel(session) {
 
     return `
       <div class="modal-backdrop modal-backdrop--live">
-        <article class="modal live-modal">
+        <article class="modal live-modal modal--question">
           <div class="modal__header">
             <div>
               <span class="pill">$${active.value}</span>
@@ -2743,13 +4234,14 @@ function renderLiveQuestionPanel(session) {
             <div class="pill">Reveal</div>
           </div>
           <div class="feedback feedback--${viewerResult.correct ? "correct" : "wrong"}">
-            <strong>Correct answer: ${escapeHtml(active.options[active.correctAnswerIndex])}</strong>
-            <p>${escapeHtml(active.explanation)}</p>
+            <strong>Correct answer: ${formatScientificText(active.options[active.correctAnswerIndex])}</strong>
+            ${renderExplanationContent(active)}
           </div>
+          ${renderQuestionMedia(active)}
           <div class="player-results">
             <article class="player-result ${viewerResult.correct ? "is-correct" : "is-wrong"}">
               <strong>Your answer</strong>
-              <span>${escapeHtml(selectedAnswer)}</span>
+              <span>${formatScientificText(selectedAnswer)}</span>
               <span>${viewerResult.correct ? "Correct" : "Missed"}</span>
             </article>
           </div>
@@ -2953,13 +4445,17 @@ function renderLiveEntry() {
       <div class="split-layout">
         <section class="panel panel--form">
           <div class="panel__header">
-            <h3>Enter your player name</h3>
-            <p>Use the same name for hosting or joining. This is what everyone will see on the scoreboard.</p>
+            <h3>${state.account.auth ? "Signed-in player name" : "Enter your player name"}</h3>
+            <p>${
+              state.account.auth
+                ? `Online Jeopardy will use your login username, ${escapeHtml(state.account.auth.username)}, so placements can save to your profile.`
+                : "Use the same name for hosting or joining. This is what everyone will see on the scoreboard."
+            }</p>
           </div>
           <div class="form-grid form-grid--two">
             <label class="field">
               <span>Username</span>
-              <input id="live-username" type="text" maxlength="20" placeholder="Enter your name" value="${escapeHtml(state.live.username)}" />
+              <input id="live-username" type="text" maxlength="20" placeholder="Enter your name" value="${escapeHtml(getPreferredLiveUsername())}" ${state.account.auth ? "disabled" : ""} />
             </label>
             <label class="field">
               <span>Join code</span>
@@ -3020,6 +4516,9 @@ function renderApp() {
   const summary = computePerformanceSummary();
   const viewMap = {
     dashboard: renderDashboard(summary),
+    profile: renderProfileView(summary),
+    instructor: renderInstructorView(),
+    bank: renderQuestionBankView(),
     quiz: renderQuizView(summary),
     mock: renderMockView(),
     jeopardy: renderJeopardyView(summary),
@@ -3034,16 +4533,24 @@ function renderApp() {
       <nav class="nav-tabs" aria-label="Primary">
         ${[
           ["dashboard", "Dashboard"],
+          ["profile", "Profile"],
+          ...(isInstructor() ? [["instructor", "Instructor View"]] : []),
+          ["bank", "Question Bank"],
           ["quiz", "Quiz"],
           ["mock", "Mock Exam"],
           ["jeopardy", "Jeopardy"],
-          ["flashcards", "Flashcards"],
-          ["import", "Import Bank"],
         ]
           .map(
             ([view, label]) => `
-              <button type="button" class="nav-tab ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
-                ${escapeHtml(label)}
+              <button type="button" class="nav-tab ${view === "instructor" ? "nav-tab--stacked" : ""} ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
+                ${
+                  view === "instructor"
+                    ? label
+                        .split(" ")
+                        .map((word) => `<span>${escapeHtml(word)}</span>`)
+                        .join("")
+                    : escapeHtml(label)
+                }
               </button>
             `,
           )
@@ -3076,6 +4583,21 @@ app.addEventListener("click", (event) => {
   }
 
   const action = button.dataset.action;
+
+  if (action === "account-login") {
+    loginAccount();
+    return;
+  }
+
+  if (action === "account-logout") {
+    logoutAccount();
+    return;
+  }
+
+  if (action === "refresh-instructor-stats") {
+    loadInstructorStats();
+    return;
+  }
 
   if (action === "set-jeopardy-mode") {
     setJeopardyMode(button.dataset.mode);
@@ -3244,6 +4766,10 @@ app.addEventListener("click", (event) => {
     clearImportedQuestions();
   }
 
+  if (action === "save-question-bank-edits") {
+    saveQuestionBankEdits();
+  }
+
   if (action === "clear-flashcards") {
     clearImportedFlashcards();
   }
@@ -3273,9 +4799,25 @@ app.addEventListener("click", (event) => {
 app.addEventListener("input", (event) => {
   const target = event.target;
 
+  if (target.dataset.bankEditField) {
+    updateQuestionBankDraft(target);
+  }
+
   if (target.id === "import-text") {
     state.importDraft = target.value;
     clearImportPreview();
+  }
+
+  if (target.id === "question-bank-search") {
+    state.questionBank.search = target.value;
+  }
+
+  if (target.id === "account-username" || target.id === "top-account-username") {
+    state.account.username = target.value;
+  }
+
+  if (target.id === "account-password" || target.id === "top-account-password") {
+    state.account.password = target.value;
   }
 
   if (target.id === "import-custom-category") {
@@ -3296,6 +4838,10 @@ app.addEventListener("input", (event) => {
 app.addEventListener("change", (event) => {
   const target = event.target;
 
+  if (target.dataset.bankEditField) {
+    updateQuestionBankDraft(target);
+  }
+
   if (target.id === "quiz-category") {
     state.quizConfig.category = target.value;
   }
@@ -3304,12 +4850,32 @@ app.addEventListener("change", (event) => {
     state.quizConfig.count = Number(target.value);
   }
 
-  if (target.id === "mock-count") {
-    state.mockConfig.count = Number(target.value);
+  if (target.id === "question-bank-category") {
+    state.questionBank.category = target.value || "all";
   }
 
-  if (target.id === "mock-duration") {
-    state.mockConfig.durationMinutes = Number(target.value);
+  if (target.id === "question-bank-exam") {
+    state.questionBank.exam = target.value || "all";
+    state.questionBank.question = "all";
+  }
+
+  if (target.id === "question-bank-question") {
+    state.questionBank.question = target.value || "all";
+  }
+
+  if (target.id === "question-bank-source") {
+    state.questionBank.source = ["all", "shared", "imported"].includes(target.value) ? target.value : "all";
+  }
+
+  if (target.id === "instructor-user-select") {
+    state.instructor.selectedUser = target.value || "all";
+  }
+
+  if (target.id === "mock-format") {
+    const selectedFormat =
+      MOCK_EXAM_OPTIONS.find((option) => option.count === Number(target.value)) || MOCK_EXAM_OPTIONS[0];
+    state.mockConfig.count = selectedFormat.count;
+    state.mockConfig.durationMinutes = selectedFormat.durationMinutes;
   }
 
   if (target.id === "import-file" && target.files && target.files[0]) {
@@ -3369,6 +4935,7 @@ window.setInterval(() => {
 
 buildJeopardyBoard();
 renderApp();
+restoreAccountSession();
 
 if (state.live.auth && hasSharedLiveBank()) {
   connectLiveSocket();

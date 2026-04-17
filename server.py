@@ -1,4 +1,7 @@
 import asyncio
+import base64
+import hashlib
+import hmac
 import json
 import os
 import random
@@ -13,7 +16,12 @@ from aiohttp import WSMsgType, web
 ROOT = Path(__file__).parent
 DATA_PATH = ROOT / "data.js"
 ATTEMPTS_PATH = Path(os.getenv("ATTEMPTS_PATH", str(ROOT / ".shared_attempts.json")))
+USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
+USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
 BOARD_VALUES = [100, 200, 300, 400, 500]
+PASSWORD_ITERATIONS = 260000
+MAX_USER_ATTEMPTS = 10000
+MAX_USER_PLACEMENTS = 500
 
 
 def parse_js_literal(node):
@@ -75,6 +83,307 @@ def save_attempt_store():
     ATTEMPTS_PATH.write_text(json.dumps(ATTEMPT_STORE))
 
 
+def load_user_store():
+    if USER_STORE_PATH.exists():
+        try:
+            store = json.loads(USER_STORE_PATH.read_text())
+            if isinstance(store.get("users"), dict):
+                return store
+        except Exception:
+            pass
+    return {"users": {}}
+
+
+USER_STORE = load_user_store()
+AUTH_TOKENS = {}
+
+
+def normalize_credential_entry(username, entry):
+    cleaned_username = str(username or "").strip().lower()
+    if len(cleaned_username) < 2 or len(cleaned_username) > 64:
+        return None
+    if any(char not in "abcdefghijklmnopqrstuvwxyz0123456789._-@" for char in cleaned_username):
+        return None
+
+    if isinstance(entry, str):
+        password = entry
+        display_name = cleaned_username
+        role = "student"
+    elif isinstance(entry, dict):
+        password = entry.get("password", "")
+        display_name = entry.get("displayName") or entry.get("display_name") or cleaned_username
+        role = str(entry.get("role") or "student").strip().lower()
+    else:
+        return None
+
+    password = str(password)
+    if not password:
+        return None
+
+    return {
+        "username": cleaned_username,
+        "password": password,
+        "display_name": str(display_name).strip() or cleaned_username,
+        "role": "instructor" if role == "instructor" else "student",
+    }
+
+
+def load_plaintext_credentials():
+    if not USER_CREDENTIALS_PATH.exists():
+        return {}
+    try:
+        raw = json.loads(USER_CREDENTIALS_PATH.read_text())
+    except Exception:
+        return {}
+
+    raw_users = raw.get("users", raw) if isinstance(raw, dict) else raw
+    credentials = {}
+
+    if isinstance(raw_users, dict):
+        for username, entry in raw_users.items():
+            normalized = normalize_credential_entry(username, entry)
+            if normalized:
+                credentials[normalized["username"]] = normalized
+    elif isinstance(raw_users, list):
+        for entry in raw_users:
+            if not isinstance(entry, dict):
+                continue
+            normalized = normalize_credential_entry(entry.get("username"), entry)
+            if normalized:
+                credentials[normalized["username"]] = normalized
+
+    return credentials
+
+
+def ensure_plaintext_user(username, credential):
+    users = USER_STORE.setdefault("users", {})
+    user = users.setdefault(
+        username,
+        {
+            "display_name": credential["display_name"],
+            "performance": [],
+            "created_at": time.time(),
+        },
+    )
+    user["display_name"] = credential["display_name"]
+    user["role"] = credential["role"]
+    user["credential_source"] = "user_credentials.json"
+    return user
+
+
+def save_user_store():
+    USER_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    USER_STORE_PATH.write_text(json.dumps(USER_STORE, indent=2))
+
+
+def hash_password(password, salt=None, iterations=PASSWORD_ITERATIONS):
+    salt_bytes = base64.b64decode(salt) if salt else secrets.token_bytes(16)
+    digest = hashlib.pbkdf2_hmac(
+        "sha256",
+        str(password).encode("utf-8"),
+        salt_bytes,
+        iterations,
+    )
+    return {
+        "salt": base64.b64encode(salt_bytes).decode("ascii"),
+        "password_hash": base64.b64encode(digest).decode("ascii"),
+        "iterations": iterations,
+    }
+
+
+def verify_password(password, user):
+    salt = user.get("salt")
+    expected = user.get("password_hash")
+    if not salt or not expected:
+        return False
+    iterations = int(user.get("iterations", PASSWORD_ITERATIONS))
+    candidate = hash_password(password, salt, iterations)
+    return hmac.compare_digest(candidate["password_hash"], expected)
+
+
+def authenticate_user(username, password):
+    credentials = load_plaintext_credentials()
+    credential = credentials.get(username)
+    if credential and hmac.compare_digest(str(password), credential["password"]):
+        user = ensure_plaintext_user(username, credential)
+        save_user_store()
+        return user
+
+    user = USER_STORE["users"].get(username)
+    if user and verify_password(password, user):
+        return user
+
+    return None
+
+
+def sanitize_account_username(value):
+    cleaned = str(value or "").strip().lower()
+    if len(cleaned) < 2:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Username must be at least 2 characters."}),
+            content_type="application/json",
+        )
+    if len(cleaned) > 64 or any(char not in "abcdefghijklmnopqrstuvwxyz0123456789._-@" for char in cleaned):
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Use 2-64 letters, numbers, dots, dashes, underscores, or @ for usernames."}),
+            content_type="application/json",
+        )
+    return cleaned
+
+
+def public_user(username, user):
+    return {
+        "username": username,
+        "displayName": user.get("display_name") or username,
+        "role": user.get("role") or "student",
+        "attemptCount": len(user.get("performance", [])),
+        "placementCount": len(user.get("live_placements", [])),
+    }
+
+
+def get_auth_username(request):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return None
+    token = auth_header.removeprefix("Bearer ").strip()
+    username = AUTH_TOKENS.get(token)
+    if username and username in USER_STORE["users"]:
+        return username
+    return None
+
+
+def require_auth_username(request):
+    username = get_auth_username(request)
+    if not username:
+        raise web.HTTPUnauthorized(
+            text=json.dumps({"error": "Please sign in to save or review account history."}),
+            content_type="application/json",
+        )
+    return username
+
+
+def require_instructor_username(request):
+    username = require_auth_username(request)
+    user = USER_STORE["users"].get(username, {})
+    if user.get("role") != "instructor":
+        raise web.HTTPForbidden(
+            text=json.dumps({"error": "Instructor access is required for this dashboard."}),
+            content_type="application/json",
+        )
+    return username
+
+
+def normalize_attempt_entry(attempt):
+    question_id = str(attempt.get("questionId", "")).strip()
+    if not question_id:
+        return None
+
+    question = QUESTION_BY_ID.get(question_id, {})
+    return {
+        "questionId": question_id,
+        "category": str(attempt.get("category") or question.get("category") or "Unknown"),
+        "topic": str(attempt.get("topic") or question.get("topic") or "Unknown"),
+        "type": str(attempt.get("type") or question.get("type") or "unknown"),
+        "difficulty": int(attempt.get("difficulty") or question.get("difficulty") or 1),
+        "mode": str(attempt.get("mode", "unknown")).strip() or "unknown",
+        "correct": bool(attempt.get("correct")),
+        "timestamp": int(attempt.get("timestamp") or time.time() * 1000),
+    }
+
+
+def record_user_attempts(username, attempts):
+    user = USER_STORE["users"][username]
+    performance = user.setdefault("performance", [])
+    normalized = [normalize_attempt_entry(attempt) for attempt in attempts]
+    normalized = [attempt for attempt in normalized if attempt]
+    if not normalized:
+        return 0
+
+    performance.extend(normalized)
+    if len(performance) > MAX_USER_ATTEMPTS:
+        user["performance"] = performance[-MAX_USER_ATTEMPTS:]
+    user["updated_at"] = time.time()
+    save_user_store()
+    return len(normalized)
+
+
+def rank_label(rank):
+    if rank == 1:
+        return "1st"
+    if rank == 2:
+        return "2nd"
+    if rank == 3:
+        return "3rd"
+    return f"{rank}th"
+
+
+def resolve_player_account_username(player):
+    account_username = player.get("account_username")
+    if account_username and account_username in USER_STORE["users"]:
+        return account_username
+
+    live_username = str(player.get("username", "")).strip().lower()
+    if live_username in USER_STORE["users"]:
+        return live_username
+
+    display_matches = [
+        username
+        for username, user in USER_STORE["users"].items()
+        if str(user.get("display_name", "")).strip().lower() == live_username
+    ]
+    if len(display_matches) == 1:
+        return display_matches[0]
+
+    return None
+
+
+def record_live_game_placements(session):
+    if getattr(session, "placements_recorded", False):
+        return 0
+
+    leaderboard = sorted_players(session.players)
+    if not leaderboard:
+        session.placements_recorded = True
+        return 0
+
+    finished_at = int(time.time() * 1000)
+    previous_score = None
+    current_rank = 0
+    recorded = 0
+
+    for index, player in enumerate(leaderboard, start=1):
+        if previous_score is None or player["score"] != previous_score:
+            current_rank = index
+            previous_score = player["score"]
+
+        username = resolve_player_account_username(player)
+        if not username:
+            continue
+
+        user = USER_STORE["users"][username]
+        placements = user.setdefault("live_placements", [])
+        placements.append({
+            "gameCode": session.code,
+            "placement": current_rank,
+            "placementLabel": rank_label(current_rank),
+            "score": player["score"],
+            "playerCount": len(leaderboard),
+            "username": player["username"],
+            "isHost": player["is_host"],
+            "startedAt": int(session.created_at * 1000),
+            "finishedAt": finished_at,
+        })
+        if len(placements) > MAX_USER_PLACEMENTS:
+            user["live_placements"] = placements[-MAX_USER_PLACEMENTS:]
+        user["updated_at"] = time.time()
+        recorded += 1
+
+    session.placements_recorded = True
+    if recorded:
+        save_user_store()
+    return recorded
+
+
 def record_shared_attempt(user_id, question_id, correct, mode):
     question_bucket = ATTEMPT_STORE["questions"].setdefault(
         question_id,
@@ -91,6 +400,160 @@ def record_shared_attempt(user_id, question_id, correct, mode):
     user_bucket["attempts"] += 1
     user_bucket["correct"] += 1 if correct else 0
     save_attempt_store()
+
+
+def summarize_attempts(attempts):
+    summary = {
+        "attempts": len(attempts),
+        "correct": sum(1 for attempt in attempts if attempt.get("correct")),
+        "accuracy": 0,
+        "categoryStats": {},
+        "modeStats": {},
+        "topicStats": {},
+        "typeStats": {},
+    }
+    summary["accuracy"] = round((summary["correct"] / summary["attempts"]) * 100, 1) if summary["attempts"] else 0
+
+    for attempt in attempts:
+        for key, bucket_name in (
+            ("category", "categoryStats"),
+            ("mode", "modeStats"),
+            ("topic", "topicStats"),
+            ("type", "typeStats"),
+        ):
+            label = str(attempt.get(key) or "Unknown")
+            bucket = summary[bucket_name].setdefault(label, {"attempts": 0, "correct": 0, "accuracy": 0})
+            bucket["attempts"] += 1
+            bucket["correct"] += 1 if attempt.get("correct") else 0
+
+    for bucket_name in ("categoryStats", "modeStats", "topicStats", "typeStats"):
+        for bucket in summary[bucket_name].values():
+            bucket["accuracy"] = round((bucket["correct"] / bucket["attempts"]) * 100, 1) if bucket["attempts"] else 0
+
+    return summary
+
+
+def summarize_placements(placements):
+    counts = {"first": 0, "second": 0, "third": 0}
+    best_score = 0
+    for placement in placements:
+        rank = int(placement.get("placement", 0) or 0)
+        if rank == 1:
+            counts["first"] += 1
+        elif rank == 2:
+            counts["second"] += 1
+        elif rank == 3:
+            counts["third"] += 1
+        best_score = max(best_score, int(placement.get("score", 0) or 0))
+    return {
+        "gamesPlayed": len(placements),
+        "podiumCounts": counts,
+        "bestScore": best_score,
+    }
+
+
+def merge_stat_bucket(target, source):
+    for label, stats in source.items():
+        bucket = target.setdefault(label, {"attempts": 0, "correct": 0, "accuracy": 0})
+        bucket["attempts"] += int(stats.get("attempts", 0) or 0)
+        bucket["correct"] += int(stats.get("correct", 0) or 0)
+
+
+def finalize_stat_bucket(bucket):
+    for stats in bucket.values():
+        stats["accuracy"] = round((stats["correct"] / stats["attempts"]) * 100, 1) if stats["attempts"] else 0
+    return dict(sorted(bucket.items(), key=lambda item: (-item[1]["attempts"], item[0])))
+
+
+def public_attempt(attempt):
+    question = QUESTION_BY_ID.get(attempt.get("questionId"), {})
+    return {
+        "questionId": attempt.get("questionId"),
+        "question": question.get("question", attempt.get("questionId", "Unknown question")),
+        "category": attempt.get("category") or question.get("category") or "Unknown",
+        "topic": attempt.get("topic") or question.get("topic") or "Unknown",
+        "type": attempt.get("type") or question.get("type") or "unknown",
+        "difficulty": attempt.get("difficulty") or question.get("difficulty") or 1,
+        "mode": attempt.get("mode") or "unknown",
+        "correct": bool(attempt.get("correct")),
+        "timestamp": attempt.get("timestamp") or 0,
+    }
+
+
+def build_instructor_stats():
+    credentials = load_plaintext_credentials()
+    usernames = sorted(set(credentials.keys()) | set(USER_STORE.get("users", {}).keys()))
+    users = []
+    aggregate = {
+        "totalUsers": 0,
+        "activeUsers": 0,
+        "totalAttempts": 0,
+        "totalCorrect": 0,
+        "accuracy": 0,
+        "totalLiveGames": 0,
+        "categoryStats": {},
+        "modeStats": {},
+        "topicStats": {},
+        "typeStats": {},
+        "recentAttempts": [],
+    }
+
+    for username in usernames:
+        credential = credentials.get(username, {})
+        user = USER_STORE.get("users", {}).get(username, {})
+        role = user.get("role") or credential.get("role") or "student"
+        display_name = user.get("display_name") or credential.get("display_name") or username
+        attempts = list(user.get("performance", []))
+        placements = list(user.get("live_placements", []))
+        attempt_summary = summarize_attempts(attempts)
+        placement_summary = summarize_placements(placements)
+
+        user_payload = {
+            "username": username,
+            "displayName": display_name,
+            "role": role,
+            "summary": attempt_summary,
+            "placements": placement_summary,
+            "recentAttempts": [public_attempt(attempt) for attempt in sorted(attempts, key=lambda item: item.get("timestamp", 0), reverse=True)[:100]],
+            "livePlacements": sorted(placements, key=lambda item: item.get("finishedAt", 0), reverse=True)[:100],
+        }
+        users.append(user_payload)
+
+        if role == "instructor":
+            continue
+
+        aggregate["totalUsers"] += 1
+        if attempts:
+            aggregate["activeUsers"] += 1
+        aggregate["totalAttempts"] += attempt_summary["attempts"]
+        aggregate["totalCorrect"] += attempt_summary["correct"]
+        aggregate["totalLiveGames"] += placement_summary["gamesPlayed"]
+        aggregate["recentAttempts"].extend(
+            {
+                **public_attempt(attempt),
+                "username": username,
+                "displayName": display_name,
+            }
+            for attempt in attempts
+        )
+        merge_stat_bucket(aggregate["categoryStats"], attempt_summary["categoryStats"])
+        merge_stat_bucket(aggregate["modeStats"], attempt_summary["modeStats"])
+        merge_stat_bucket(aggregate["topicStats"], attempt_summary["topicStats"])
+        merge_stat_bucket(aggregate["typeStats"], attempt_summary["typeStats"])
+
+    aggregate["accuracy"] = round((aggregate["totalCorrect"] / aggregate["totalAttempts"]) * 100, 1) if aggregate["totalAttempts"] else 0
+    aggregate["categoryStats"] = finalize_stat_bucket(aggregate["categoryStats"])
+    aggregate["modeStats"] = finalize_stat_bucket(aggregate["modeStats"])
+    aggregate["topicStats"] = finalize_stat_bucket(aggregate["topicStats"])
+    aggregate["typeStats"] = finalize_stat_bucket(aggregate["typeStats"])
+    aggregate["recentAttempts"] = sorted(
+        aggregate["recentAttempts"],
+        key=lambda item: item.get("timestamp", 0),
+        reverse=True,
+    )[:150]
+
+    users.sort(key=lambda user: (user["role"] == "instructor", user["displayName"].lower()))
+    return {"aggregate": aggregate, "users": users}
 
 
 def get_weighted_question_difficulty(question):
@@ -204,7 +667,7 @@ def build_board():
 
 
 class GameSession:
-    def __init__(self, code, host_name):
+    def __init__(self, code, host_name, host_account_username=None):
         self.code = code
         self.created_at = time.time()
         self.status = "lobby"
@@ -217,16 +680,18 @@ class GameSession:
         self.active_question = None
         self.question_task = None
         self.last_results = []
+        self.placements_recorded = False
         self.lock = asyncio.Lock()
-        self._create_player(host_name, is_host=True)
+        self._create_player(host_name, is_host=True, account_username=host_account_username)
 
-    def _create_player(self, username, is_host=False):
+    def _create_player(self, username, is_host=False, account_username=None):
         player_id = secrets.token_hex(6)
         token = secrets.token_urlsafe(18)
         player = {
             "id": player_id,
             "token": token,
             "username": username,
+            "account_username": account_username,
             "score": 0,
             "is_host": is_host,
             "connected": False,
@@ -251,7 +716,7 @@ class GameSession:
                 return player
         return None
 
-    def join(self, username):
+    def join(self, username, account_username=None):
         for player in self.players.values():
             if player["username"].lower() == username.lower():
                 if player["connected"]:
@@ -260,6 +725,8 @@ class GameSession:
                         content_type="application/json",
                     )
                 player["token"] = secrets.token_urlsafe(18)
+                if account_username:
+                    player["account_username"] = account_username
                 return player
 
         if self.status != "lobby":
@@ -268,7 +735,7 @@ class GameSession:
                 content_type="application/json",
             )
 
-        return self._create_player(username)
+        return self._create_player(username, account_username=account_username)
 
     def connected_player_ids(self):
         return [player_id for player_id, player in self.players.items() if player["connected"]]
@@ -335,6 +802,9 @@ class GameSession:
                 "type": self.active_question["question"]["type"],
                 "difficulty": self.active_question["question"]["difficulty"],
                 "question": self.active_question["question"]["question"],
+                "image": self.active_question["question"].get("image"),
+                "imageAlt": self.active_question["question"].get("imageAlt"),
+                "imageCaption": self.active_question["question"].get("imageCaption"),
                 "options": self.active_question["question"]["options"],
                 "openedByPlayerId": self.active_question["opened_by_player_id"],
                 "openedByUsername": opened_by["username"] if opened_by else "Player",
@@ -350,6 +820,7 @@ class GameSession:
             if self.status in {"reveal", "board_complete", "finished"}:
                 active["correctAnswerIndex"] = self.active_question["question"]["answerIndex"]
                 active["explanation"] = self.active_question["question"]["explanation"]
+                active["source"] = self.active_question["question"].get("source")
                 active["viewerResult"] = {
                     "selectedIndex": viewer_answer["selectedIndex"] if viewer_answer else None,
                     "correct": viewer_answer["selectedIndex"] == self.active_question["question"]["answerIndex"]
@@ -566,6 +1037,7 @@ class GameSession:
         self.cancel_question_task()
         self.active_question = None
         self.status = "finished"
+        record_live_game_placements(self)
         await self.broadcast_state()
 
 
@@ -582,6 +1054,53 @@ async def json_body(request):
         )
 
 
+async def login_user(request):
+    payload = await json_body(request)
+    username = sanitize_account_username(payload.get("username"))
+    password = str(payload.get("password", ""))
+    user = authenticate_user(username, password)
+
+    if not user:
+        raise web.HTTPUnauthorized(
+            text=json.dumps({"error": "Username or password is incorrect."}),
+            content_type="application/json",
+        )
+
+    token = secrets.token_urlsafe(32)
+    AUTH_TOKENS[token] = username
+    user["last_login_at"] = time.time()
+    save_user_store()
+    return web.json_response({
+        "token": token,
+        "user": public_user(username, user),
+        "performance": user.get("performance", []),
+        "placements": user.get("live_placements", []),
+    })
+
+
+async def logout_user(request):
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header.removeprefix("Bearer ").strip()
+        AUTH_TOKENS.pop(token, None)
+    return web.json_response({"ok": True})
+
+
+async def current_user(request):
+    username = require_auth_username(request)
+    user = USER_STORE["users"][username]
+    return web.json_response({
+        "user": public_user(username, user),
+        "performance": user.get("performance", []),
+        "placements": user.get("live_placements", []),
+    })
+
+
+async def instructor_stats(request):
+    require_instructor_username(request)
+    return web.json_response(build_instructor_stats())
+
+
 async def create_game(request):
     if not has_live_question_bank():
         raise web.HTTPBadRequest(
@@ -590,9 +1109,10 @@ async def create_game(request):
         )
 
     payload = await json_body(request)
+    auth_username = get_auth_username(request)
     username = sanitize_username(payload.get("username"))
     code = random_code(SESSIONS.keys())
-    session = GameSession(code, username)
+    session = GameSession(code, username, host_account_username=auth_username)
     SESSIONS[code] = session
     host_player = session.players[session.host_player_id]
     return web.json_response(session.create_join_response(host_player))
@@ -600,6 +1120,7 @@ async def create_game(request):
 
 async def join_game(request):
     payload = await json_body(request)
+    auth_username = get_auth_username(request)
     username = sanitize_username(payload.get("username"))
     code = str(payload.get("code", "")).strip()
 
@@ -610,13 +1131,14 @@ async def join_game(request):
         )
 
     session = SESSIONS[code]
-    player = session.join(username)
+    player = session.join(username, account_username=auth_username)
     return web.json_response(session.create_join_response(player))
 
 
 async def record_attempts(request):
     payload = await json_body(request)
-    user_id = str(payload.get("userId", "")).strip()
+    auth_username = get_auth_username(request)
+    user_id = auth_username or str(payload.get("userId", "")).strip()
     attempts = payload.get("attempts", [])
 
     if not user_id:
@@ -641,7 +1163,11 @@ async def record_attempts(request):
         record_shared_attempt(user_id, question_id, correct, mode)
         recorded += 1
 
-    return web.json_response({"recorded": recorded})
+    userRecorded = 0
+    if auth_username:
+        userRecorded = record_user_attempts(auth_username, attempts)
+
+    return web.json_response({"recorded": recorded, "userRecorded": userRecorded})
 
 
 async def websocket_handler(request):
@@ -719,6 +1245,10 @@ async def serve_app(request):
 
 def create_app():
     app = web.Application()
+    app.router.add_post("/api/auth/login", login_user)
+    app.router.add_post("/api/auth/logout", logout_user)
+    app.router.add_get("/api/auth/me", current_user)
+    app.router.add_get("/api/instructor/stats", instructor_stats)
     app.router.add_post("/api/games/create", create_game)
     app.router.add_post("/api/games/join", join_game)
     app.router.add_post("/api/attempts", record_attempts)
