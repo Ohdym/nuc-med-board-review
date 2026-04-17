@@ -3317,6 +3317,7 @@ function renderAppChrome(summary) {
         </div>
       </div>
       <div class="topbar__right">
+        ${renderAccountCorner()}
         <div class="topbar__meta">
           <article class="status-chip">
             <span>Readiness</span>
@@ -4704,7 +4705,6 @@ function renderApp() {
 
   app.innerHTML = `
     <div class="shell">
-      ${renderAccountCorner()}
       ${renderAppChrome(summary)}
       ${renderPrimaryNav()}
       ${renderPageHero()}

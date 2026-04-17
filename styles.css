@@ -130,7 +130,6 @@ button {
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-bottom: 0.55rem;
 }
 
 .account-corner__user {
@@ -1656,10 +1655,6 @@ button {
   .topbar,
   .headline {
     margin-bottom: 0.6rem;
-  }
-
-  .account-corner {
-    margin-bottom: 0.45rem;
   }
 
   .shell--login {
