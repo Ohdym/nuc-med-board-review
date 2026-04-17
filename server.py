@@ -20,6 +20,17 @@ USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
 USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
 USER_CREDENTIALS_JSON = os.getenv("USER_CREDENTIALS_JSON", "").strip()
 USER_CREDENTIALS_B64 = os.getenv("USER_CREDENTIALS_B64", "").strip()
+PDF_SOURCE_ROOT = Path(os.getenv("PDF_SOURCE_ROOT", str(ROOT / "source-pdfs")))
+PDF_SOURCE_FILES = {
+    "early-sodee": "early-sodee.pdf",
+    "waterstram-gilmore": "waterstram-gilmore.pdf",
+    "saha": "saha.pdf",
+    "shackett-part-1": "shackett-part-1.pdf",
+    "shackett-part-2": "shackett-part-2.pdf",
+    "shackett-part-3": "shackett-part-3.pdf",
+    "shackett-part-4": "shackett-part-4.pdf",
+    "adler-carlton": "adler-carlton.pdf",
+}
 BOARD_VALUES = [100, 200, 300, 400, 500]
 PASSWORD_ITERATIONS = 260000
 MAX_USER_ATTEMPTS = 10000
@@ -1318,6 +1329,19 @@ async def serve_app(request):
     return web.FileResponse(ROOT / "index.html")
 
 
+async def serve_source_pdf(request):
+    book_key = request.match_info.get("book_key", "").strip().lower()
+    filename = PDF_SOURCE_FILES.get(book_key)
+    if not filename:
+        raise web.HTTPNotFound(text="Unknown PDF source.")
+
+    candidate = PDF_SOURCE_ROOT / filename
+    if not candidate.exists() or not candidate.is_file():
+        raise web.HTTPNotFound(text="PDF source file was not found on this server.")
+
+    return web.FileResponse(candidate)
+
+
 def create_app():
     app = web.Application()
     app.router.add_post("/api/auth/login", login_user)
@@ -1328,6 +1352,7 @@ def create_app():
     app.router.add_post("/api/games/join", join_game)
     app.router.add_post("/api/attempts", record_attempts)
     app.router.add_get("/ws", websocket_handler)
+    app.router.add_get("/source-pdfs/{book_key}.pdf", serve_source_pdf)
     app.router.add_get("/{path:.*}", serve_app)
     return app
 

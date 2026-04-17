@@ -277,18 +277,16 @@ function formatScientificText(value) {
 
 const SOURCE_PDF_BOOKS = [
   {
-    key: "earlySodee",
+    key: "early-sodee",
     title: "Principles and Practice of Nuclear Medicine",
-    file: "Book Pdf/Principles and Practice of Nuclear Medicine (Principles & Practice of Nuclear Medicine ( Early)).pdf",
     authorPattern: /Early and Sodee/i,
     pageOffset: 22,
     minPrintedPage: 3,
     maxPrintedPage: 881,
   },
   {
-    key: "waterstramGilmore",
+    key: "waterstram-gilmore",
     title: "Nuclear Medicine and PET/CT Technology and Techniques",
-    file: "Book Pdf/Kristen Waterstram-Rich (editor), David Gilmore (editor) - Nuclear Medicine and PET_CT_ Technology and Techniques (2016, Mosby) - libgen.li.pdf",
     authorPattern: /Waterstram-Rich|Gilmore/i,
     pageOffset: 15,
     minPrintedPage: 1,
@@ -297,7 +295,6 @@ const SOURCE_PDF_BOOKS = [
   {
     key: "saha",
     title: "Physics and Radiobiology of Nuclear Medicine",
-    file: "Book Pdf/Gopal B. Saha (auth.) - Physics and Radiobiology of Nuclear Medicine (2013, Springer) [10.1007_978-1-4614-4012-3] - libgen.li (1).pdf",
     authorPattern: /Saha/i,
     pageSegments: [
       [1, 45, 15],
@@ -315,16 +312,20 @@ const SOURCE_PDF_BOOKS = [
   {
     key: "shackett",
     title: "Nuclear Medicine Technology: Procedures and Quick Reference",
-    file: "Book Pdf/Pete Shackett - Nuclear medicine technology _ procedures and quick reference (2020) - libgen.li.pdf",
     authorPattern: /Shackett/i,
     pageOffset: 0,
     minPrintedPage: 1,
     maxPrintedPage: 745,
+    parts: [
+      { key: "shackett-part-1", startPdfPage: 1, endPdfPage: 190 },
+      { key: "shackett-part-2", startPdfPage: 191, endPdfPage: 380 },
+      { key: "shackett-part-3", startPdfPage: 381, endPdfPage: 570 },
+      { key: "shackett-part-4", startPdfPage: 571, endPdfPage: 745 },
+    ],
   },
   {
-    key: "adlerCarlton",
+    key: "adler-carlton",
     title: "Introduction to Radiologic Sciences and Patient Care",
-    file: "Book Pdf/Introduction to Radiologic Sciences and Patient Care Adler MEd RT(R) FAEIRS, Arlene M., Carlton.pdf",
     authorPattern: /Adler|Carlton/i,
     pageOffset: 16,
     minPrintedPage: 1,
@@ -360,8 +361,18 @@ function buildSourcePdfHref(book, printedPage) {
   if (!pdfPage) {
     return null;
   }
+  if (Array.isArray(book.parts)) {
+    const part = book.parts.find((entry) => pdfPage >= entry.startPdfPage && pdfPage <= entry.endPdfPage);
+    if (!part) {
+      return null;
+    }
+    return {
+      href: `/source-pdfs/${part.key}.pdf#page=${pdfPage - part.startPdfPage + 1}`,
+      pdfPage,
+    };
+  }
   return {
-    href: `${encodeURI(book.file)}#page=${pdfPage}`,
+    href: `/source-pdfs/${book.key}.pdf#page=${pdfPage}`,
     pdfPage,
   };
 }
