@@ -59,6 +59,7 @@ const ISOTOPE_SYMBOL_PATTERN = Object.keys(ISOTOPE_MASSES_BY_SYMBOL)
   .join("|");
 
 const app = document.querySelector("#app");
+const savedAccountAuth = loadJSON(STORAGE_KEYS.accountAuth, null);
 
 function loadSharedUserId() {
   const existing = localStorage.getItem(STORAGE_KEYS.sharedUserId);
@@ -82,7 +83,8 @@ const state = {
   questionEdits: loadJSON(STORAGE_KEYS.questionEdits, {}),
   performance: loadJSON(STORAGE_KEYS.performance, []),
   account: {
-    auth: loadJSON(STORAGE_KEYS.accountAuth, null),
+    auth: savedAccountAuth,
+    verifying: Boolean(savedAccountAuth && savedAccountAuth.token),
     username: "",
     password: "",
     busy: false,
@@ -1863,6 +1865,7 @@ function applyAccountSession(data) {
     displayName: data.user.displayName || data.user.username,
     role: data.user.role || "student",
   };
+  state.account.verifying = false;
   if (Array.isArray(data.performance)) {
     state.performance = data.performance;
     saveJSON(STORAGE_KEYS.performance, state.performance);
@@ -1908,7 +1911,7 @@ async function apiRequest(path, method, payload) {
 }
 
 async function loginAccount() {
-  if (state.account.busy) {
+  if (state.account.busy || state.account.verifying) {
     return;
   }
 
@@ -1952,6 +1955,7 @@ async function logoutAccount() {
   }
 
   state.account.auth = null;
+  state.account.verifying = false;
   state.account.password = "";
   state.account.placements = [];
   state.instructor.data = null;
@@ -1968,10 +1972,14 @@ async function restoreAccountSession() {
     if (state.account.auth) {
       state.account.auth = null;
       persistAccountAuth();
-      renderApp();
     }
+    state.account.verifying = false;
+    renderApp();
     return;
   }
+
+  state.account.verifying = true;
+  renderApp();
 
   try {
     const data = await apiRequest("/api/auth/me", "GET");
@@ -1981,6 +1989,7 @@ async function restoreAccountSession() {
     }
   } catch (error) {
     state.account.auth = null;
+    state.account.verifying = false;
     persistAccountAuth();
     setAccountMessage("error", "Saved sign-in expired. Please sign in again.");
   }
@@ -3516,31 +3525,35 @@ function renderPageHero() {
 }
 
 function renderLoginGate() {
+  const isCheckingSession = Boolean(state.account.verifying);
+  const message = isCheckingSession ? "Checking saved sign-in..." : state.account.message;
+  const messageTone = state.account.tone === "error" ? "error" : "info";
+
   return `
     <main class="login-gate">
       <section class="login-card">
         <div class="login-card__header">
           <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
           <h1>Nuclear Medicine Boards Review</h1>
-          <p>Sign in to access quizzes, mock exams, the question bank, profile stats, and live Jeopardy review.</p>
+          <p>${isCheckingSession ? "Verifying your saved login before opening the review workspace." : "Sign in to access quizzes, mock exams, the question bank, profile stats, and live Jeopardy review."}</p>
         </div>
         <form class="login-card__form" data-form-action="account-login">
           <label class="field">
             <span>Username</span>
-            <input id="account-username" type="text" autocomplete="username" placeholder="username" value="${escapeHtml(state.account.username)}" autofocus />
+            <input id="account-username" type="text" autocomplete="username" placeholder="username" value="${escapeHtml(state.account.username)}" ${isCheckingSession ? "disabled" : "autofocus"} />
           </label>
           <label class="field">
             <span>Password</span>
-            <input id="account-password" type="password" autocomplete="current-password" placeholder="password" value="${escapeHtml(state.account.password)}" />
+            <input id="account-password" type="password" autocomplete="current-password" placeholder="password" value="${escapeHtml(state.account.password)}" ${isCheckingSession ? "disabled" : ""} />
           </label>
-          <button type="submit" class="button button--primary" ${state.account.busy ? "disabled" : ""}>
-            ${state.account.busy ? "Signing in..." : "Login"}
+          <button type="submit" class="button button--primary" ${state.account.busy || isCheckingSession ? "disabled" : ""}>
+            ${isCheckingSession ? "Checking..." : state.account.busy ? "Signing in..." : "Login"}
           </button>
         </form>
         ${
-          state.account.message
-            ? `<div class="import-feedback import-feedback--${state.account.tone === "error" ? "error" : "info"}">
-                <strong>${escapeHtml(state.account.message)}</strong>
+          message
+            ? `<div class="import-feedback import-feedback--${messageTone}">
+                <strong>${escapeHtml(message)}</strong>
               </div>`
             : ""
         }
@@ -4834,7 +4847,7 @@ function renderLiveView() {
 function renderApp() {
   const summary = computePerformanceSummary();
 
-  if (!hasAccountSession()) {
+  if (!hasAccountSession() || state.account.verifying) {
     app.innerHTML = `
       <div class="shell shell--login">
         ${renderLoginGate()}
