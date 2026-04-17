@@ -263,6 +263,21 @@ def public_user(username, user):
     }
 
 
+def first_name_from_display(value):
+    name = " ".join(str(value or "").strip().split())
+    if not name:
+        return ""
+    return name.split(" ")[0]
+
+
+def live_name_for_account(account_username, fallback):
+    if account_username and account_username in USER_STORE["users"]:
+        first_name = first_name_from_display(USER_STORE["users"][account_username].get("display_name"))
+        if first_name:
+            return first_name[:20]
+    return sanitize_username(fallback)
+
+
 def get_auth_username(request):
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
@@ -369,6 +384,7 @@ def record_live_game_placements(session):
         return 0
 
     finished_at = int(time.time() * 1000)
+    display_names = session.player_display_names()
     previous_score = None
     current_rank = 0
     recorded = 0
@@ -390,7 +406,7 @@ def record_live_game_placements(session):
             "placementLabel": rank_label(current_rank),
             "score": player["score"],
             "playerCount": len(leaderboard),
-            "username": player["username"],
+            "username": display_names.get(player["id"], player["username"]),
             "isHost": player["is_host"],
             "startedAt": int(session.created_at * 1000),
             "finishedAt": finished_at,
@@ -713,6 +729,7 @@ class GameSession:
             "id": player_id,
             "token": token,
             "username": username,
+            "base_username": username,
             "account_username": account_username,
             "score": 0,
             "is_host": is_host,
@@ -723,6 +740,25 @@ class GameSession:
         if is_host:
             self.host_player_id = player_id
         return player
+
+    def player_display_names(self):
+        base_groups = {}
+        for player in self.players.values():
+            base = str(player.get("base_username") or player.get("username") or "Player").strip() or "Player"
+            base_groups.setdefault(base.lower(), {"base": base, "players": []})["players"].append(player)
+
+        display_names = {}
+        for group in base_groups.values():
+            players = sorted(group["players"], key=lambda player: player["joined_at"])
+            if len(players) == 1:
+                display_names[players[0]["id"]] = group["base"]
+                continue
+
+            for index, player in enumerate(players, start=1):
+                suffix = f" ({index})"
+                display_names[player["id"]] = f"{group['base'][: max(1, 20 - len(suffix))]}{suffix}"
+
+        return display_names
 
     def create_join_response(self, player):
         return {
@@ -739,8 +775,21 @@ class GameSession:
         return None
 
     def join(self, username, account_username=None):
+        if account_username:
+            for player in self.players.values():
+                if player.get("account_username") == account_username:
+                    if player["connected"]:
+                        raise web.HTTPBadRequest(
+                            text=json.dumps({"error": "That account is already active in this game."}),
+                            content_type="application/json",
+                        )
+                    player["token"] = secrets.token_urlsafe(18)
+                    return player
+
         for player in self.players.values():
             if player["username"].lower() == username.lower():
+                if account_username:
+                    continue
                 if player["connected"]:
                     raise web.HTTPBadRequest(
                         text=json.dumps({"error": "That username is already active in this game."}),
@@ -783,14 +832,16 @@ class GameSession:
         if not self.players:
             return []
         leaderboard = sorted_players(self.players)
+        display_names = self.player_display_names()
         top_score = leaderboard[0]["score"]
-        return [player["username"] for player in leaderboard if player["score"] == top_score]
+        return [display_names.get(player["id"], player["username"]) for player in leaderboard if player["score"] == top_score]
 
     def public_state(self, viewer_id=None):
+        display_names = self.player_display_names()
         players = [
             {
                 "id": player["id"],
-                "username": player["username"],
+                "username": display_names.get(player["id"], player["username"]),
                 "score": player["score"],
                 "connected": player["connected"],
                 "isHost": player["is_host"],
@@ -829,7 +880,7 @@ class GameSession:
                 "imageCaption": self.active_question["question"].get("imageCaption"),
                 "options": self.active_question["question"]["options"],
                 "openedByPlayerId": self.active_question["opened_by_player_id"],
-                "openedByUsername": opened_by["username"] if opened_by else "Player",
+                "openedByUsername": display_names.get(opened_by["id"], opened_by["username"]) if opened_by else "Player",
                 "answerCount": len(self.active_question["answers"]),
                 "hasAnswered": viewer_id in self.active_question["answers"],
                 "selectedIndex": viewer_answer["selectedIndex"] if viewer_answer else None,
@@ -852,7 +903,8 @@ class GameSession:
 
         current_turn_name = None
         if self.current_turn_player_id and self.current_turn_player_id in self.players:
-            current_turn_name = self.players[self.current_turn_player_id]["username"]
+            current_turn = self.players[self.current_turn_player_id]
+            current_turn_name = display_names.get(current_turn["id"], current_turn["username"])
 
         return {
             "code": self.code,
@@ -1132,7 +1184,8 @@ async def create_game(request):
 
     payload = await json_body(request)
     auth_username = get_auth_username(request)
-    username = sanitize_username(payload.get("username"))
+    requested_username = sanitize_username(payload.get("username"))
+    username = live_name_for_account(auth_username, requested_username)
     code = random_code(SESSIONS.keys())
     session = GameSession(code, username, host_account_username=auth_username)
     SESSIONS[code] = session
@@ -1143,7 +1196,8 @@ async def create_game(request):
 async def join_game(request):
     payload = await json_body(request)
     auth_username = get_auth_username(request)
-    username = sanitize_username(payload.get("username"))
+    requested_username = sanitize_username(payload.get("username"))
+    username = live_name_for_account(auth_username, requested_username)
     code = str(payload.get("code", "")).strip()
 
     if code not in SESSIONS:

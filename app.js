@@ -524,7 +524,7 @@ function isInstructor() {
 }
 
 function getSignedInLiveName() {
-  return state.account.auth ? state.account.auth.username : "";
+  return state.account.auth ? state.account.auth.displayName || state.account.auth.username : "";
 }
 
 function getPreferredLiveUsername() {
@@ -3138,7 +3138,7 @@ function renderTopbarLogin() {
     return `
       <section class="top-login top-login--signed-in">
         <button type="button" class="top-login__user-link" data-view="profile">
-          <strong>${escapeHtml(state.account.auth.username)}</strong>
+          <strong>${escapeHtml(state.account.auth.displayName || state.account.auth.username)}</strong>
         </button>
         <button type="button" class="button button--tiny button--ghost" data-action="account-logout">Sign out</button>
       </section>
@@ -3162,6 +3162,125 @@ function renderTopbarLogin() {
           : ""
       }
     </form>
+  `;
+}
+
+function getPrimaryNavItems() {
+  return [
+    ["dashboard", "Dashboard"],
+    ["profile", "Profile"],
+    ...(isInstructor() ? [["instructor", "Instructor View"]] : []),
+    ["bank", "Question Bank"],
+    ["quiz", "Quiz"],
+    ["mock", "Mock Exam"],
+    ["jeopardy", "Jeopardy"],
+  ];
+}
+
+function getHeroCopy(view) {
+  const copyByView = {
+    dashboard: {
+      title: "Dashboard",
+      subtitle: "Your home base for Nuclear Medicine board review.",
+      body:
+        "Use the dashboard to check readiness, review category progress, and decide where to study next based on your personal practice history.",
+      highlights: [
+        ["Progress snapshot", "See readiness, accuracy, and question-bank size at a glance"],
+        ["Category overview", "Find stronger and weaker board-review domains quickly"],
+        ["Next best step", "Move into quiz, mock exam, or Jeopardy practice with context"],
+      ],
+    },
+    profile: {
+      title: "Profile",
+      subtitle: "Review your saved performance and live-game history.",
+      body:
+        "The profile page brings your quiz, mock exam, solo Jeopardy, and online Jeopardy results together so you can track patterns over time.",
+      highlights: [
+        ["Personal stats", "See accuracy by mode, category, and recent attempts"],
+        ["Saved history", "Signed-in practice follows your account across devices"],
+        ["Placements", "Track online Jeopardy finishes and top scores"],
+      ],
+    },
+    instructor: {
+      title: "Instructor View",
+      subtitle: "Monitor class performance and individual student progress.",
+      body:
+        "Instructor View summarizes roster-wide success rates, weak content areas, and individual answer histories for signed-in users.",
+      highlights: [
+        ["Class trends", "Compare performance across board-style categories"],
+        ["Student drilldown", "Select a learner to review individual history"],
+        ["Teaching signals", "Use misses to guide review sessions and remediation"],
+      ],
+    },
+    bank: {
+      title: "Question Bank",
+      subtitle: "Browse, filter, and maintain the shared review question set.",
+      body:
+        "The question bank lets you inspect exam questions by exam number, question number, source, and category. Instructor accounts can edit and save question text.",
+      highlights: [
+        ["Full review bank", "Search stems, options, explanations, topics, and sources"],
+        ["Exam filters", "Jump by exam number or specific question number"],
+        ["Instructor editing", "Correct question text and answer details from the bank"],
+      ],
+    },
+    quiz: {
+      title: "Quiz",
+      subtitle: "Fast untimed active recall in small question sets.",
+      body:
+        "Quiz mode is best for focused practice. Choose a category and a short untimed set, answer one question at a time, and use explanations immediately.",
+      highlights: [
+        ["Untimed sets", "Choose 5, 10, 15, 20, or 25 questions"],
+        ["Personal adaptive mode", "Solo question selection follows your own answer history"],
+        ["Immediate feedback", "Difficulty and explanations appear after answering"],
+      ],
+    },
+    mock: {
+      title: "Mock Exam",
+      subtitle: "Timed board-style exam rehearsal.",
+      body:
+        "Mock Exam mode creates a longer timed session for exam pacing, endurance, and post-test review across Nuclear Medicine registry categories.",
+      highlights: [
+        ["Timed formats", "Choose 60, 120, or 220 questions"],
+        ["Exam pacing", "Practice with 1-hour, 2-hour, or 4-hour timing"],
+        ["Review misses", "Study correct answers and explanations after submission"],
+      ],
+    },
+    jeopardy: {
+      title: "Jeopardy",
+      subtitle: "Solo or online board-review recall game.",
+      body:
+        "Jeopardy turns board categories into an active recall game. Solo boards adapt to your personal history, while online boards use shared performance and live multiplayer turns.",
+      highlights: [
+        ["Solo practice", "Generate an adaptive board for independent review"],
+        ["Online play", "Host or join with a code and compete from multiple devices"],
+        ["Difficulty ladder", "Questions scale from easier lower-value clues to harder high-value clues"],
+      ],
+    },
+  };
+
+  return copyByView[view] || copyByView.dashboard;
+}
+
+function renderPrimaryNav() {
+  return `
+    <nav class="nav-tabs" aria-label="Primary">
+      ${getPrimaryNavItems()
+        .map(
+          ([view, label]) => `
+            <button type="button" class="nav-tab ${view === "instructor" ? "nav-tab--stacked" : ""} ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
+              ${
+                view === "instructor"
+                  ? label
+                      .split(" ")
+                      .map((word) => `<span>${escapeHtml(word)}</span>`)
+                      .join("")
+                  : escapeHtml(label)
+              }
+            </button>
+          `,
+        )
+        .join("")}
+    </nav>
   `;
 }
 
@@ -3194,27 +3313,65 @@ function renderAppChrome(summary) {
         </div>
       </div>
     </header>
+  `;
+}
+
+function renderPageHero() {
+  const copy = getHeroCopy(state.activeView);
+  return `
     <section class="headline headline--oregon-tech">
       <div class="headline__copy">
         <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
-        <h1>Board-focused nuclear medicine prep with an Oregon Tech-inspired academic look.</h1>
-        <p>Study through adaptive quizzes, mock exams, and live Jeopardy rounds in a cleaner interface grounded in Oregon Tech color and campus atmosphere.</p>
+        <h1>${escapeHtml(copy.title)}</h1>
+        <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
         <div class="headline__highlights">
-          <article class="headline-highlight">
-            <span>Built for review</span>
-            <strong>ARRT-style categories with stronger active recall flow</strong>
-          </article>
-          <article class="headline-highlight">
-            <span>Live multiplayer</span>
-            <strong>Join-code Jeopardy with host-controlled rounds</strong>
-          </article>
-          <article class="headline-highlight">
-            <span>Adaptive practice</span>
-            <strong>Difficulty placement informed by shared performance</strong>
-          </article>
+          ${copy.highlights
+            .map(
+              ([label, detail]) => `
+                <article class="headline-highlight">
+                  <span>${escapeHtml(label)}</span>
+                  <strong>${escapeHtml(detail)}</strong>
+                </article>
+              `,
+            )
+            .join("")}
         </div>
       </div>
     </section>
+  `;
+}
+
+function renderLoginGate() {
+  return `
+    <main class="login-gate">
+      <section class="login-card">
+        <div class="login-card__header">
+          <span class="headline__eyebrow">Oregon Tech Blue and Gold</span>
+          <h1>Nuclear Medicine Boards Review</h1>
+          <p>Sign in to access quizzes, mock exams, the question bank, profile stats, and live Jeopardy review.</p>
+        </div>
+        <form class="login-card__form" data-form-action="account-login">
+          <label class="field">
+            <span>Username</span>
+            <input id="account-username" type="text" autocomplete="username" placeholder="username" value="${escapeHtml(state.account.username)}" autofocus />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input id="account-password" type="password" autocomplete="current-password" placeholder="password" value="${escapeHtml(state.account.password)}" />
+          </label>
+          <button type="submit" class="button button--primary" ${state.account.busy ? "disabled" : ""}>
+            ${state.account.busy ? "Signing in..." : "Login"}
+          </button>
+        </form>
+        ${
+          state.account.message
+            ? `<div class="import-feedback import-feedback--${state.account.tone === "error" ? "error" : "info"}">
+                <strong>${escapeHtml(state.account.message)}</strong>
+              </div>`
+            : ""
+        }
+      </section>
+    </main>
   `;
 }
 
@@ -3517,10 +3674,6 @@ function renderMockView() {
                   .join("")}
               </select>
             </label>
-            <article class="insight-card">
-              <span class="insight-card__label">Timer</span>
-              <strong>${selectedFormat.durationMinutes / 60} hour${selectedFormat.durationMinutes === 60 ? "" : "s"}</strong>
-            </article>
             <label class="field field--toggle">
               <span>Adaptive weighting</span>
               <button type="button" class="toggle ${state.mockConfig.adaptive ? "is-on" : ""}" data-action="toggle-mock-adaptive">
@@ -4452,13 +4605,13 @@ function renderLiveEntry() {
             <h3>${state.account.auth ? "Signed-in player name" : "Enter your player name"}</h3>
             <p>${
               state.account.auth
-                ? `Online Jeopardy will use your login username, ${escapeHtml(state.account.auth.username)}, so placements can save to your profile.`
+                ? `Online Jeopardy will show your first name, ${escapeHtml(getSignedInLiveName())}. If another player has the same first name, the live room will add a number automatically.`
                 : "Use the same name for hosting or joining. This is what everyone will see on the scoreboard."
             }</p>
           </div>
           <div class="form-grid form-grid--two">
             <label class="field">
-              <span>Username</span>
+              <span>${state.account.auth ? "Live display name" : "Username"}</span>
               <input id="live-username" type="text" maxlength="20" placeholder="Enter your name" value="${escapeHtml(getPreferredLiveUsername())}" ${state.account.auth ? "disabled" : ""} />
             </label>
             <label class="field">
@@ -4518,6 +4671,16 @@ function renderLiveView() {
 
 function renderApp() {
   const summary = computePerformanceSummary();
+
+  if (!state.account.auth) {
+    app.innerHTML = `
+      <div class="shell shell--login">
+        ${renderLoginGate()}
+      </div>
+    `;
+    return;
+  }
+
   const viewMap = {
     dashboard: renderDashboard(summary),
     profile: renderProfileView(summary),
@@ -4534,32 +4697,8 @@ function renderApp() {
   app.innerHTML = `
     <div class="shell">
       ${renderAppChrome(summary)}
-      <nav class="nav-tabs" aria-label="Primary">
-        ${[
-          ["dashboard", "Dashboard"],
-          ["profile", "Profile"],
-          ...(isInstructor() ? [["instructor", "Instructor View"]] : []),
-          ["bank", "Question Bank"],
-          ["quiz", "Quiz"],
-          ["mock", "Mock Exam"],
-          ["jeopardy", "Jeopardy"],
-        ]
-          .map(
-            ([view, label]) => `
-              <button type="button" class="nav-tab ${view === "instructor" ? "nav-tab--stacked" : ""} ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
-                ${
-                  view === "instructor"
-                    ? label
-                        .split(" ")
-                        .map((word) => `<span>${escapeHtml(word)}</span>`)
-                        .join("")
-                    : escapeHtml(label)
-                }
-              </button>
-            `,
-          )
-          .join("")}
-      </nav>
+      ${renderPrimaryNav()}
+      ${renderPageHero()}
       <main>
         ${viewMap[state.activeView] || viewMap.dashboard}
       </main>
