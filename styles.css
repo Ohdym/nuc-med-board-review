@@ -153,10 +153,10 @@ button {
 }
 
 .top-login input {
-  width: 116px;
+  width: 126px;
   min-height: 34px;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 10px;
   background: white;
   color: var(--ink);
   padding: 0.4rem 0.65rem;

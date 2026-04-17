@@ -6,3 +6,6 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python server.py
     autoDeploy: true
+    envVars:
+      - key: USER_CREDENTIALS_B64
+        sync: false

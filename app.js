@@ -1753,8 +1753,12 @@ async function loginAccount() {
     return;
   }
 
-  const username = state.account.username.trim();
-  const password = state.account.password;
+  const usernameFields = [...document.querySelectorAll("#account-username, #top-account-username")];
+  const passwordFields = [...document.querySelectorAll("#account-password, #top-account-password")];
+  const username = (usernameFields.find((field) => field.value.trim())?.value || state.account.username).trim();
+  const password = passwordFields.find((field) => field.value)?.value || state.account.password;
+  state.account.username = username;
+  state.account.password = password;
 
   if (!username || !password) {
     setAccountMessage("error", "Enter both username and password.");
@@ -3142,7 +3146,7 @@ function renderTopbarLogin() {
   }
 
   return `
-    <section class="top-login">
+    <form class="top-login" data-form-action="account-login">
       <label>
         <span>Username</span>
         <input id="top-account-username" type="text" autocomplete="username" placeholder="login" value="${escapeHtml(state.account.username)}" />
@@ -3157,7 +3161,7 @@ function renderTopbarLogin() {
           ? `<strong class="top-login__message">${escapeHtml(state.account.message)}</strong>`
           : ""
       }
-    </section>
+    </form>
   `;
 }
 
@@ -4794,6 +4798,26 @@ app.addEventListener("click", (event) => {
   }
 
   renderApp();
+});
+
+app.addEventListener("submit", (event) => {
+  const form = event.target.closest("[data-form-action='account-login']");
+  if (!form) {
+    return;
+  }
+
+  event.preventDefault();
+  loginAccount();
+});
+
+app.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Enter" &&
+    event.target.matches("#account-username, #account-password, #top-account-username, #top-account-password")
+  ) {
+    event.preventDefault();
+    loginAccount();
+  }
 });
 
 app.addEventListener("input", (event) => {

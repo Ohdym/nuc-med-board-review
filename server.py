@@ -18,6 +18,8 @@ DATA_PATH = ROOT / "data.js"
 ATTEMPTS_PATH = Path(os.getenv("ATTEMPTS_PATH", str(ROOT / ".shared_attempts.json")))
 USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
 USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
+USER_CREDENTIALS_JSON = os.getenv("USER_CREDENTIALS_JSON", "").strip()
+USER_CREDENTIALS_B64 = os.getenv("USER_CREDENTIALS_B64", "").strip()
 BOARD_VALUES = [100, 200, 300, 400, 500]
 PASSWORD_ITERATIONS = 260000
 MAX_USER_ATTEMPTS = 10000
@@ -128,14 +130,7 @@ def normalize_credential_entry(username, entry):
     }
 
 
-def load_plaintext_credentials():
-    if not USER_CREDENTIALS_PATH.exists():
-        return {}
-    try:
-        raw = json.loads(USER_CREDENTIALS_PATH.read_text())
-    except Exception:
-        return {}
-
+def collect_plaintext_credentials(raw, source_label):
     raw_users = raw.get("users", raw) if isinstance(raw, dict) else raw
     credentials = {}
 
@@ -143,6 +138,7 @@ def load_plaintext_credentials():
         for username, entry in raw_users.items():
             normalized = normalize_credential_entry(username, entry)
             if normalized:
+                normalized["source"] = source_label
                 credentials[normalized["username"]] = normalized
     elif isinstance(raw_users, list):
         for entry in raw_users:
@@ -150,7 +146,33 @@ def load_plaintext_credentials():
                 continue
             normalized = normalize_credential_entry(entry.get("username"), entry)
             if normalized:
+                normalized["source"] = source_label
                 credentials[normalized["username"]] = normalized
+
+    return credentials
+
+
+def load_plaintext_credentials():
+    credentials = {}
+
+    if USER_CREDENTIALS_PATH.exists():
+        try:
+            credentials.update(collect_plaintext_credentials(json.loads(USER_CREDENTIALS_PATH.read_text()), "user_credentials.json"))
+        except Exception:
+            pass
+
+    if USER_CREDENTIALS_JSON:
+        try:
+            credentials.update(collect_plaintext_credentials(json.loads(USER_CREDENTIALS_JSON), "USER_CREDENTIALS_JSON"))
+        except Exception:
+            pass
+
+    if USER_CREDENTIALS_B64:
+        try:
+            decoded = base64.b64decode(USER_CREDENTIALS_B64).decode("utf-8")
+            credentials.update(collect_plaintext_credentials(json.loads(decoded), "USER_CREDENTIALS_B64"))
+        except Exception:
+            pass
 
     return credentials
 
@@ -167,7 +189,7 @@ def ensure_plaintext_user(username, credential):
     )
     user["display_name"] = credential["display_name"]
     user["role"] = credential["role"]
-    user["credential_source"] = "user_credentials.json"
+    user["credential_source"] = credential.get("source", "private credentials")
     return user
 
 

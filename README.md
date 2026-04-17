@@ -61,6 +61,29 @@ For a simpler editable roster, use `user_credentials.json` in the project folder
 
 Save changes to that file and the server will use the new password on the next login attempt. User quiz/mock history still saves in `.users.json` under the same username. `user_credentials.json` is ignored by Git so the password list is not accidentally published.
 
+## Render login roster
+
+Do not commit `user_credentials.json` to GitHub. For the live Render site, store the same credentials privately as an environment variable.
+
+Create a base64 value from your local credential file:
+
+```bash
+python3 - <<'PY'
+import base64
+from pathlib import Path
+
+print(base64.b64encode(Path("user_credentials.json").read_bytes()).decode("ascii"))
+PY
+```
+
+In Render, open the web service, go to `Environment`, and set:
+
+```bash
+USER_CREDENTIALS_B64=<paste-the-generated-value>
+```
+
+Redeploy after saving. The server also supports `USER_CREDENTIALS_JSON` if you prefer pasting the raw JSON directly.
+
 ## Temporary public tunnel
 
 A bundled `cloudflared` client is available in `.bin/` for quick public testing:
