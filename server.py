@@ -1444,6 +1444,18 @@ async def instructor_stats(request):
     return web.json_response(build_instructor_stats())
 
 
+async def storage_status(request):
+    require_instructor_username(request)
+    return web.json_response({
+        "storageBackend": "postgres" if DATABASE_STORE_READY else "local-json",
+        "databaseConfigured": bool(DATABASE_URL),
+        "databaseReady": bool(DATABASE_STORE_READY),
+        "postgresDriverAvailable": bool(psycopg and Jsonb),
+        "userCount": len(USER_STORE.get("users", {})),
+        "sharedQuestionBuckets": len(ATTEMPT_STORE.get("questions", {})),
+    })
+
+
 async def create_game(request):
     if not has_live_question_bank():
         raise web.HTTPBadRequest(
@@ -1610,6 +1622,7 @@ def create_app():
     app.router.add_post("/api/auth/logout", logout_user)
     app.router.add_get("/api/auth/me", current_user)
     app.router.add_get("/api/instructor/stats", instructor_stats)
+    app.router.add_get("/api/system/storage", storage_status)
     app.router.add_post("/api/games/create", create_game)
     app.router.add_post("/api/games/join", join_game)
     app.router.add_post("/api/attempts", record_attempts)
