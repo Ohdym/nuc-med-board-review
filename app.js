@@ -2583,6 +2583,16 @@ function getFilteredQuestionBank() {
   });
 }
 
+function hasQuestionBankFilter() {
+  return Boolean(
+    state.questionBank.search.trim() ||
+      state.questionBank.exam !== "all" ||
+      state.questionBank.question !== "all" ||
+      state.questionBank.category !== "all" ||
+      state.questionBank.source !== "all",
+  );
+}
+
 function renderQuestionBankView() {
   const categories = getCategories();
   const allQuestions = getAllQuestions();
@@ -2606,7 +2616,8 @@ function renderQuestionBankView() {
         .filter((questionNumber) => Number.isFinite(questionNumber)),
     ),
   ].sort((first, second) => first - second);
-  const questions = getFilteredQuestionBank();
+  const hasActiveFilter = hasQuestionBankFilter();
+  const questions = hasActiveFilter ? getFilteredQuestionBank() : [];
   const totalQuestions = allQuestions.length;
   const sharedCount = allQuestions.filter((question) => getQuestionOrigin(question) === "shared").length;
   const importedCount = totalQuestions - sharedCount;
@@ -2616,11 +2627,11 @@ function renderQuestionBankView() {
     <section class="view">
       ${renderSectionIntro(
         "Question Bank",
-        "Browse every loaded question in one place",
-        "Search, filter, and review the full question bank without starting a quiz. This includes the shared seeded bank plus any questions you import locally.",
+        "Choose a filter before loading questions",
+        "Pick an exam, question number, category, source, or search term to load only the bank items you need.",
       )}
       <div class="card-grid card-grid--metrics">
-        ${renderMetric("Visible Questions", `${questions.length}`, "gold")}
+        ${renderMetric("Visible Questions", `${hasActiveFilter ? questions.length : 0}`, "gold")}
         ${renderMetric("Shared Seeded", `${sharedCount}`, "blue")}
         ${renderMetric("Imported Local", `${importedCount}`, "default")}
       </div>
@@ -2711,7 +2722,16 @@ function renderQuestionBankView() {
         </div>
       </section>
       ${
-        !questions.length
+        !hasActiveFilter
+          ? `
+            <section class="panel">
+              <div class="empty-state">
+                <strong>Select a filter to load questions.</strong>
+                <p>The question bank stays empty until you choose a specific exam, question number, category, source, or search term.</p>
+              </div>
+            </section>
+          `
+          : !questions.length
           ? `
             <section class="panel">
               <div class="empty-state">
