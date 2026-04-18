@@ -1875,34 +1875,34 @@ async def instructor_import_students(request):
     })
 
 
-async def instructor_move_graduation_year(request):
+async def instructor_update_student_graduation_year(request):
     require_instructor_username(request)
     payload = await json_body(request)
-    from_year = str(payload.get("fromYear") or "").strip()
-    to_year = str(payload.get("toYear") or "").strip()
+    username = sanitize_account_username(payload.get("username"))
+    graduation_year = str(payload.get("graduationYear") or "").strip()
 
-    if not from_year or not to_year:
+    if not graduation_year:
         raise web.HTTPBadRequest(
-            text=json.dumps({"error": "Both current and target graduation years are required."}),
+            text=json.dumps({"error": "A graduation year is required."}),
             content_type="application/json",
         )
 
-    moved = []
-    for username, user in USER_STORE.get("users", {}).items():
-        if str(user.get("role") or "student") != "student":
-            continue
-        if str(user.get("graduation_year") or "") != from_year:
-            continue
-        user["graduation_year"] = to_year
-        moved.append({
-            "username": username,
-            "displayName": user.get("display_name") or username,
-            "graduationYear": to_year,
-        })
+    user = USER_STORE.get("users", {}).get(username)
+    if not user or str(user.get("role") or "student") != "student":
+        raise web.HTTPNotFound(
+            text=json.dumps({"error": "Student account was not found."}),
+            content_type="application/json",
+        )
 
+    user["graduation_year"] = graduation_year
     save_user_store()
+    updated = {
+        "username": username,
+        "displayName": user.get("display_name") or username,
+        "graduationYear": graduation_year,
+    }
     return web.json_response({
-        "moved": moved,
+        "updated": updated,
         "stats": build_instructor_stats(),
     })
 
@@ -2217,7 +2217,7 @@ def create_app():
     app.router.add_get("/api/instructor/custom-quizzes", instructor_custom_quizzes)
     app.router.add_put("/api/instructor/custom-quizzes", instructor_custom_quizzes)
     app.router.add_post("/api/instructor/students/import", instructor_import_students)
-    app.router.add_post("/api/instructor/students/move-year", instructor_move_graduation_year)
+    app.router.add_post("/api/instructor/students/update-year", instructor_update_student_graduation_year)
     app.router.add_get("/api/system/storage", storage_status)
     app.router.add_post("/api/games/create", create_game)
     app.router.add_post("/api/games/join", join_game)

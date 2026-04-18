@@ -662,11 +662,6 @@ button {
   margin: 0 0 0.35rem;
 }
 
-.custom-quiz-numbers {
-  min-height: 86px;
-  resize: vertical;
-}
-
 .custom-quiz-preview,
 .custom-quiz-list {
   display: grid;
@@ -875,15 +870,23 @@ button {
   margin-top: 0;
 }
 
+.panel--compact {
+  padding: 0.95rem;
+}
+
+.panel--compact .panel__header {
+  margin-bottom: 0.7rem;
+}
+
 .roster-import-textarea {
-  min-height: 150px;
+  min-height: 88px;
   resize: vertical;
 }
 
 .roster-convention {
-  min-height: 52px;
-  padding: 0.85rem 0.95rem;
-  font-size: 0.92rem;
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.84rem;
 }
 
 .stat-bars {
@@ -934,7 +937,7 @@ button {
 
 .instructor-roster-row {
   display: grid;
-  grid-template-columns: minmax(180px, 0.8fr) minmax(160px, 1fr) 72px;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(150px, 0.55fr) minmax(150px, 1fr) 72px;
   align-items: center;
   gap: 1rem;
   padding: 0.9rem 1rem;
@@ -946,6 +949,21 @@ button {
 .instructor-roster-row div:first-child {
   display: grid;
   gap: 0.25rem;
+}
+
+.roster-year-edit {
+  display: grid;
+  grid-template-columns: minmax(64px, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.roster-year-edit input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 0.45rem 0.55rem;
 }
 
 .insight-card {

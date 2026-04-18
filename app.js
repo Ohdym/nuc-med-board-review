@@ -100,8 +100,6 @@ const state = {
     selectedGradYear: "",
     importList: "",
     importGradYear: "",
-    moveFromYear: "",
-    moveToYear: "",
     rosterResult: null,
     loading: false,
     message: "Instructor metrics load after an instructor signs in.",
@@ -2658,6 +2656,53 @@ function summarizeInstructorUsers(users = []) {
   );
 }
 
+function mergeInstructorStatMap(users = [], statKey) {
+  const merged = {};
+  users.forEach((user) => {
+    const stats = (user.summary && user.summary[statKey]) || {};
+    Object.entries(stats).forEach(([label, value]) => {
+      const bucket = merged[label] || { attempts: 0, correct: 0, accuracy: 0 };
+      bucket.attempts += Number(value.attempts) || 0;
+      bucket.correct += Number(value.correct) || 0;
+      merged[label] = bucket;
+    });
+  });
+
+  Object.values(merged).forEach((bucket) => {
+    bucket.accuracy = bucket.attempts ? (bucket.correct / bucket.attempts) * 100 : 0;
+  });
+
+  return merged;
+}
+
+function buildInstructorDashboardStats(users = [], fallbackAggregate = {}) {
+  if (!users.length) {
+    return fallbackAggregate;
+  }
+
+  const summary = summarizeInstructorUsers(users);
+  return {
+    totalUsers: summary.totalUsers,
+    activeUsers: summary.activeUsers,
+    totalAttempts: summary.totalAttempts,
+    totalCorrect: summary.totalCorrect,
+    accuracy: summary.totalAttempts ? (summary.totalCorrect / summary.totalAttempts) * 100 : 0,
+    categoryStats: mergeInstructorStatMap(users, "categoryStats"),
+    modeStats: mergeInstructorStatMap(users, "modeStats"),
+    recentAttempts: users
+      .flatMap((user) =>
+        (user.recentAttempts || []).map((attempt) => ({
+          ...attempt,
+          username: user.username,
+          displayName: formatStudentRosterName(user),
+          graduationYear: user.graduationYear,
+        })),
+      )
+      .sort((first, second) => Number(second.timestamp || 0) - Number(first.timestamp || 0))
+      .slice(0, 150),
+  };
+}
+
 function formatStudentRosterName(user) {
   const fullName = user.fullName || user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ");
   return fullName || user.username;
@@ -2704,40 +2749,39 @@ async function importInstructorStudents() {
   }
 }
 
-async function moveInstructorGraduationYear() {
+async function updateInstructorStudentGradYear(username, graduationYear) {
   if (!isInstructor()) {
     return;
   }
 
-  if (!state.instructor.moveFromYear || !state.instructor.moveToYear.trim()) {
-    state.instructor.message = "Choose a current graduation year and enter the new graduation year.";
+  const cleanedYear = String(graduationYear || "").replace(/[^\d]/g, "").slice(0, 4);
+  if (!username || !cleanedYear) {
+    state.instructor.message = "Enter a graduation year before updating the student.";
     state.instructor.tone = "error";
     renderApp();
     return;
   }
 
   state.instructor.loading = true;
-  state.instructor.message = "Moving students to the new graduation year...";
+  state.instructor.message = "Updating student graduation year...";
   state.instructor.tone = "info";
   renderApp();
 
   try {
-    const data = await apiRequest("/api/instructor/students/move-year", "POST", {
-      fromYear: state.instructor.moveFromYear,
-      toYear: state.instructor.moveToYear,
+    const data = await apiRequest("/api/instructor/students/update-year", "POST", {
+      username,
+      graduationYear: cleanedYear,
     });
     state.instructor.data = data.stats;
-    state.instructor.selectedGradYear = state.instructor.moveToYear;
+    state.instructor.selectedGradYear = cleanedYear;
     state.instructor.rosterResult = {
-      type: "move",
-      moved: data.moved || [],
+      type: "update",
+      updated: data.updated ? [data.updated] : [],
     };
-    state.instructor.moveFromYear = "";
-    state.instructor.moveToYear = "";
-    state.instructor.message = `Moved ${data.moved.length} student${data.moved.length === 1 ? "" : "s"} to ${state.instructor.selectedGradYear}.`;
+    state.instructor.message = `Updated ${data.updated.displayName} to graduation year ${cleanedYear}.`;
     state.instructor.tone = "success";
   } catch (error) {
-    state.instructor.message = error.message || "Could not move students.";
+    state.instructor.message = error.message || "Could not update the student graduation year.";
     state.instructor.tone = "error";
   } finally {
     state.instructor.loading = false;
@@ -3712,13 +3756,13 @@ function renderInstructorUserDetail(user) {
   `;
 }
 
-function renderInstructorRosterTools(years) {
+function renderInstructorRosterTools() {
   const result = state.instructor.rosterResult;
   return `
-    <section class="panel">
+    <section class="panel panel--compact">
       <div class="panel__header">
         <h3>Student roster import</h3>
-        <p>Paste one student per line as First Last, choose a graduation year, and the system will create each login automatically.</p>
+        <p>Paste one student per line as First Last. Logins are created automatically.</p>
       </div>
       <div class="form-grid form-grid--two">
         <label class="field">
@@ -3728,8 +3772,7 @@ function renderInstructorRosterTools(years) {
         <div class="field">
           <span>Login convention</span>
           <div class="empty-state roster-convention">
-            <strong>Username:</strong> first initial + last name<br />
-            <strong>Password:</strong> last name + oit123
+            <strong>Username:</strong> first initial + last name • <strong>Password:</strong> last name + oit123
           </div>
         </div>
       </div>
@@ -3741,42 +3784,15 @@ function renderInstructorRosterTools(years) {
         <button type="button" class="button button--primary" data-action="import-instructor-students" ${state.instructor.loading ? "disabled" : ""}>Import students and create logins</button>
       </div>
     </section>
-    <section class="panel">
-      <div class="panel__header">
-        <h3>Move graduation year</h3>
-        <p>Move every student currently assigned to one graduation year into another graduation year.</p>
-      </div>
-      <div class="form-grid form-grid--two">
-        <label class="field">
-          <span>Current graduation year</span>
-          <select id="instructor-move-from-year">
-            <option value="" ${!state.instructor.moveFromYear ? "selected" : ""}>Choose year</option>
-            ${years
-              .map(
-                (year) =>
-                  `<option value="${escapeHtml(year)}" ${state.instructor.moveFromYear === year ? "selected" : ""}>${escapeHtml(year)}</option>`,
-              )
-              .join("")}
-          </select>
-        </label>
-        <label class="field">
-          <span>New graduation year</span>
-          <input id="instructor-move-to-year" type="text" inputmode="numeric" maxlength="4" placeholder="2028" value="${escapeHtml(state.instructor.moveToYear)}" />
-        </label>
-      </div>
-      <div class="question-card__actions">
-        <button type="button" class="button button--ghost" data-action="move-instructor-grad-year" ${state.instructor.loading ? "disabled" : ""}>Move students</button>
-      </div>
-    </section>
     ${
       result
         ? `<section class="panel">
             <div class="panel__header">
-              <h3>${result.type === "move" ? "Moved students" : "Imported logins"}</h3>
-              <p>${result.type === "move" ? "Students moved to the selected graduation year." : "Save or share these generated credentials as needed."}</p>
+              <h3>${result.type === "update" ? "Updated graduation year" : "Imported logins"}</h3>
+              <p>${result.type === "update" ? "Student graduation year was updated." : "Save or share these generated credentials as needed."}</p>
             </div>
             <div class="history-list">
-              ${(result.imported || result.moved || [])
+              ${(result.imported || result.updated || [])
                 .slice(0, 20)
                 .map(
                   (student) => `
@@ -3787,7 +3803,7 @@ function renderInstructorRosterTools(years) {
                           student.password ? ` • Password: ${escapeHtml(student.password)}` : ""
                         }</span>
                       </div>
-                      <strong>${student.created ? "New" : result.type === "move" ? "Moved" : "Updated"}</strong>
+                      <strong>${student.created ? "New" : "Updated"}</strong>
                     </article>
                   `,
                 )
@@ -3831,6 +3847,8 @@ function renderInstructorView() {
   const selectedYearUsers = state.instructor.selectedGradYear
     ? users.filter((user) => user.graduationYear === state.instructor.selectedGradYear)
     : [];
+  const dashboardUsers = state.instructor.selectedGradYear ? selectedYearUsers : users;
+  const dashboardStats = aggregate ? buildInstructorDashboardStats(dashboardUsers, aggregate) : null;
   const selectedYearSummary = summarizeInstructorUsers(selectedYearUsers);
   const selectedYearAccuracy = selectedYearSummary.totalAttempts
     ? (selectedYearSummary.totalCorrect / selectedYearSummary.totalAttempts) * 100
@@ -3887,26 +3905,26 @@ function renderInstructorView() {
             ? renderInstructorUserDetail(selectedUser)
             : `
               <div class="card-grid card-grid--metrics">
-                ${renderMetric("Roster Users", `${aggregate.totalUsers || 0}`, "gold")}
-                ${renderMetric("Active Users", `${aggregate.activeUsers || 0}`, "blue")}
-                ${renderMetric("Total Attempts", `${aggregate.totalAttempts || 0}`, "default")}
-                ${renderMetric("Class Accuracy", formatPercent(Number(aggregate.accuracy) || 0), "default")}
+                ${renderMetric(state.instructor.selectedGradYear ? "Year Users" : "Roster Users", `${dashboardStats.totalUsers || 0}`, "gold")}
+                ${renderMetric("Active Users", `${dashboardStats.activeUsers || 0}`, "blue")}
+                ${renderMetric("Total Attempts", `${dashboardStats.totalAttempts || 0}`, "default")}
+                ${renderMetric("Class Accuracy", formatPercent(Number(dashboardStats.accuracy) || 0), "default")}
               </div>
-              ${renderInstructorRosterTools(graduationYears)}
+              ${renderInstructorRosterTools()}
               <div class="split-layout">
                 <section class="panel">
                   <div class="panel__header">
                     <h3>Class accuracy by category</h3>
-                    <p>Bars show success rate; labels show correct answers over total attempts.</p>
+                    <p>${state.instructor.selectedGradYear ? `Filtered to graduation year ${escapeHtml(state.instructor.selectedGradYear)}.` : "Choose a graduation year above to filter the dashboard."}</p>
                   </div>
-                  ${renderStatBars(aggregate.categoryStats, 8)}
+                  ${renderStatBars(dashboardStats.categoryStats, 8)}
                 </section>
                 <section class="panel">
                   <div class="panel__header">
                     <h3>Practice volume by mode</h3>
-                    <p>See where students are spending their review time.</p>
+                    <p>${state.instructor.selectedGradYear ? "Mode breakdown for the selected graduation year." : "See where students are spending their review time."}</p>
                   </div>
-                  ${renderStatBars(aggregate.modeStats, 6)}
+                  ${renderStatBars(dashboardStats.modeStats, 6)}
                 </section>
               </div>
               <section class="panel">
@@ -3933,6 +3951,10 @@ function renderInstructorView() {
                                   <strong>${escapeHtml(formatStudentRosterName(user))}</strong>
                                   <span>${escapeHtml(user.username)} • Graduation year ${escapeHtml(user.graduationYear || "Unset")} • ${user.summary.attempts} attempts</span>
                                 </div>
+                                <div class="roster-year-edit">
+                                  <input data-student-grad-year-input type="text" inputmode="numeric" maxlength="4" value="${escapeHtml(user.graduationYear || "")}" aria-label="Graduation year for ${escapeHtml(formatStudentRosterName(user))}" />
+                                  <button type="button" class="button button--tiny button--ghost" data-action="update-student-grad-year" data-username="${escapeHtml(user.username)}">Save</button>
+                                </div>
                                 <div class="stat-bar__track">
                                   <span style="width: ${clamp(Number(user.summary.accuracy) || 0, 0, 100)}%"></span>
                                 </div>
@@ -3953,8 +3975,8 @@ function renderInstructorView() {
                 </div>
                 <div class="history-list">
                   ${
-                    aggregate.recentAttempts.length
-                      ? aggregate.recentAttempts
+                    dashboardStats.recentAttempts.length
+                      ? dashboardStats.recentAttempts
                           .slice(0, 20)
                           .map(
                             (attempt) => `
@@ -4062,10 +4084,6 @@ function renderCustomQuizCreationView() {
             </select>
           </label>
         </div>
-        <label class="field">
-          <span>Question numbers</span>
-          <textarea id="custom-quiz-question-numbers" class="import-textarea custom-quiz-numbers" placeholder="Optional: 1, 2, 9-14, 27">${escapeHtml(builder.questionNumbers)}</textarea>
-        </label>
         <div class="${feedbackClass}">
           <strong>${escapeHtml(builder.message)}</strong>
         </div>
@@ -6244,8 +6262,10 @@ app.addEventListener("click", (event) => {
     return;
   }
 
-  if (action === "move-instructor-grad-year") {
-    moveInstructorGraduationYear();
+  if (action === "update-student-grad-year") {
+    const row = button.closest(".instructor-roster-row");
+    const input = row ? row.querySelector("[data-student-grad-year-input]") : null;
+    updateInstructorStudentGradYear(button.dataset.username, input ? input.value : "");
     return;
   }
 
@@ -6580,10 +6600,6 @@ app.addEventListener("input", (event) => {
     state.customQuizBuilder.description = target.value;
   }
 
-  if (target.id === "custom-quiz-question-numbers") {
-    state.customQuizBuilder.questionNumbers = target.value;
-  }
-
   if (target.id === "online-quiz-code") {
     state.onlineQuiz.joinCode = normalizeLiveCode(target.value);
   }
@@ -6601,10 +6617,10 @@ app.addEventListener("input", (event) => {
     target.value = state.instructor.importGradYear;
   }
 
-  if (target.id === "instructor-move-to-year") {
-    state.instructor.moveToYear = target.value.replace(/[^\d]/g, "").slice(0, 4);
-    target.value = state.instructor.moveToYear;
+  if (target.matches("[data-student-grad-year-input]")) {
+    target.value = target.value.replace(/[^\d]/g, "").slice(0, 4);
   }
+
 });
 
 app.addEventListener("change", (event) => {
@@ -6649,10 +6665,6 @@ app.addEventListener("change", (event) => {
 
   if (target.id === "instructor-grad-year-select") {
     state.instructor.selectedGradYear = target.value || "";
-  }
-
-  if (target.id === "instructor-move-from-year") {
-    state.instructor.moveFromYear = target.value || "";
   }
 
   if (target.id === "custom-quiz-exam") {
