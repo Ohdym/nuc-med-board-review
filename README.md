@@ -142,17 +142,16 @@ After deploy, you will get a permanent public URL like:
 
 In Render, open your web service and add a custom domain if you want your own branded URL.
 
-### 4. Important note about shared stats
+### 4. Persistent student stats on Render Free
 
-Live game state works fine on Render, but the shared question-difficulty history file is local storage on the server.
+Render Free web services do not provide persistent local file storage, so the app supports an external Postgres database through `DATABASE_URL`.
 
-- On Render free instances, that file may reset on restart or redeploy.
-- If you want shared difficulty stats to persist long term, create a persistent disk and set an environment variable:
+Use a free hosted Postgres provider such as Neon or Supabase, create a database, copy its pooled connection string, then add this private environment variable in Render:
 
 ```bash
-ATTEMPTS_PATH=/var/data/.shared_attempts.json
-USER_STORE_PATH=/var/data/.users.json
-USER_CREDENTIALS_PATH=/var/data/user_credentials.json
+DATABASE_URL=<paste-your-postgres-connection-string>
 ```
+
+Redeploy after saving. When `DATABASE_URL` is set, the server stores account history, instructor stats, and shared adaptive difficulty data in Postgres. When it is not set, the app falls back to the local `.users.json` and `.shared_attempts.json` files for local development.
 
 If you want, I can also set up the Git repo and make the first deployment commit for you.

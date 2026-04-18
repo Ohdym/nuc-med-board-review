@@ -9,3 +9,5 @@ services:
     envVars:
       - key: USER_CREDENTIALS_B64
         sync: false
+      - key: DATABASE_URL
+        sync: false

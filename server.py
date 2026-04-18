@@ -12,6 +12,13 @@ from pathlib import Path
 import esprima
 from aiohttp import WSMsgType, web
 
+try:
+    import psycopg
+    from psycopg.types.json import Jsonb
+except Exception:
+    psycopg = None
+    Jsonb = None
+
 
 ROOT = Path(__file__).parent
 DATA_PATH = ROOT / "data.js"
@@ -20,6 +27,7 @@ USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
 USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
 USER_CREDENTIALS_JSON = os.getenv("USER_CREDENTIALS_JSON", "").strip()
 USER_CREDENTIALS_B64 = os.getenv("USER_CREDENTIALS_B64", "").strip()
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 PDF_SOURCE_ROOT = Path(os.getenv("PDF_SOURCE_ROOT", str(ROOT / "source-pdfs")))
 PDF_SOURCE_FILES = {
     "early-sodee": "early-sodee.pdf",
@@ -79,32 +87,137 @@ QUESTION_BANK = DATA_EXPORTS["QUESTION_BANK"]
 QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
 
 
+def has_database_store():
+    return bool(DATABASE_URL and psycopg and Jsonb)
+
+
+def open_database_connection():
+    if not has_database_store():
+        return None
+    return psycopg.connect(DATABASE_URL, autocommit=True)
+
+
+def initialize_database_store():
+    if DATABASE_URL and not has_database_store():
+        print("DATABASE_URL is set, but psycopg is unavailable. Falling back to local JSON storage.")
+        return False
+
+    connection = open_database_connection()
+    if not connection:
+        return False
+
+    try:
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS app_state (
+                        key TEXT PRIMARY KEY,
+                        value JSONB NOT NULL,
+                        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                    )
+                    """
+                )
+        return True
+    except Exception as error:
+        print(f"Could not initialize DATABASE_URL storage. Falling back to local JSON storage: {error}")
+        return False
+    finally:
+        connection.close()
+
+
+DATABASE_STORE_READY = initialize_database_store()
+
+
+def load_database_store(key, fallback):
+    if not DATABASE_STORE_READY:
+        return fallback
+
+    connection = open_database_connection()
+    if not connection:
+        return fallback
+
+    try:
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT value FROM app_state WHERE key = %s", (key,))
+                row = cursor.fetchone()
+                if row:
+                    return row[0]
+                cursor.execute(
+                    """
+                    INSERT INTO app_state (key, value)
+                    VALUES (%s, %s)
+                    ON CONFLICT (key) DO NOTHING
+                    """,
+                    (key, Jsonb(fallback)),
+                )
+        return fallback
+    except Exception as error:
+        print(f"Could not read DATABASE_URL store key {key}. Falling back to local JSON storage: {error}")
+        return fallback
+    finally:
+        connection.close()
+
+
+def save_database_store(key, value):
+    if not DATABASE_STORE_READY:
+        return False
+
+    connection = open_database_connection()
+    if not connection:
+        return False
+
+    try:
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO app_state (key, value, updated_at)
+                    VALUES (%s, %s, now())
+                    ON CONFLICT (key)
+                    DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+                    """,
+                    (key, Jsonb(value)),
+                )
+        return True
+    except Exception as error:
+        print(f"Could not write DATABASE_URL store key {key}. Falling back to local JSON storage: {error}")
+        return False
+    finally:
+        connection.close()
+
+
 def load_attempt_store():
+    fallback = {"questions": {}}
     if ATTEMPTS_PATH.exists():
         try:
-            return json.loads(ATTEMPTS_PATH.read_text())
+            fallback = json.loads(ATTEMPTS_PATH.read_text())
         except Exception:
             pass
-    return {"questions": {}}
+    return load_database_store("attempt_store", fallback)
 
 
 ATTEMPT_STORE = load_attempt_store()
 
 
 def save_attempt_store():
+    if save_database_store("attempt_store", ATTEMPT_STORE):
+        return
     ATTEMPTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     ATTEMPTS_PATH.write_text(json.dumps(ATTEMPT_STORE))
 
 
 def load_user_store():
+    fallback = {"users": {}}
     if USER_STORE_PATH.exists():
         try:
             store = json.loads(USER_STORE_PATH.read_text())
             if isinstance(store.get("users"), dict):
-                return store
+                fallback = store
         except Exception:
             pass
-    return {"users": {}}
+    return load_database_store("user_store", fallback)
 
 
 USER_STORE = load_user_store()
@@ -205,6 +318,8 @@ def ensure_plaintext_user(username, credential):
 
 
 def save_user_store():
+    if save_database_store("user_store", USER_STORE):
+        return
     USER_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
     USER_STORE_PATH.write_text(json.dumps(USER_STORE, indent=2))
 
