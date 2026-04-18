@@ -3517,7 +3517,7 @@ function getHeroCopy(view) {
 
 function renderPrimaryNav() {
   return `
-    <nav class="nav-tabs" aria-label="Primary">
+    <nav class="nav-tabs nav-tabs--topbar" aria-label="Primary">
       ${getPrimaryNavItems()
         .map(
           ([view, label]) => `
@@ -3542,30 +3542,33 @@ function renderAppChrome(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
   return `
     <header class="topbar">
-      <div class="brand">
-        <div class="brand__copy">
-          <span class="brand__eyebrow">Registry Review Workspace</span>
-          <strong>Nuclear Medicine Boards Review</strong>
-          <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy</span>
+      <div class="topbar__main">
+        <div class="brand">
+          <div class="brand__copy">
+            <span class="brand__eyebrow">Registry Review Workspace</span>
+            <strong>Nuclear Medicine Boards Review</strong>
+            <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy</span>
+          </div>
+        </div>
+        <div class="topbar__right">
+          ${renderAccountCorner()}
+          <div class="topbar__meta">
+            <article class="status-chip">
+              <span>Readiness</span>
+              <strong>${formatPercent(summary.readiness)}</strong>
+            </article>
+            <article class="status-chip">
+              <span>Question Bank</span>
+              <strong>${getAllQuestions().length}</strong>
+            </article>
+            <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
+              <span>Last live code used</span>
+              <strong>${escapeHtml(liveCode)}</strong>
+            </article>
+          </div>
         </div>
       </div>
-      <div class="topbar__right">
-        ${renderAccountCorner()}
-        <div class="topbar__meta">
-          <article class="status-chip">
-            <span>Readiness</span>
-            <strong>${formatPercent(summary.readiness)}</strong>
-          </article>
-          <article class="status-chip">
-            <span>Question Bank</span>
-            <strong>${getAllQuestions().length}</strong>
-          </article>
-          <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
-            <span>Last live code used</span>
-            <strong>${escapeHtml(liveCode)}</strong>
-          </article>
-        </div>
-      </div>
+      ${renderPrimaryNav()}
     </header>
   `;
 }
@@ -4941,7 +4944,6 @@ function renderApp() {
   app.innerHTML = `
     <div class="shell">
       ${renderAppChrome(summary)}
-      ${renderPrimaryNav()}
       ${renderPageHero()}
       <main>
         ${viewMap[state.activeView] || viewMap.dashboard}

@@ -68,12 +68,10 @@ button {
 }
 
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  gap: 0.72rem;
   margin-bottom: 0.8rem;
-  padding: 0.75rem 0.95rem;
+  padding: 0.72rem 0.9rem 0.62rem;
   border: 1px solid rgba(0, 55, 103, 0.16);
   border-radius: var(--radius-lg);
   background:
@@ -81,6 +79,13 @@ button {
     linear-gradient(180deg, rgba(255, 210, 79, 0.12), transparent 65%);
   box-shadow: 0 16px 30px rgba(0, 29, 56, 0.08);
   backdrop-filter: blur(12px);
+}
+
+.topbar__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .brand {
@@ -407,6 +412,13 @@ button {
   margin-bottom: 1.25rem;
 }
 
+.nav-tabs--topbar {
+  gap: 0.42rem;
+  margin: 0;
+  padding-top: 0.56rem;
+  border-top: 1px solid rgba(0, 55, 103, 0.1);
+}
+
 .mode-panel {
   display: grid;
   gap: 0.8rem;
@@ -468,6 +480,17 @@ button {
   color: var(--blue);
   padding: 0.8rem 1.15rem;
   font-weight: 700;
+}
+
+.nav-tabs--topbar .nav-tab {
+  min-height: 34px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.8rem;
+  line-height: 1.05;
+}
+
+.nav-tabs--topbar .nav-tab--stacked {
+  min-width: 74px;
 }
 
 .nav-tab--stacked {
@@ -1614,14 +1637,14 @@ button {
 }
 
 @media (max-width: 1100px) {
-  .topbar,
+  .topbar__main,
   .headline,
   .split-layout {
     align-items: stretch;
     grid-template-columns: 1fr;
   }
 
-  .topbar {
+  .topbar__main {
     flex-direction: column;
   }
 
@@ -1653,6 +1676,14 @@ button {
 
   .headline__highlights {
     grid-template-columns: 1fr;
+  }
+
+  .nav-tabs--topbar {
+    justify-content: stretch;
+  }
+
+  .nav-tabs--topbar .nav-tab {
+    flex: 1 1 auto;
   }
 }
 
