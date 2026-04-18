@@ -97,6 +97,12 @@ const state = {
   instructor: {
     data: null,
     selectedUser: "all",
+    selectedGradYear: "",
+    importList: "",
+    importGradYear: "",
+    moveFromYear: "",
+    moveToYear: "",
+    rosterResult: null,
     loading: false,
     message: "Instructor metrics load after an instructor signs in.",
     tone: "info",
@@ -205,6 +211,7 @@ const state = {
 
 let mockTimerHandle = null;
 let onlineQuizRefreshInFlight = false;
+let customQuizSyncInFlight = false;
 const FLASHCARD_IMPORT_TEMPLATE = `Term\tDefinition
 Tc-99m MDP\tCommon radiopharmaceutical for routine bone imaging
 ALARA\tRadiation safety principle focused on minimizing exposure
@@ -560,8 +567,113 @@ function getCategories() {
   return [...known.values()];
 }
 
-function persistCustomQuizzes() {
+function normalizeCustomQuizForClient(quiz) {
+  if (!quiz || typeof quiz !== "object") {
+    return null;
+  }
+
+  const title = String(quiz.title || "").trim();
+  const questionIds = Array.isArray(quiz.questionIds)
+    ? quiz.questionIds.map((id) => String(id || "").trim()).filter(Boolean)
+    : [];
+  if (!title || !questionIds.length) {
+    return null;
+  }
+
+  const createdAt = Number(quiz.createdAt) || Date.now();
+  const updatedAt = Number(quiz.updatedAt) || createdAt;
+  const filters = quiz.filters && typeof quiz.filters === "object" ? quiz.filters : {};
+
+  return {
+    id: String(quiz.id || createStableId("custom-quiz", [title, questionIds.join(","), createdAt])),
+    title,
+    description: String(quiz.description || "").trim(),
+    questionIds: [...new Set(questionIds)],
+    filters: {
+      exam: String(filters.exam || "all"),
+      questionNumbers: String(filters.questionNumbers || ""),
+      category: String(filters.category || "all"),
+      topic: String(filters.topic || "all"),
+    },
+    createdAt,
+    updatedAt,
+  };
+}
+
+function mergeCustomQuizLibraries(primaryQuizzes = [], secondaryQuizzes = []) {
+  const merged = new Map();
+  [...primaryQuizzes, ...secondaryQuizzes].forEach((quiz) => {
+    const normalized = normalizeCustomQuizForClient(quiz);
+    if (!normalized) {
+      return;
+    }
+    const existing = merged.get(normalized.id);
+    if (!existing || Number(normalized.updatedAt || 0) >= Number(existing.updatedAt || 0)) {
+      merged.set(normalized.id, normalized);
+    }
+  });
+  return [...merged.values()]
+    .sort((first, second) => Number(second.updatedAt || 0) - Number(first.updatedAt || 0))
+    .slice(0, 200);
+}
+
+function persistCustomQuizzes({ syncServer = true } = {}) {
+  state.customQuizBuilder.saved = mergeCustomQuizLibraries(state.customQuizBuilder.saved);
   saveJSON(STORAGE_KEYS.customQuizzes, state.customQuizBuilder.saved);
+  if (syncServer) {
+    syncCustomQuizLibraryToServer();
+  }
+}
+
+async function loadCustomQuizLibrary(renderWhenDone = true) {
+  if (!isInstructor()) {
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/api/instructor/custom-quizzes", "GET");
+    state.customQuizBuilder.saved = mergeCustomQuizLibraries(
+      data.customQuizzes || [],
+      state.customQuizBuilder.saved,
+    );
+    persistCustomQuizzes({ syncServer: false });
+    syncCustomQuizLibraryToServer();
+    setCustomQuizBuilderMessage("success", "Custom quiz library synced with the server.");
+  } catch (error) {
+    setCustomQuizBuilderMessage(
+      "error",
+      error.message || "Custom quiz library is saved locally, but could not sync with the server.",
+    );
+  } finally {
+    if (renderWhenDone) {
+      renderApp();
+    }
+  }
+}
+
+async function syncCustomQuizLibraryToServer() {
+  if (!isInstructor() || customQuizSyncInFlight) {
+    return;
+  }
+
+  customQuizSyncInFlight = true;
+  try {
+    const data = await apiRequest("/api/instructor/custom-quizzes", "PUT", {
+      customQuizzes: state.customQuizBuilder.saved,
+    });
+    state.customQuizBuilder.saved = mergeCustomQuizLibraries(
+      data.customQuizzes || [],
+      state.customQuizBuilder.saved,
+    );
+    saveJSON(STORAGE_KEYS.customQuizzes, state.customQuizBuilder.saved);
+  } catch (error) {
+    setCustomQuizBuilderMessage(
+      "error",
+      error.message || "Custom quizzes are saved locally, but the server sync failed.",
+    );
+  } finally {
+    customQuizSyncInFlight = false;
+  }
 }
 
 function getQuestionTopics(category = "all") {
@@ -2309,6 +2421,10 @@ function applyAccountSession(data) {
   saveJSON(STORAGE_KEYS.performance, state.performance);
   syncAccountAttemptsToServer(localAccountAttempts);
   state.account.placements = Array.isArray(data.placements) ? data.placements : [];
+  if (isInstructor() && Array.isArray(data.customQuizzes)) {
+    state.customQuizBuilder.saved = mergeCustomQuizLibraries(data.customQuizzes, state.customQuizBuilder.saved);
+    persistCustomQuizzes({ syncServer: false });
+  }
   persistAccountAuth();
   syncLiveNameToAccount();
   setAccountMessage("success", `Signed in as ${state.account.auth.displayName}.`);
@@ -2372,6 +2488,7 @@ async function loginAccount() {
     state.account.password = "";
     applyAccountSession(data);
     if (isInstructor()) {
+      await loadCustomQuizLibrary(false);
       await loadInstructorStats(false);
       state.activeView = "instructor";
     }
@@ -2398,6 +2515,8 @@ async function logoutAccount() {
   state.account.placements = [];
   state.instructor.data = null;
   state.instructor.selectedUser = "all";
+  state.instructor.selectedGradYear = "";
+  state.instructor.rosterResult = null;
   state.instructor.message = "Instructor metrics load after an instructor signs in.";
   state.instructor.tone = "info";
   persistAccountAuth();
@@ -2423,6 +2542,7 @@ async function restoreAccountSession() {
     const data = await apiRequest("/api/auth/me", "GET");
     applyAccountSession(data);
     if (isInstructor()) {
+      await loadCustomQuizLibrary(false);
       await loadInstructorStats(false);
     }
   } catch (error) {
@@ -2516,6 +2636,112 @@ async function loadInstructorStats(renderWhenDone = true) {
     if (renderWhenDone) {
       renderApp();
     }
+  }
+}
+
+function getInstructorGraduationYears(users = []) {
+  const years = users.map((user) => user.graduationYear).filter(Boolean);
+  return [...new Set(years)].sort((first, second) => first.localeCompare(second, undefined, { numeric: true }));
+}
+
+function summarizeInstructorUsers(users = []) {
+  return users.reduce(
+    (summary, user) => {
+      const stats = user.summary || {};
+      summary.totalUsers += 1;
+      summary.activeUsers += stats.attempts ? 1 : 0;
+      summary.totalAttempts += Number(stats.attempts) || 0;
+      summary.totalCorrect += Number(stats.correct) || 0;
+      return summary;
+    },
+    { totalUsers: 0, activeUsers: 0, totalAttempts: 0, totalCorrect: 0 },
+  );
+}
+
+function formatStudentRosterName(user) {
+  const fullName = user.fullName || user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ");
+  return fullName || user.username;
+}
+
+async function importInstructorStudents() {
+  if (!isInstructor()) {
+    return;
+  }
+
+  if (!state.instructor.importList.trim() || !state.instructor.importGradYear.trim()) {
+    state.instructor.message = "Paste student names and enter a graduation year before importing.";
+    state.instructor.tone = "error";
+    renderApp();
+    return;
+  }
+
+  state.instructor.loading = true;
+  state.instructor.message = "Importing students and creating logins...";
+  state.instructor.tone = "info";
+  renderApp();
+
+  try {
+    const data = await apiRequest("/api/instructor/students/import", "POST", {
+      students: state.instructor.importList,
+      graduationYear: state.instructor.importGradYear,
+    });
+    state.instructor.data = data.stats;
+    state.instructor.selectedGradYear = state.instructor.importGradYear;
+    state.instructor.rosterResult = {
+      type: "import",
+      imported: data.imported || [],
+      skipped: data.skipped || [],
+    };
+    state.instructor.importList = "";
+    state.instructor.message = `Imported ${data.imported.length} student${data.imported.length === 1 ? "" : "s"} into ${state.instructor.selectedGradYear}.`;
+    state.instructor.tone = "success";
+  } catch (error) {
+    state.instructor.message = error.message || "Could not import students.";
+    state.instructor.tone = "error";
+  } finally {
+    state.instructor.loading = false;
+    renderApp();
+  }
+}
+
+async function moveInstructorGraduationYear() {
+  if (!isInstructor()) {
+    return;
+  }
+
+  if (!state.instructor.moveFromYear || !state.instructor.moveToYear.trim()) {
+    state.instructor.message = "Choose a current graduation year and enter the new graduation year.";
+    state.instructor.tone = "error";
+    renderApp();
+    return;
+  }
+
+  state.instructor.loading = true;
+  state.instructor.message = "Moving students to the new graduation year...";
+  state.instructor.tone = "info";
+  renderApp();
+
+  try {
+    const data = await apiRequest("/api/instructor/students/move-year", "POST", {
+      fromYear: state.instructor.moveFromYear,
+      toYear: state.instructor.moveToYear,
+    });
+    state.instructor.data = data.stats;
+    state.instructor.selectedGradYear = state.instructor.moveToYear;
+    state.instructor.rosterResult = {
+      type: "move",
+      moved: data.moved || [],
+    };
+    state.instructor.moveFromYear = "";
+    state.instructor.moveToYear = "";
+    state.instructor.message = `Moved ${data.moved.length} student${data.moved.length === 1 ? "" : "s"} to ${state.instructor.selectedGradYear}.`;
+    state.instructor.tone = "success";
+  } catch (error) {
+    state.instructor.message = error.message || "Could not move students.";
+    state.instructor.tone = "error";
+  } finally {
+    state.instructor.loading = false;
+    renderApp();
   }
 }
 
@@ -3486,6 +3712,98 @@ function renderInstructorUserDetail(user) {
   `;
 }
 
+function renderInstructorRosterTools(years) {
+  const result = state.instructor.rosterResult;
+  return `
+    <section class="panel">
+      <div class="panel__header">
+        <h3>Student roster import</h3>
+        <p>Paste one student per line as First Last, choose a graduation year, and the system will create each login automatically.</p>
+      </div>
+      <div class="form-grid form-grid--two">
+        <label class="field">
+          <span>Graduation year</span>
+          <input id="instructor-import-grad-year" type="text" inputmode="numeric" maxlength="4" placeholder="2027" value="${escapeHtml(state.instructor.importGradYear)}" />
+        </label>
+        <div class="field">
+          <span>Login convention</span>
+          <div class="empty-state roster-convention">
+            <strong>Username:</strong> first initial + last name<br />
+            <strong>Password:</strong> last name + oit123
+          </div>
+        </div>
+      </div>
+      <label class="field">
+        <span>Students</span>
+        <textarea id="instructor-import-list" class="import-textarea roster-import-textarea" placeholder="Jane Smith&#10;Chris Johnson&#10;Morgan Lee">${escapeHtml(state.instructor.importList)}</textarea>
+      </label>
+      <div class="question-card__actions">
+        <button type="button" class="button button--primary" data-action="import-instructor-students" ${state.instructor.loading ? "disabled" : ""}>Import students and create logins</button>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel__header">
+        <h3>Move graduation year</h3>
+        <p>Move every student currently assigned to one graduation year into another graduation year.</p>
+      </div>
+      <div class="form-grid form-grid--two">
+        <label class="field">
+          <span>Current graduation year</span>
+          <select id="instructor-move-from-year">
+            <option value="" ${!state.instructor.moveFromYear ? "selected" : ""}>Choose year</option>
+            ${years
+              .map(
+                (year) =>
+                  `<option value="${escapeHtml(year)}" ${state.instructor.moveFromYear === year ? "selected" : ""}>${escapeHtml(year)}</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+        <label class="field">
+          <span>New graduation year</span>
+          <input id="instructor-move-to-year" type="text" inputmode="numeric" maxlength="4" placeholder="2028" value="${escapeHtml(state.instructor.moveToYear)}" />
+        </label>
+      </div>
+      <div class="question-card__actions">
+        <button type="button" class="button button--ghost" data-action="move-instructor-grad-year" ${state.instructor.loading ? "disabled" : ""}>Move students</button>
+      </div>
+    </section>
+    ${
+      result
+        ? `<section class="panel">
+            <div class="panel__header">
+              <h3>${result.type === "move" ? "Moved students" : "Imported logins"}</h3>
+              <p>${result.type === "move" ? "Students moved to the selected graduation year." : "Save or share these generated credentials as needed."}</p>
+            </div>
+            <div class="history-list">
+              ${(result.imported || result.moved || [])
+                .slice(0, 20)
+                .map(
+                  (student) => `
+                    <article class="history-row">
+                      <div>
+                        <strong>${escapeHtml(student.displayName)} • ${escapeHtml(student.username)}</strong>
+                        <span>Graduation year ${escapeHtml(student.graduationYear || "")}${
+                          student.password ? ` • Password: ${escapeHtml(student.password)}` : ""
+                        }</span>
+                      </div>
+                      <strong>${student.created ? "New" : result.type === "move" ? "Moved" : "Updated"}</strong>
+                    </article>
+                  `,
+                )
+                .join("")}
+            </div>
+            ${
+              result.skipped && result.skipped.length
+                ? `<p class="muted-copy">Skipped lines: ${escapeHtml(result.skipped.join(", "))}</p>`
+                : ""
+            }
+          </section>`
+        : ""
+    }
+  `;
+}
+
 function renderInstructorView() {
   if (!isInstructor()) {
     return `
@@ -3509,6 +3827,14 @@ function renderInstructorView() {
   const data = state.instructor.data;
   const aggregate = data ? data.aggregate : null;
   const users = data ? data.users.filter((user) => user.role !== "instructor") : [];
+  const graduationYears = data ? data.graduationYears || getInstructorGraduationYears(users) : [];
+  const selectedYearUsers = state.instructor.selectedGradYear
+    ? users.filter((user) => user.graduationYear === state.instructor.selectedGradYear)
+    : [];
+  const selectedYearSummary = summarizeInstructorUsers(selectedYearUsers);
+  const selectedYearAccuracy = selectedYearSummary.totalAttempts
+    ? (selectedYearSummary.totalCorrect / selectedYearSummary.totalAttempts) * 100
+    : 0;
   const selectedUser =
     state.instructor.selectedUser === "all"
       ? null
@@ -3530,7 +3856,19 @@ function renderInstructorView() {
             ${users
               .map(
                 (user) =>
-                  `<option value="${escapeHtml(user.username)}" ${state.instructor.selectedUser === user.username ? "selected" : ""}>${escapeHtml(user.displayName)} (${escapeHtml(user.username)})</option>`,
+                  `<option value="${escapeHtml(user.username)}" ${state.instructor.selectedUser === user.username ? "selected" : ""}>${escapeHtml(formatStudentRosterName(user))} (${escapeHtml(user.username)})</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+        <label class="field">
+          <span>Graduation year</span>
+          <select id="instructor-grad-year-select">
+            <option value="" ${!state.instructor.selectedGradYear ? "selected" : ""}>Choose a year before showing roster</option>
+            ${graduationYears
+              .map(
+                (year) =>
+                  `<option value="${escapeHtml(year)}" ${state.instructor.selectedGradYear === year ? "selected" : ""}>${escapeHtml(year)}</option>`,
               )
               .join("")}
           </select>
@@ -3554,6 +3892,7 @@ function renderInstructorView() {
                 ${renderMetric("Total Attempts", `${aggregate.totalAttempts || 0}`, "default")}
                 ${renderMetric("Class Accuracy", formatPercent(Number(aggregate.accuracy) || 0), "default")}
               </div>
+              ${renderInstructorRosterTools(graduationYears)}
               <div class="split-layout">
                 <section class="panel">
                   <div class="panel__header">
@@ -3572,28 +3911,40 @@ function renderInstructorView() {
               </div>
               <section class="panel">
                 <div class="panel__header">
-                  <h3>Student success rates</h3>
-                  <p>Sorted by attempt volume so active users are easy to find.</p>
+                  <h3>Student success rates by graduation year</h3>
+                  <p>${state.instructor.selectedGradYear ? `Showing ${selectedYearUsers.length} student${selectedYearUsers.length === 1 ? "" : "s"} in ${escapeHtml(state.instructor.selectedGradYear)}.` : "Choose a graduation year above to show the student list."}</p>
                 </div>
-                <div class="instructor-roster">
-                  ${users
-                    .sort((first, second) => second.summary.attempts - first.summary.attempts)
-                    .map(
-                      (user) => `
-                        <article class="instructor-roster-row">
-                          <div>
-                            <strong>${escapeHtml(user.displayName)}</strong>
-                            <span>${escapeHtml(user.username)} • ${user.summary.attempts} attempts</span>
-                          </div>
-                          <div class="stat-bar__track">
-                            <span style="width: ${clamp(Number(user.summary.accuracy) || 0, 0, 100)}%"></span>
-                          </div>
-                          <strong>${formatPercent(Number(user.summary.accuracy) || 0)}</strong>
-                        </article>
-                      `,
-                    )
-                    .join("")}
-                </div>
+                ${
+                  state.instructor.selectedGradYear
+                    ? `
+                      <div class="card-grid card-grid--metrics">
+                        ${renderMetric("Selected Year", escapeHtml(state.instructor.selectedGradYear), "gold")}
+                        ${renderMetric("Students", `${selectedYearSummary.totalUsers}`, "blue")}
+                        ${renderMetric("Attempts", `${selectedYearSummary.totalAttempts}`, "default")}
+                        ${renderMetric("Year Accuracy", formatPercent(selectedYearAccuracy), "default")}
+                      </div>
+                      <div class="instructor-roster">
+                        ${selectedYearUsers
+                          .sort((first, second) => second.summary.attempts - first.summary.attempts)
+                          .map(
+                            (user) => `
+                              <article class="instructor-roster-row">
+                                <div>
+                                  <strong>${escapeHtml(formatStudentRosterName(user))}</strong>
+                                  <span>${escapeHtml(user.username)} • Graduation year ${escapeHtml(user.graduationYear || "Unset")} • ${user.summary.attempts} attempts</span>
+                                </div>
+                                <div class="stat-bar__track">
+                                  <span style="width: ${clamp(Number(user.summary.accuracy) || 0, 0, 100)}%"></span>
+                                </div>
+                                <strong>${formatPercent(Number(user.summary.accuracy) || 0)}</strong>
+                              </article>
+                            `,
+                          )
+                          .join("")}
+                      </div>
+                    `
+                    : `<div class="empty-state"><strong>No roster shown by default.</strong><p>Select a graduation year to populate the class list.</p></div>`
+                }
               </section>
               <section class="panel">
                 <div class="panel__header">
@@ -3764,7 +4115,7 @@ function renderCustomQuizCreationView() {
       <section class="panel">
         <div class="panel__header">
           <h3>Saved custom quizzes</h3>
-          <p>These saved sets are available in the Quiz section's Online Quiz host controls.</p>
+          <p>These saved sets are kept on this device and synced to the instructor account on the server.</p>
         </div>
         <div class="custom-quiz-list">
           ${
@@ -4367,21 +4718,6 @@ function renderHeroStatus(summary) {
         </article>
       </div>
     </div>
-  `;
-}
-
-function renderAppChrome() {
-  return `
-    <header class="topbar">
-      <div class="topbar__main">
-        <div class="brand">
-          <div class="brand__copy">
-            <span class="brand__eyebrow">Registry Review Workspace</span>
-            <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy</span>
-          </div>
-        </div>
-      </div>
-    </header>
   `;
 }
 
@@ -5903,6 +6239,16 @@ app.addEventListener("click", (event) => {
     return;
   }
 
+  if (action === "import-instructor-students") {
+    importInstructorStudents();
+    return;
+  }
+
+  if (action === "move-instructor-grad-year") {
+    moveInstructorGraduationYear();
+    return;
+  }
+
   if (action === "save-custom-quiz") {
     saveCustomQuiz();
   }
@@ -6245,6 +6591,20 @@ app.addEventListener("input", (event) => {
   if (target.id === "online-quiz-username") {
     state.onlineQuiz.username = target.value;
   }
+
+  if (target.id === "instructor-import-list") {
+    state.instructor.importList = target.value;
+  }
+
+  if (target.id === "instructor-import-grad-year") {
+    state.instructor.importGradYear = target.value.replace(/[^\d]/g, "").slice(0, 4);
+    target.value = state.instructor.importGradYear;
+  }
+
+  if (target.id === "instructor-move-to-year") {
+    state.instructor.moveToYear = target.value.replace(/[^\d]/g, "").slice(0, 4);
+    target.value = state.instructor.moveToYear;
+  }
 });
 
 app.addEventListener("change", (event) => {
@@ -6285,6 +6645,14 @@ app.addEventListener("change", (event) => {
 
   if (target.id === "instructor-user-select") {
     state.instructor.selectedUser = target.value || "all";
+  }
+
+  if (target.id === "instructor-grad-year-select") {
+    state.instructor.selectedGradYear = target.value || "";
+  }
+
+  if (target.id === "instructor-move-from-year") {
+    state.instructor.moveFromYear = target.value || "";
   }
 
   if (target.id === "custom-quiz-exam") {

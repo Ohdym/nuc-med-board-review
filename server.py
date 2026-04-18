@@ -43,6 +43,7 @@ BOARD_VALUES = [100, 200, 300, 400, 500]
 PASSWORD_ITERATIONS = 260000
 MAX_USER_ATTEMPTS = 10000
 MAX_USER_PLACEMENTS = 500
+MAX_CUSTOM_QUIZZES = 200
 
 
 def parse_js_literal(node):
@@ -317,6 +318,86 @@ def ensure_plaintext_user(username, credential):
     return user
 
 
+def parse_student_name_line(line):
+    cleaned = " ".join(str(line or "").replace(",", " ").strip().split())
+    if not cleaned:
+        return None
+    parts = cleaned.split()
+    if len(parts) < 2:
+        return None
+    return {
+        "firstName": parts[0],
+        "lastName": parts[-1],
+        "displayName": f"{parts[0]} {parts[-1]}",
+    }
+
+
+def username_base_for_student(first_name, last_name):
+    first_initial = normalize_name_piece(first_name)[:1]
+    last_clean = normalize_name_piece(last_name)
+    base = f"{first_initial}{last_clean}"
+    return base or "student"
+
+
+def unique_student_username(first_name, last_name, current_username=None):
+    base = username_base_for_student(first_name, last_name)
+    credentials = load_plaintext_credentials()
+    used = set(credentials.keys()) | set(USER_STORE.get("users", {}).keys())
+    if current_username:
+        used.discard(current_username)
+
+    if base not in used:
+        return base
+
+    index = 1
+    while f"{base}{index}" in used:
+        index += 1
+    return f"{base}{index}"
+
+
+def create_or_update_student(first_name, last_name, graduation_year):
+    display_name = f"{first_name} {last_name}"
+    normalized_display = display_name.strip().lower()
+    users = USER_STORE.setdefault("users", {})
+
+    existing_username = None
+    for username, user in users.items():
+        if (
+            str(user.get("role") or "student") == "student"
+            and str(user.get("display_name") or "").strip().lower() == normalized_display
+        ):
+            existing_username = username
+            break
+
+    username = existing_username or unique_student_username(first_name, last_name)
+    password = f"{normalize_name_piece(last_name)}oit123"
+    user = users.setdefault(
+        username,
+        {
+            "performance": [],
+            "live_placements": [],
+            "created_at": time.time(),
+        },
+    )
+    user["display_name"] = display_name
+    user["first_name"] = first_name
+    user["last_name"] = last_name
+    user["role"] = "student"
+    user["graduation_year"] = str(graduation_year or "").strip()
+    user["credential_source"] = "instructor roster import"
+
+    if not existing_username or not user.get("password_hash"):
+        user.update(hash_password(password))
+
+    return {
+        "username": username,
+        "password": password,
+        "displayName": display_name,
+        "graduationYear": user["graduation_year"],
+        "created": not bool(existing_username),
+    }
+
+
 def save_user_store():
     if save_database_store("user_store", USER_STORE):
         return
@@ -505,10 +586,72 @@ def public_user(username, user):
     return {
         "username": username,
         "displayName": user.get("display_name") or username,
+        "firstName": user.get("first_name") or first_name_from_display(user.get("display_name") or username),
+        "lastName": user.get("last_name") or "",
+        "graduationYear": str(user.get("graduation_year") or ""),
         "role": user.get("role") or "student",
         "attemptCount": len(user.get("performance", [])),
         "placementCount": len(user.get("live_placements", [])),
+        "customQuizCount": len(user.get("custom_quizzes", [])),
     }
+
+
+def normalize_custom_quiz_entry(quiz):
+    if not isinstance(quiz, dict):
+        return None
+
+    title = " ".join(str(quiz.get("title") or "").strip().split())
+    question_ids = []
+    seen_ids = set()
+    for raw_id in quiz.get("questionIds", []):
+        question_id = str(raw_id or "").strip()
+        if question_id and question_id not in seen_ids:
+            question_ids.append(question_id)
+            seen_ids.add(question_id)
+
+    if not title or not question_ids:
+        return None
+
+    quiz_id = str(quiz.get("id") or "").strip()
+    if not quiz_id:
+        digest = hashlib.sha256(f"{title}|{','.join(question_ids)}".encode("utf-8")).hexdigest()[:16]
+        quiz_id = f"custom-quiz-{digest}"
+
+    filters = quiz.get("filters") if isinstance(quiz.get("filters"), dict) else {}
+    created_at = int(quiz.get("createdAt") or time.time() * 1000)
+    updated_at = int(quiz.get("updatedAt") or created_at)
+
+    return {
+        "id": quiz_id[:96],
+        "title": title[:120],
+        "description": " ".join(str(quiz.get("description") or "").strip().split())[:240],
+        "questionIds": question_ids[:500],
+        "filters": {
+            "exam": str(filters.get("exam") or "all")[:32],
+            "questionNumbers": str(filters.get("questionNumbers") or "")[:500],
+            "category": str(filters.get("category") or "all")[:120],
+            "topic": str(filters.get("topic") or "all")[:160],
+        },
+        "createdAt": created_at,
+        "updatedAt": updated_at,
+    }
+
+
+def normalize_custom_quiz_library(quizzes):
+    normalized = []
+    seen_ids = set()
+    if not isinstance(quizzes, list):
+        return normalized
+
+    for quiz in quizzes:
+        item = normalize_custom_quiz_entry(quiz)
+        if not item or item["id"] in seen_ids:
+            continue
+        normalized.append(item)
+        seen_ids.add(item["id"])
+
+    normalized.sort(key=lambda item: int(item.get("updatedAt") or 0), reverse=True)
+    return normalized[:MAX_CUSTOM_QUIZZES]
 
 
 def first_name_from_display(value):
@@ -812,6 +955,9 @@ def build_instructor_stats():
         user = USER_STORE.get("users", {}).get(username, {})
         role = user.get("role") or credential.get("role") or "student"
         display_name = user.get("display_name") or credential.get("display_name") or username
+        first_name = user.get("first_name") or first_name_from_display(display_name)
+        last_name = user.get("last_name") or ""
+        graduation_year = str(user.get("graduation_year") or "")
         attempts = list(user.get("performance", []))
         placements = list(user.get("live_placements", []))
         attempt_summary = summarize_attempts(attempts)
@@ -820,6 +966,10 @@ def build_instructor_stats():
         user_payload = {
             "username": username,
             "displayName": display_name,
+            "firstName": first_name,
+            "lastName": last_name,
+            "fullName": display_name,
+            "graduationYear": graduation_year,
             "role": role,
             "summary": attempt_summary,
             "placements": placement_summary,
@@ -842,6 +992,7 @@ def build_instructor_stats():
                 **public_attempt(attempt),
                 "username": username,
                 "displayName": display_name,
+                "graduationYear": graduation_year,
             }
             for attempt in attempts
         )
@@ -861,8 +1012,16 @@ def build_instructor_stats():
         reverse=True,
     )[:150]
 
-    users.sort(key=lambda user: (user["role"] == "instructor", user["displayName"].lower()))
-    return {"aggregate": aggregate, "users": users}
+    graduation_years = sorted(
+        {
+            user.get("graduationYear")
+            for user in users
+            if user.get("role") != "instructor" and user.get("graduationYear")
+        },
+        key=lambda value: (len(value), value),
+    )
+    users.sort(key=lambda user: (user["role"] == "instructor", user.get("graduationYear") or "zzzz", user["displayName"].lower()))
+    return {"aggregate": aggregate, "users": users, "graduationYears": graduation_years}
 
 
 def get_weighted_question_difficulty(question):
@@ -1625,6 +1784,7 @@ async def login_user(request):
         "user": public_user(username, user),
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
+        "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
     })
 
 
@@ -1644,6 +1804,7 @@ async def current_user(request):
         "user": public_user(username, user),
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
+        "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
     })
 
 
@@ -1651,6 +1812,99 @@ async def instructor_stats(request):
     require_instructor_username(request)
     migrate_user_store_aliases()
     return web.json_response(build_instructor_stats())
+
+
+async def instructor_custom_quizzes(request):
+    username = require_instructor_username(request)
+    user = USER_STORE["users"][username]
+
+    if request.method == "GET":
+        return web.json_response({
+            "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
+        })
+
+    payload = await json_body(request)
+    quizzes = normalize_custom_quiz_library(payload.get("customQuizzes", []))
+    user["custom_quizzes"] = quizzes
+    user["custom_quizzes_updated_at"] = time.time()
+    save_user_store()
+    return web.json_response({
+        "customQuizzes": quizzes,
+    })
+
+
+async def instructor_import_students(request):
+    require_instructor_username(request)
+    payload = await json_body(request)
+    graduation_year = str(payload.get("graduationYear") or "").strip()
+    lines = str(payload.get("students") or "").splitlines()
+
+    if not graduation_year:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "A graduation year is required."}),
+            content_type="application/json",
+        )
+
+    imported = []
+    skipped = []
+    for line in lines:
+        parsed = parse_student_name_line(line)
+        if not parsed:
+            if str(line or "").strip():
+                skipped.append(str(line).strip())
+            continue
+        imported.append(
+            create_or_update_student(
+                parsed["firstName"],
+                parsed["lastName"],
+                graduation_year,
+            )
+        )
+
+    if not imported:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "No valid students were found. Use one student per line as First Last."}),
+            content_type="application/json",
+        )
+
+    save_user_store()
+    return web.json_response({
+        "imported": imported,
+        "skipped": skipped,
+        "stats": build_instructor_stats(),
+    })
+
+
+async def instructor_move_graduation_year(request):
+    require_instructor_username(request)
+    payload = await json_body(request)
+    from_year = str(payload.get("fromYear") or "").strip()
+    to_year = str(payload.get("toYear") or "").strip()
+
+    if not from_year or not to_year:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Both current and target graduation years are required."}),
+            content_type="application/json",
+        )
+
+    moved = []
+    for username, user in USER_STORE.get("users", {}).items():
+        if str(user.get("role") or "student") != "student":
+            continue
+        if str(user.get("graduation_year") or "") != from_year:
+            continue
+        user["graduation_year"] = to_year
+        moved.append({
+            "username": username,
+            "displayName": user.get("display_name") or username,
+            "graduationYear": to_year,
+        })
+
+    save_user_store()
+    return web.json_response({
+        "moved": moved,
+        "stats": build_instructor_stats(),
+    })
 
 
 async def storage_status(request):
@@ -1960,6 +2214,10 @@ def create_app():
     app.router.add_post("/api/auth/logout", logout_user)
     app.router.add_get("/api/auth/me", current_user)
     app.router.add_get("/api/instructor/stats", instructor_stats)
+    app.router.add_get("/api/instructor/custom-quizzes", instructor_custom_quizzes)
+    app.router.add_put("/api/instructor/custom-quizzes", instructor_custom_quizzes)
+    app.router.add_post("/api/instructor/students/import", instructor_import_students)
+    app.router.add_post("/api/instructor/students/move-year", instructor_move_graduation_year)
     app.router.add_get("/api/system/storage", storage_status)
     app.router.add_post("/api/games/create", create_game)
     app.router.add_post("/api/games/join", join_game)
