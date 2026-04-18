@@ -2420,6 +2420,7 @@ function renderSectionIntro(eyebrow, title, body) {
       <h2>${escapeHtml(title)}</h2>
       <p>${escapeHtml(body)}</p>
     </div>
+    ${renderHeadlineHighlights()}
   `;
 }
 
@@ -3609,6 +3610,24 @@ function renderPracticeNav() {
   return renderNavTabs(getPracticeNavItems(), "nav-tabs--practice");
 }
 
+function renderHeadlineHighlights() {
+  const copy = getHeroCopy(state.activeView);
+  return `
+    <div class="headline__highlights">
+      ${copy.highlights
+        .map(
+          ([label, detail]) => `
+            <article class="headline-highlight">
+              <span>${escapeHtml(label)}</span>
+              <strong>${escapeHtml(detail)}</strong>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderAppChrome(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
   return `
@@ -3639,7 +3658,6 @@ function renderAppChrome(summary) {
           </div>
         </div>
       </div>
-      ${renderTopbarNav()}
     </header>
   `;
 }
@@ -3651,18 +3669,7 @@ function renderPageHero() {
       <div class="headline__copy">
         <h1>${escapeHtml(copy.title)}</h1>
         <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
-        <div class="headline__highlights">
-          ${copy.highlights
-            .map(
-              ([label, detail]) => `
-                <article class="headline-highlight">
-                  <span>${escapeHtml(label)}</span>
-                  <strong>${escapeHtml(detail)}</strong>
-                </article>
-              `,
-            )
-            .join("")}
-        </div>
+        ${renderTopbarNav()}
       </div>
     </section>
   `;
@@ -5114,8 +5121,8 @@ function renderApp() {
   app.innerHTML = `
     <div class="shell">
       ${renderAppChrome(summary)}
-      ${renderPracticeNav()}
       ${renderPageHero()}
+      ${renderPracticeNav()}
       <main>
         ${viewMap[state.activeView] || viewMap.dashboard}
       </main>
