@@ -3467,7 +3467,6 @@ function renderAccountCorner() {
 
 function getTopbarNavItems() {
   return [
-    ["quickstart", "Quick Start"],
     ["dashboard", "Dashboard"],
     ["profile", "Profile"],
     ...(isInstructor() ? [["instructor", "Instructor View"]] : []),
@@ -3477,6 +3476,7 @@ function getTopbarNavItems() {
 
 function getPracticeNavItems() {
   return [
+    ["quickstart", "Quick Start"],
     ["quiz", "Quiz"],
     ["mock", "Mock Exam"],
     ["jeopardy", "Jeopardy"],
