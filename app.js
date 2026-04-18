@@ -829,8 +829,8 @@ function buildMockExamQuestions(count, summary) {
 }
 
 function recordAttempt(question, correct, mode) {
-  savePersonalAttempt(question, correct, mode);
-  reportSharedAttempt(question, correct, mode);
+  const attempt = savePersonalAttempt(question, correct, mode);
+  reportSharedAttempt(attempt);
 }
 
 function savePersonalAttempt(question, correct, mode) {
@@ -844,14 +844,14 @@ function savePersonalAttempt(question, correct, mode) {
     mode,
     correct,
     timestamp: Date.now(),
+    accountUsername: state.account.auth ? state.account.auth.username : null,
   };
   state.performance.push(attempt);
   saveJSON(STORAGE_KEYS.performance, state.performance);
   return attempt;
 }
 
-function reportSharedAttempt(question, correct, mode) {
-  const summary = computePerformanceSummary();
+function reportSharedAttempt(attempt) {
   const headers = {
     "Content-Type": "application/json",
   };
@@ -864,18 +864,7 @@ function reportSharedAttempt(question, correct, mode) {
     headers,
     body: JSON.stringify({
       userId: state.account.auth ? state.account.auth.username : state.sharedUserId,
-      attempts: [
-        {
-          questionId: question.id,
-          category: question.category,
-          topic: question.topic,
-          type: question.type,
-          difficulty: getEffectiveDifficulty(question, summary),
-          correct,
-          mode,
-          timestamp: Date.now(),
-        },
-      ],
+      attempts: [attempt],
     }),
     keepalive: true,
   }).catch(() => {
@@ -1869,7 +1858,56 @@ function setAccountMessage(tone, message) {
   state.account.message = message;
 }
 
+function performanceAttemptKey(attempt) {
+  return [
+    attempt && attempt.questionId ? attempt.questionId : "",
+    attempt && attempt.mode ? attempt.mode : "",
+    attempt && attempt.timestamp ? attempt.timestamp : "",
+  ].join("|");
+}
+
+function mergePerformanceAttempts(primaryAttempts, secondaryAttempts) {
+  const merged = [];
+  const seen = new Set();
+  [...primaryAttempts, ...secondaryAttempts].forEach((attempt) => {
+    if (!attempt || !attempt.questionId) {
+      return;
+    }
+    const key = performanceAttemptKey(attempt);
+    if (seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    merged.push(attempt);
+  });
+  return merged.sort((first, second) => Number(first.timestamp || 0) - Number(second.timestamp || 0));
+}
+
+function syncAccountAttemptsToServer(attempts) {
+  if (!hasAccountSession() || !Array.isArray(attempts) || !attempts.length) {
+    return;
+  }
+
+  fetch(getLiveServerHttpUrl("/api/attempts"), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${state.account.auth.token}`,
+    },
+    body: JSON.stringify({
+      userId: state.account.auth.username,
+      attempts,
+    }),
+    keepalive: true,
+  }).catch(() => {
+    // Account syncing should never block practice if the server is temporarily unavailable.
+  });
+}
+
 function applyAccountSession(data) {
+  const localPerformance = Array.isArray(state.performance) ? state.performance : [];
+  const serverPerformance = Array.isArray(data.performance) ? data.performance : [];
+  const serverAttemptKeys = new Set(serverPerformance.map(performanceAttemptKey));
   state.account.auth = {
     token: data.token || (state.account.auth && state.account.auth.token),
     username: data.user.username,
@@ -1877,10 +1915,12 @@ function applyAccountSession(data) {
     role: data.user.role || "student",
   };
   state.account.verifying = false;
-  if (Array.isArray(data.performance)) {
-    state.performance = data.performance;
-    saveJSON(STORAGE_KEYS.performance, state.performance);
-  }
+  const localAccountAttempts = localPerformance.filter((attempt) => {
+    return attempt.accountUsername === state.account.auth.username && !serverAttemptKeys.has(performanceAttemptKey(attempt));
+  });
+  state.performance = mergePerformanceAttempts(serverPerformance, localAccountAttempts);
+  saveJSON(STORAGE_KEYS.performance, state.performance);
+  syncAccountAttemptsToServer(localAccountAttempts);
   state.account.placements = Array.isArray(data.placements) ? data.placements : [];
   persistAccountAuth();
   syncLiveNameToAccount();
@@ -4905,6 +4945,10 @@ app.addEventListener("click", (event) => {
       return;
     }
     state.activeView = view;
+    if (view === "instructor" && isInstructor() && !state.instructor.data && !state.instructor.loading) {
+      loadInstructorStats();
+      return;
+    }
     renderApp();
     return;
   }

@@ -209,6 +209,127 @@ def save_user_store():
     USER_STORE_PATH.write_text(json.dumps(USER_STORE, indent=2))
 
 
+def normalize_name_piece(value):
+    return "".join(char for char in str(value or "").strip().lower() if char.isalnum())
+
+
+def credential_aliases(credentials):
+    first_name_counts = {}
+    for credential in credentials.values():
+        first_name = first_name_from_display(credential.get("display_name"))
+        if first_name:
+            key = normalize_name_piece(first_name)
+            first_name_counts[key] = first_name_counts.get(key, 0) + 1
+
+    aliases = {}
+    for username, credential in credentials.items():
+        aliases[username] = username
+        display_first = normalize_name_piece(first_name_from_display(credential.get("display_name")))
+        inferred_last = normalize_name_piece(username[1:]) if len(username) > 1 else ""
+        if display_first and inferred_last:
+            aliases[f"{display_first}.{inferred_last}@oit.edu"] = username
+        if display_first and first_name_counts.get(display_first) == 1:
+            aliases[display_first] = username
+
+    return aliases
+
+
+def infer_canonical_username(username, user, credentials, aliases):
+    cleaned = str(username or "").strip().lower()
+    if cleaned in credentials:
+        return cleaned
+    if cleaned in aliases:
+        return aliases[cleaned]
+
+    local_part = cleaned.split("@", 1)[0]
+    if "." in local_part:
+        first, last = local_part.split(".", 1)
+        candidate = f"{normalize_name_piece(first)[:1]}{normalize_name_piece(last)}"
+        if candidate in credentials:
+            return candidate
+
+    display_parts = [
+        normalize_name_piece(part)
+        for part in str(user.get("display_name") or "").replace(".", " ").split()
+        if normalize_name_piece(part)
+    ]
+    if len(display_parts) >= 2:
+        candidate = f"{display_parts[0][:1]}{''.join(display_parts[1:])}"
+        if candidate in credentials:
+            return candidate
+
+    return cleaned
+
+
+def merge_user_record(target, source):
+    target.setdefault("performance", [])
+    existing_attempts = {
+        (
+            str(attempt.get("questionId")),
+            str(attempt.get("mode")),
+            int(attempt.get("timestamp") or 0),
+        )
+        for attempt in target.get("performance", [])
+    }
+    for attempt in source.get("performance", []):
+        key = (
+            str(attempt.get("questionId")),
+            str(attempt.get("mode")),
+            int(attempt.get("timestamp") or 0),
+        )
+        if key not in existing_attempts:
+            target["performance"].append(attempt)
+            existing_attempts.add(key)
+
+    target.setdefault("live_placements", [])
+    existing_placements = {
+        (
+            str(placement.get("code")),
+            int(placement.get("finishedAt") or 0),
+            int(placement.get("placement") or 0),
+        )
+        for placement in target.get("live_placements", [])
+    }
+    for placement in source.get("live_placements", []):
+        key = (
+            str(placement.get("code")),
+            int(placement.get("finishedAt") or 0),
+            int(placement.get("placement") or 0),
+        )
+        if key not in existing_placements:
+            target["live_placements"].append(placement)
+            existing_placements.add(key)
+
+    if source.get("created_at"):
+        target["created_at"] = min(float(target.get("created_at") or source["created_at"]), float(source["created_at"]))
+    if source.get("updated_at"):
+        target["updated_at"] = max(float(target.get("updated_at") or 0), float(source["updated_at"]))
+
+
+def migrate_user_store_aliases():
+    credentials = load_plaintext_credentials()
+    if not credentials:
+        return 0
+
+    users = USER_STORE.setdefault("users", {})
+    aliases = credential_aliases(credentials)
+    migrated = 0
+
+    for username, user in list(users.items()):
+        canonical = infer_canonical_username(username, user, credentials, aliases)
+        if canonical == username or canonical not in credentials:
+            continue
+
+        target = ensure_plaintext_user(canonical, credentials[canonical])
+        merge_user_record(target, user)
+        users.pop(username, None)
+        migrated += 1
+
+    if migrated:
+        save_user_store()
+    return migrated
+
+
 def hash_password(password, salt=None, iterations=PASSWORD_ITERATIONS):
     salt_bytes = base64.b64decode(salt) if salt else secrets.token_bytes(16)
     digest = hashlib.pbkdf2_hmac(
@@ -235,6 +356,7 @@ def verify_password(password, user):
 
 
 def authenticate_user(username, password):
+    migrate_user_store_aliases()
     credentials = load_plaintext_credentials()
     credential = credentials.get(username)
     if credential and hmac.compare_digest(str(password), credential["password"]):
@@ -347,12 +469,35 @@ def record_user_attempts(username, attempts):
     if not normalized:
         return 0
 
-    performance.extend(normalized)
+    existing = {
+        (
+            str(attempt.get("questionId")),
+            str(attempt.get("mode")),
+            int(attempt.get("timestamp") or 0),
+        )
+        for attempt in performance
+    }
+    deduped = []
+    for attempt in normalized:
+        key = (
+            str(attempt.get("questionId")),
+            str(attempt.get("mode")),
+            int(attempt.get("timestamp") or 0),
+        )
+        if key in existing:
+            continue
+        deduped.append(attempt)
+        existing.add(key)
+
+    if not deduped:
+        return 0
+
+    performance.extend(deduped)
     if len(performance) > MAX_USER_ATTEMPTS:
         user["performance"] = performance[-MAX_USER_ATTEMPTS:]
     user["updated_at"] = time.time()
     save_user_store()
-    return len(normalized)
+    return len(deduped)
 
 
 def rank_label(rank):
@@ -1168,6 +1313,7 @@ async def logout_user(request):
 
 
 async def current_user(request):
+    migrate_user_store_aliases()
     username = require_auth_username(request)
     user = USER_STORE["users"][username]
     return web.json_response({
@@ -1179,6 +1325,7 @@ async def current_user(request):
 
 async def instructor_stats(request):
     require_instructor_username(request)
+    migrate_user_store_aliases()
     return web.json_response(build_instructor_stats())
 
 
