@@ -317,8 +317,8 @@ button {
 
 .headline {
   display: grid;
-  grid-template-columns: 1fr;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 0.75rem;
   margin-bottom: 0.85rem;
   padding: 1rem 1.1rem;
@@ -332,14 +332,25 @@ button {
 }
 
 .headline__copy {
+  grid-column: 1;
+  grid-row: 1;
   max-width: none;
   display: grid;
   align-content: start;
   gap: 0.55rem;
 }
 
+.headline__account {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
 .headline__meta {
-  justify-content: flex-start;
+  grid-column: 1 / -1;
+  justify-self: end;
+  justify-content: flex-end;
+  align-self: end;
   gap: 0.55rem;
   margin-top: 0.1rem;
 }
@@ -1664,6 +1675,21 @@ button {
   .split-layout {
     align-items: stretch;
     grid-template-columns: 1fr;
+  }
+
+  .headline__copy,
+  .headline__account,
+  .headline__meta {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .headline__account {
+    justify-self: stretch;
+  }
+
+  .headline__account .account-corner {
+    justify-content: stretch;
   }
 
   .topbar__main {

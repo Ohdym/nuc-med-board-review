@@ -3658,9 +3658,6 @@ function renderAppChrome() {
             <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy</span>
           </div>
         </div>
-        <div class="topbar__right">
-          ${renderAccountCorner()}
-        </div>
       </div>
     </header>
   `;
@@ -3671,12 +3668,15 @@ function renderPageHero(summary) {
   return `
     <div class="headline__app-title">Nuclear Medicine Boards Review</div>
     <section class="headline headline--oregon-tech">
+      <div class="headline__account">
+        ${renderAccountCorner()}
+      </div>
       <div class="headline__copy">
         <h1>${escapeHtml(copy.title)}</h1>
         <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
-        ${renderHeroStatus(summary)}
         ${renderTopbarNav()}
       </div>
+      ${renderHeroStatus(summary)}
     </section>
   `;
 }
