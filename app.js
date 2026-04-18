@@ -105,6 +105,14 @@ const state = {
     adaptive: true,
   },
   quizSession: null,
+  quickStart: {
+    question: null,
+    selectedIndex: null,
+    submitted: false,
+    correct: 0,
+    total: 0,
+    lastQuestionId: null,
+  },
   mockConfig: {
     count: 60,
     durationMinutes: 60,
@@ -1729,6 +1737,44 @@ function scrollPracticeQuestionIntoView() {
     }
     card.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+}
+
+function pickQuickStartQuestion() {
+  const pool = getAllQuestions();
+  if (!pool.length) {
+    return null;
+  }
+  const eligible = pool.length > 1 ? pool.filter((question) => question.id !== state.quickStart.lastQuestionId) : pool;
+  return eligible[Math.floor(Math.random() * eligible.length)] || null;
+}
+
+function loadQuickStartQuestion() {
+  const question = pickQuickStartQuestion();
+  state.quickStart.question = question;
+  state.quickStart.selectedIndex = null;
+  state.quickStart.submitted = false;
+  state.quickStart.lastQuestionId = question ? question.id : null;
+  scrollPracticeQuestionIntoView();
+}
+
+function ensureQuickStartQuestion() {
+  if (!state.quickStart.question && hasStudyQuestions()) {
+    loadQuickStartQuestion();
+  }
+}
+
+function submitQuickStartQuestion() {
+  const session = state.quickStart;
+  const question = session.question;
+  if (!question || session.selectedIndex === null || session.submitted) {
+    return;
+  }
+
+  const correct = session.selectedIndex === question.answerIndex;
+  session.submitted = true;
+  session.total += 1;
+  session.correct += correct ? 1 : 0;
+  recordAttempt(question, correct, "quick-start");
 }
 
 function getActiveQuizQuestion() {
@@ -3419,12 +3465,18 @@ function renderAccountCorner() {
   `;
 }
 
-function getPrimaryNavItems() {
+function getTopbarNavItems() {
   return [
+    ["quickstart", "Quick Start"],
     ["dashboard", "Dashboard"],
     ["profile", "Profile"],
     ...(isInstructor() ? [["instructor", "Instructor View"]] : []),
     ["bank", "Question Bank"],
+  ];
+}
+
+function getPracticeNavItems() {
+  return [
     ["quiz", "Quiz"],
     ["mock", "Mock Exam"],
     ["jeopardy", "Jeopardy"],
@@ -3433,6 +3485,17 @@ function getPrimaryNavItems() {
 
 function getHeroCopy(view) {
   const copyByView = {
+    quickstart: {
+      title: "Quick Start",
+      subtitle: "Jump straight into one random question at a time.",
+      body:
+        "Quick Start pulls a random item from the question bank with no timer, no limit, and immediate explanation after you answer.",
+      highlights: [
+        ["Random recall", "Start practicing without building a quiz"],
+        ["No limits", "Keep moving question by question as long as you want"],
+        ["Saved progress", "Signed-in attempts still count toward your profile and instructor metrics"],
+      ],
+    },
     dashboard: {
       title: "Dashboard",
       subtitle: "Your home base for Nuclear Medicine board review.",
@@ -3515,10 +3578,10 @@ function getHeroCopy(view) {
   return copyByView[view] || copyByView.dashboard;
 }
 
-function renderPrimaryNav() {
+function renderNavTabs(items, modifier = "") {
   return `
-    <nav class="nav-tabs nav-tabs--topbar" aria-label="Primary">
-      ${getPrimaryNavItems()
+    <nav class="nav-tabs ${modifier}" aria-label="Primary">
+      ${items
         .map(
           ([view, label]) => `
             <button type="button" class="nav-tab ${view === "instructor" ? "nav-tab--stacked" : ""} ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
@@ -3536,6 +3599,14 @@ function renderPrimaryNav() {
         .join("")}
     </nav>
   `;
+}
+
+function renderTopbarNav() {
+  return renderNavTabs(getTopbarNavItems(), "nav-tabs--topbar");
+}
+
+function renderPracticeNav() {
+  return renderNavTabs(getPracticeNavItems(), "nav-tabs--practice");
 }
 
 function renderAppChrome(summary) {
@@ -3568,7 +3639,7 @@ function renderAppChrome(summary) {
           </div>
         </div>
       </div>
-      ${renderPrimaryNav()}
+      ${renderTopbarNav()}
     </header>
   `;
 }
@@ -3878,6 +3949,100 @@ function renderQuizView(summary) {
                 }>Check answer</button>`
           }
           <button type="button" class="button button--ghost" data-action="restart-quiz">End quiz</button>
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderQuickStartView() {
+  const session = state.quickStart;
+  const question = session.question;
+  const correct = session.question && session.selectedIndex === question.answerIndex;
+
+  if (!hasStudyQuestions() || !question) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Quick Start",
+          "One random question at a time",
+          "Quick Start is ready as soon as the question bank has content.",
+        )}
+        ${renderQuestionBankEmptyState(
+          "Import questions before using Quick Start",
+          "Quick Start pulls from the loaded study bank.",
+          "Once questions are loaded, this mode will give you endless untimed random practice.",
+        )}
+      </section>
+    `;
+  }
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Quick Start",
+        `${question.category}`,
+        "Answer a random board-review question, read the explanation, then keep going with another random item.",
+      )}
+      <div class="progress-row">
+        <span>Untimed random practice</span>
+        <span>${session.total ? `${session.correct}/${session.total} correct this run` : "No answers yet this run"}</span>
+      </div>
+      <article class="question-card question-card--practice ${session.submitted ? "question-card--answered" : ""}">
+        <div class="question-card__meta">
+          <span class="pill">${escapeHtml(question.type)}</span>
+          <span class="pill">${escapeHtml(question.topic)}</span>
+        </div>
+        <h3>${formatScientificText(question.question)}</h3>
+        ${renderQuestionMedia(question)}
+        <div class="option-list">
+          ${question.options
+            .map((option, index) => {
+              const isSelected = session.selectedIndex === index;
+              const isCorrect = question.answerIndex === index;
+              const isWrongChoice = session.submitted && isSelected && !isCorrect;
+              const classes = [
+                "option",
+                isSelected ? "is-selected" : "",
+                session.submitted && isCorrect ? "is-correct" : "",
+                isWrongChoice ? "is-wrong" : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return `
+                <button
+                  type="button"
+                  class="${classes}"
+                  data-action="select-quickstart-option"
+                  data-index="${index}"
+                  ${session.submitted ? "disabled" : ""}
+                >
+                  <span>${String.fromCharCode(65 + index)}</span>
+                  <strong>${formatScientificText(option)}</strong>
+                </button>
+              `;
+            })
+            .join("")}
+        </div>
+        ${
+          session.submitted
+            ? `
+              <div class="feedback ${correct ? "feedback--correct" : "feedback--wrong"}">
+                <strong>${correct ? "Correct" : "Not quite"}</strong>
+                ${renderExplanationContent(question)}
+              </div>
+            `
+            : ""
+        }
+        <div class="question-card__actions">
+          ${
+            session.submitted
+              ? `<button type="button" class="button button--primary" data-action="next-quickstart">Next random question</button>`
+              : `<button type="button" class="button button--primary" data-action="submit-quickstart" ${
+                  session.selectedIndex === null ? "disabled" : ""
+                }>Check answer</button>`
+          }
+          <button type="button" class="button button--ghost" data-action="next-quickstart">Skip / new random</button>
         </div>
       </article>
     </section>
@@ -4919,6 +5084,10 @@ function renderLiveView() {
 function renderApp() {
   const summary = computePerformanceSummary();
 
+  if (state.activeView === "quickstart") {
+    ensureQuickStartQuestion();
+  }
+
   if (!hasAccountSession() || state.account.verifying) {
     app.innerHTML = `
       <div class="shell shell--login">
@@ -4929,6 +5098,7 @@ function renderApp() {
   }
 
   const viewMap = {
+    quickstart: renderQuickStartView(),
     dashboard: renderDashboard(summary),
     profile: renderProfileView(summary),
     instructor: renderInstructorView(),
@@ -4944,6 +5114,7 @@ function renderApp() {
   app.innerHTML = `
     <div class="shell">
       ${renderAppChrome(summary)}
+      ${renderPracticeNav()}
       ${renderPageHero()}
       <main>
         ${viewMap[state.activeView] || viewMap.dashboard}
@@ -4967,6 +5138,9 @@ app.addEventListener("click", (event) => {
       return;
     }
     state.activeView = view;
+    if (view === "quickstart") {
+      ensureQuickStartQuestion();
+    }
     if (view === "instructor" && isInstructor() && !state.instructor.data && !state.instructor.loading) {
       loadInstructorStats();
       return;
@@ -5003,6 +5177,18 @@ app.addEventListener("click", (event) => {
 
   if (action === "start-quiz") {
     startQuiz();
+  }
+
+  if (action === "select-quickstart-option" && state.quickStart.question && !state.quickStart.submitted) {
+    state.quickStart.selectedIndex = Number(button.dataset.index);
+  }
+
+  if (action === "submit-quickstart") {
+    submitQuickStartQuestion();
+  }
+
+  if (action === "next-quickstart") {
+    loadQuickStartQuestion();
   }
 
   if (action === "select-quiz-option" && state.quizSession && !state.quizSession.submitted) {
