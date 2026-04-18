@@ -7,6 +7,8 @@ const STORAGE_KEYS = {
   performance: "nmb-review-performance",
   liveProfile: "nmb-review-live-profile",
   liveAuth: "nmb-review-live-auth",
+  customQuizzes: "nmb-review-custom-quizzes",
+  onlineQuizAuth: "nmb-review-online-quiz-auth",
   sharedUserId: "nmb-review-shared-user-id",
   accountAuth: "nmb-review-account-auth",
 };
@@ -99,6 +101,18 @@ const state = {
     message: "Instructor metrics load after an instructor signs in.",
     tone: "info",
   },
+  customQuizBuilder: {
+    saved: loadJSON(STORAGE_KEYS.customQuizzes, []),
+    title: "",
+    description: "",
+    exam: "all",
+    questionNumbers: "",
+    category: "all",
+    topic: "all",
+    selectedIds: [],
+    message: "Build custom quizzes by exam/question number, subject, or sub-subject.",
+    tone: "info",
+  },
   quizConfig: {
     category: "all",
     count: 10,
@@ -163,6 +177,18 @@ const state = {
     ws: null,
     manualDisconnect: false,
   },
+  onlineQuiz: {
+    selectedQuizId: "",
+    joinCode: "",
+    username: "",
+    auth: loadJSON(STORAGE_KEYS.onlineQuizAuth, null),
+    session: null,
+    answerIndex: null,
+    lastQuestionId: null,
+    busy: false,
+    message: "Instructors can host a saved custom quiz with a join code.",
+    tone: "info",
+  },
   importDraft: "",
   importConfig: {
     categoryMode: "auto",
@@ -178,6 +204,7 @@ const state = {
 };
 
 let mockTimerHandle = null;
+let onlineQuizRefreshInFlight = false;
 const FLASHCARD_IMPORT_TEMPLATE = `Term\tDefinition
 Tc-99m MDP\tCommon radiopharmaceutical for routine bone imaging
 ALARA\tRadiation safety principle focused on minimizing exposure
@@ -531,6 +558,320 @@ function getCategories() {
     }
   }
   return [...known.values()];
+}
+
+function persistCustomQuizzes() {
+  saveJSON(STORAGE_KEYS.customQuizzes, state.customQuizBuilder.saved);
+}
+
+function getQuestionTopics(category = "all") {
+  const topics = getAllQuestions()
+    .filter((question) => category === "all" || question.category === category)
+    .map((question) => question.topic)
+    .filter(Boolean);
+  return [...new Set(topics)].sort((first, second) => first.localeCompare(second));
+}
+
+function parseQuestionNumberInput(value) {
+  const numbers = new Set();
+  const parts = String(value || "")
+    .split(/[\s,]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  for (const part of parts) {
+    const rangeMatch = part.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (rangeMatch) {
+      const start = Number(rangeMatch[1]);
+      const end = Number(rangeMatch[2]);
+      if (Number.isFinite(start) && Number.isFinite(end)) {
+        const low = Math.min(start, end);
+        const high = Math.max(start, end);
+        for (let number = low; number <= high; number += 1) {
+          numbers.add(number);
+        }
+      }
+      continue;
+    }
+
+    const number = Number(part);
+    if (Number.isFinite(number)) {
+      numbers.add(number);
+    }
+  }
+
+  return numbers;
+}
+
+function getCustomQuizFilteredQuestions() {
+  const builder = state.customQuizBuilder;
+  const questionNumbers = parseQuestionNumberInput(builder.questionNumbers);
+  return getAllQuestions().filter((question) => {
+    const examInfo = getQuestionExamInfo(question);
+    if (builder.exam !== "all" && Number(builder.exam) !== examInfo.examNumber) {
+      return false;
+    }
+
+    if (questionNumbers.size && !questionNumbers.has(examInfo.questionNumber)) {
+      return false;
+    }
+
+    if (builder.category !== "all" && question.category !== builder.category) {
+      return false;
+    }
+
+    if (builder.topic !== "all" && question.topic !== builder.topic) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function getCustomQuizSelectedQuestions() {
+  const selectedIds = new Set(state.customQuizBuilder.selectedIds);
+  if (!selectedIds.size) {
+    return getCustomQuizFilteredQuestions();
+  }
+  return getAllQuestions().filter((question) => selectedIds.has(question.id));
+}
+
+function setCustomQuizBuilderMessage(tone, message) {
+  state.customQuizBuilder.tone = tone;
+  state.customQuizBuilder.message = message;
+}
+
+function saveCustomQuiz() {
+  if (!isInstructor()) {
+    setCustomQuizBuilderMessage("error", "Instructor access is required to save custom quizzes.");
+    return;
+  }
+
+  const title = state.customQuizBuilder.title.trim();
+  const questions = getCustomQuizSelectedQuestions();
+  if (!title) {
+    setCustomQuizBuilderMessage("error", "Add a quiz title before saving.");
+    return;
+  }
+  if (!questions.length) {
+    setCustomQuizBuilderMessage("error", "No questions match the current custom quiz selection.");
+    return;
+  }
+
+  const now = Date.now();
+  const quiz = {
+    id: createStableId("custom-quiz", [title, now, questions.map((question) => question.id).join(",")]),
+    title,
+    description: state.customQuizBuilder.description.trim(),
+    questionIds: questions.map((question) => question.id),
+    filters: {
+      exam: state.customQuizBuilder.exam,
+      questionNumbers: state.customQuizBuilder.questionNumbers.trim(),
+      category: state.customQuizBuilder.category,
+      topic: state.customQuizBuilder.topic,
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  state.customQuizBuilder.saved = [quiz, ...state.customQuizBuilder.saved].slice(0, 100);
+  state.customQuizBuilder.title = "";
+  state.customQuizBuilder.description = "";
+  state.customQuizBuilder.selectedIds = [];
+  persistCustomQuizzes();
+  setCustomQuizBuilderMessage("success", `Saved "${quiz.title}" with ${quiz.questionIds.length} questions.`);
+}
+
+function deleteCustomQuiz(quizId) {
+  state.customQuizBuilder.saved = state.customQuizBuilder.saved.filter((quiz) => quiz.id !== quizId);
+  if (state.onlineQuiz.selectedQuizId === quizId) {
+    state.onlineQuiz.selectedQuizId = "";
+  }
+  persistCustomQuizzes();
+  setCustomQuizBuilderMessage("info", "Custom quiz removed.");
+}
+
+function toggleCustomQuizQuestion(questionId) {
+  const selected = new Set(state.customQuizBuilder.selectedIds);
+  if (selected.has(questionId)) {
+    selected.delete(questionId);
+  } else {
+    selected.add(questionId);
+  }
+  state.customQuizBuilder.selectedIds = [...selected];
+}
+
+function selectAllCustomQuizPreviewQuestions() {
+  state.customQuizBuilder.selectedIds = getCustomQuizFilteredQuestions().map((question) => question.id);
+}
+
+function clearCustomQuizSelectedQuestions() {
+  state.customQuizBuilder.selectedIds = [];
+}
+
+function setOnlineQuizMessage(tone, message) {
+  state.onlineQuiz.tone = tone;
+  state.onlineQuiz.message = message;
+}
+
+function getSavedCustomQuizById(quizId) {
+  return state.customQuizBuilder.saved.find((quiz) => quiz.id === quizId) || null;
+}
+
+function getQuestionSummariesByIds(questionIds) {
+  const questionMap = new Map(getAllQuestions().map((question) => [question.id, question]));
+  return questionIds
+    .map((id) => questionMap.get(id))
+    .filter(Boolean)
+    .map((question) => ({
+      id: question.id,
+      label: formatQuestionBankLabel(question),
+      category: question.category,
+      topic: question.topic,
+      question: question.question,
+    }));
+}
+
+function persistOnlineQuizAuth() {
+  if (state.onlineQuiz.auth) {
+    saveJSON(STORAGE_KEYS.onlineQuizAuth, state.onlineQuiz.auth);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.onlineQuizAuth);
+  }
+}
+
+function applyOnlineQuizSession(session) {
+  const nextQuestionId = session && session.activeQuestion ? session.activeQuestion.questionId : null;
+  if (state.onlineQuiz.lastQuestionId !== nextQuestionId) {
+    state.onlineQuiz.answerIndex =
+      session && session.activeQuestion && session.activeQuestion.viewerAnswer
+        ? session.activeQuestion.viewerAnswer.selectedIndex
+        : null;
+    state.onlineQuiz.lastQuestionId = nextQuestionId;
+  }
+  state.onlineQuiz.session = session;
+}
+
+async function sendOnlineQuizAction(action, payload = {}) {
+  if (!state.onlineQuiz.auth) {
+    setOnlineQuizMessage("error", "Join or host an online quiz first.");
+    return;
+  }
+
+  state.onlineQuiz.busy = true;
+  try {
+    const data = await apiRequest(
+      `/api/online-quizzes/${encodeURIComponent(state.onlineQuiz.auth.code)}/${encodeURIComponent(action)}`,
+      "POST",
+      {
+        token: state.onlineQuiz.auth.participantToken,
+        ...payload,
+      },
+    );
+    applyOnlineQuizSession(data.session);
+    setOnlineQuizMessage("success", `Online quiz ${data.session.code} updated.`);
+  } catch (error) {
+    setOnlineQuizMessage("error", error.message || "Could not update the online quiz.");
+  } finally {
+    state.onlineQuiz.busy = false;
+  }
+}
+
+async function hostOnlineQuiz() {
+  if (!isInstructor()) {
+    setOnlineQuizMessage("error", "Instructor access is required to host an online quiz.");
+    return;
+  }
+
+  const quiz = getSavedCustomQuizById(state.onlineQuiz.selectedQuizId);
+  if (!quiz) {
+    setOnlineQuizMessage("error", "Select a saved custom quiz before hosting.");
+    return;
+  }
+
+  state.onlineQuiz.busy = true;
+  try {
+    const data = await apiRequest("/api/online-quizzes/create", "POST", {
+      title: quiz.title,
+      description: quiz.description,
+      questionIds: quiz.questionIds,
+      questionSummaries: getQuestionSummariesByIds(quiz.questionIds),
+    });
+    state.onlineQuiz.auth = {
+      code: data.code,
+      participantId: data.participantId,
+      participantToken: data.participantToken,
+      host: true,
+    };
+    applyOnlineQuizSession(data.session);
+    state.onlineQuiz.joinCode = data.code;
+    persistOnlineQuizAuth();
+    setOnlineQuizMessage("success", `Online quiz lobby created. Share join code ${data.code}.`);
+  } catch (error) {
+    setOnlineQuizMessage("error", error.message || "Could not host the online quiz.");
+  } finally {
+    state.onlineQuiz.busy = false;
+  }
+}
+
+async function joinOnlineQuiz() {
+  const code = normalizeLiveCode(state.onlineQuiz.joinCode);
+  const username =
+    getSignedInLiveName() ||
+    state.onlineQuiz.username.trim() ||
+    state.live.username.trim();
+
+  if (!code) {
+    setOnlineQuizMessage("error", "Enter the online quiz join code.");
+    return;
+  }
+  if (!username) {
+    setOnlineQuizMessage("error", "Enter your name before joining.");
+    return;
+  }
+
+  state.onlineQuiz.busy = true;
+  try {
+    const data = await apiRequest("/api/online-quizzes/join", "POST", {
+      code,
+      username,
+    });
+    state.onlineQuiz.auth = {
+      code: data.code,
+      participantId: data.participantId,
+      participantToken: data.participantToken,
+      host: Boolean(data.host),
+    };
+    applyOnlineQuizSession(data.session);
+    state.onlineQuiz.joinCode = data.code;
+    persistOnlineQuizAuth();
+    setOnlineQuizMessage("success", `Joined online quiz ${data.code}.`);
+  } catch (error) {
+    setOnlineQuizMessage("error", error.message || "Could not join the online quiz.");
+  } finally {
+    state.onlineQuiz.busy = false;
+  }
+}
+
+async function refreshOnlineQuizLobby(silent = false) {
+  if (!state.onlineQuiz.auth) {
+    return;
+  }
+
+  try {
+    const data = await apiRequest(
+      `/api/online-quizzes/${encodeURIComponent(state.onlineQuiz.auth.code)}?token=${encodeURIComponent(
+        state.onlineQuiz.auth.participantToken,
+      )}`,
+      "GET",
+    );
+    applyOnlineQuizSession(data.session);
+    if (!silent) {
+      setOnlineQuizMessage("info", `Online quiz lobby ${data.session.code} is ready.`);
+    }
+  } catch (error) {
+    setOnlineQuizMessage("error", error.message || "Could not refresh the online quiz lobby.");
+  }
 }
 
 function getImportCategoryChoices() {
@@ -3286,6 +3627,372 @@ function renderInstructorView() {
   `;
 }
 
+function renderCustomQuizCreationView() {
+  if (!isInstructor()) {
+    return `
+      <section class="view">
+        ${renderSectionIntro(
+          "Custom Quiz Creation",
+          "Instructor login required",
+          "Only instructor accounts can build and save custom quizzes for online quiz lobbies.",
+        )}
+        <section class="panel profile-callout">
+          <div>
+            <h3>Sign in as an instructor</h3>
+            <p>Custom quiz creation is protected so quiz assignments are controlled by the instructor account.</p>
+          </div>
+          <button type="button" class="button button--primary" data-view="profile">Open Profile Login</button>
+        </section>
+      </section>
+    `;
+  }
+
+  const builder = state.customQuizBuilder;
+  const categories = getCategories();
+  const topics = getQuestionTopics(builder.category);
+  const exams = [...new Set(getAllQuestions().map((question) => getQuestionExamInfo(question).examNumber).filter(Boolean))]
+    .sort((first, second) => first - second);
+  const filteredQuestions = getCustomQuizFilteredQuestions();
+  const selectedQuestions = getCustomQuizSelectedQuestions();
+  const selectedIds = new Set(builder.selectedIds);
+  const feedbackClass = `import-feedback import-feedback--${builder.tone}`;
+
+  return `
+    <section class="view">
+      ${renderSectionIntro(
+        "Custom Quiz Creation",
+        "Build instructor-controlled quiz sets",
+        "Create quizzes by exam/question number, subject category, or sub-subject topic. Saved custom quizzes can be used later in the Online Quiz lobby.",
+      )}
+      <section class="panel panel--form">
+        <div class="panel__header">
+          <h3>Quiz details</h3>
+          <p>Name the quiz, filter the bank, then save the selected set for online hosting.</p>
+        </div>
+        <div class="form-grid form-grid--two">
+          <label class="field">
+            <span>Quiz title</span>
+            <input id="custom-quiz-title" type="text" maxlength="80" placeholder="Example: Exam 3 Radiation Safety Review" value="${escapeHtml(builder.title)}" />
+          </label>
+          <label class="field">
+            <span>Description</span>
+            <input id="custom-quiz-description" type="text" maxlength="160" placeholder="Optional instructor note" value="${escapeHtml(builder.description)}" />
+          </label>
+        </div>
+        <div class="form-grid">
+          <label class="field">
+            <span>Exam</span>
+            <select id="custom-quiz-exam">
+              <option value="all" ${builder.exam === "all" ? "selected" : ""}>All exams</option>
+              ${exams
+                .map((exam) => `<option value="${exam}" ${String(exam) === String(builder.exam) ? "selected" : ""}>Exam ${exam}</option>`)
+                .join("")}
+            </select>
+          </label>
+          <label class="field">
+            <span>Subject</span>
+            <select id="custom-quiz-category">
+              <option value="all" ${builder.category === "all" ? "selected" : ""}>All subjects</option>
+              ${categories
+                .map(
+                  (category) =>
+                    `<option value="${escapeHtml(category.name)}" ${builder.category === category.name ? "selected" : ""}>${escapeHtml(category.name)}</option>`,
+                )
+                .join("")}
+            </select>
+          </label>
+          <label class="field">
+            <span>Sub-subject</span>
+            <select id="custom-quiz-topic">
+              <option value="all" ${builder.topic === "all" ? "selected" : ""}>All sub-subjects</option>
+              ${topics
+                .map((topic) => `<option value="${escapeHtml(topic)}" ${builder.topic === topic ? "selected" : ""}>${escapeHtml(topic)}</option>`)
+                .join("")}
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span>Question numbers</span>
+          <textarea id="custom-quiz-question-numbers" class="import-textarea custom-quiz-numbers" placeholder="Optional: 1, 2, 9-14, 27">${escapeHtml(builder.questionNumbers)}</textarea>
+        </label>
+        <div class="${feedbackClass}">
+          <strong>${escapeHtml(builder.message)}</strong>
+        </div>
+        <div class="panel__footer">
+          <p>${filteredQuestions.length} matching questions • ${selectedQuestions.length} will be saved</p>
+          <div class="button-row">
+            <button type="button" class="button button--ghost" data-action="custom-quiz-select-all">Select visible</button>
+            <button type="button" class="button button--ghost" data-action="custom-quiz-clear-selection">Use filters only</button>
+            <button type="button" class="button button--primary" data-action="save-custom-quiz">Save custom quiz</button>
+          </div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Question preview</h3>
+          <p>Select individual questions if you want a hand-picked set. If none are checked, saving uses all current filter matches.</p>
+        </div>
+        <div class="custom-quiz-preview">
+          ${
+            filteredQuestions.length
+              ? filteredQuestions
+                  .slice(0, 40)
+                  .map(
+                    (question) => `
+                      <label class="custom-quiz-question">
+                        <input type="checkbox" data-action="toggle-custom-quiz-question" data-question-id="${escapeHtml(question.id)}" ${
+                          selectedIds.has(question.id) ? "checked" : ""
+                        } />
+                        <span>
+                          <strong>${escapeHtml(formatQuestionBankLabel(question))} • ${escapeHtml(question.category)}</strong>
+                          <em>${escapeHtml(question.topic)}</em>
+                          <small>${formatScientificText(question.question)}</small>
+                        </span>
+                      </label>
+                    `,
+                  )
+                  .join("")
+              : `<div class="empty-state"><strong>No questions match those filters.</strong><p>Adjust the exam, subject, sub-subject, or question numbers.</p></div>`
+          }
+          ${
+            filteredQuestions.length > 40
+              ? `<p class="muted-copy">Showing first 40 matches. Narrow the filters or use Select visible for a smaller hand-picked set.</p>`
+              : ""
+          }
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Saved custom quizzes</h3>
+          <p>These saved sets are available in the Quiz section's Online Quiz host controls.</p>
+        </div>
+        <div class="custom-quiz-list">
+          ${
+            builder.saved.length
+              ? builder.saved
+                  .map(
+                    (quiz) => `
+                      <article class="custom-quiz-row">
+                        <div>
+                          <strong>${escapeHtml(quiz.title)}</strong>
+                          <span>${quiz.questionIds.length} questions${quiz.description ? ` • ${escapeHtml(quiz.description)}` : ""}</span>
+                        </div>
+                        <button type="button" class="button button--ghost" data-action="delete-custom-quiz" data-quiz-id="${escapeHtml(quiz.id)}">Delete</button>
+                      </article>
+                    `,
+                  )
+                  .join("")
+              : `<div class="empty-state"><strong>No saved custom quizzes yet.</strong><p>Create one above, then host it from the Quiz page.</p></div>`
+          }
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderOnlineQuizPanel() {
+  const saved = state.customQuizBuilder.saved;
+  const selectedQuiz = getSavedCustomQuizById(state.onlineQuiz.selectedQuizId) || saved[0] || null;
+  if (!state.onlineQuiz.selectedQuizId && selectedQuiz) {
+    state.onlineQuiz.selectedQuizId = selectedQuiz.id;
+  }
+  const session = state.onlineQuiz.session;
+  const selfParticipant =
+    session && state.onlineQuiz.auth
+      ? session.participants.find((participant) => participant.id === state.onlineQuiz.auth.participantId)
+      : null;
+  const isHost = Boolean(selfParticipant && selfParticipant.isHost);
+  const active = session ? session.activeQuestion : null;
+  const selectedAnswer =
+    active && active.viewerAnswer && Number.isInteger(active.viewerAnswer.selectedIndex)
+      ? active.viewerAnswer.selectedIndex
+      : state.onlineQuiz.answerIndex;
+  const feedbackClass = `import-feedback import-feedback--${state.onlineQuiz.tone}`;
+
+  return `
+    <section class="panel online-quiz-panel">
+      <div class="panel__header">
+        <h3>Online Quiz</h3>
+        <p>Host or join an instructor-selected custom quiz lobby with a shared join code.</p>
+      </div>
+      <div class="split-layout">
+        <div class="mode-panel">
+          ${
+            isInstructor()
+              ? `
+                <label class="field">
+                  <span>Custom quiz to host</span>
+                  <select id="online-quiz-select" ${!saved.length ? "disabled" : ""}>
+                    ${
+                      saved.length
+                        ? saved
+                            .map(
+                              (quiz) =>
+                                `<option value="${escapeHtml(quiz.id)}" ${selectedQuiz && selectedQuiz.id === quiz.id ? "selected" : ""}>${escapeHtml(quiz.title)} (${quiz.questionIds.length})</option>`,
+                            )
+                            .join("")
+                        : `<option value="">No custom quizzes saved</option>`
+                    }
+                  </select>
+                </label>
+                <button type="button" class="button button--primary" data-action="host-online-quiz" ${!saved.length || state.onlineQuiz.busy ? "disabled" : ""}>
+                  ${state.onlineQuiz.busy ? "Creating..." : "Host online quiz"}
+                </button>
+                <p class="muted-copy">Create quiz sets in the Custom Quiz Creation instructor tab first.</p>
+              `
+              : `
+                <label class="field">
+                  <span>Your display name</span>
+                  <input id="online-quiz-username" type="text" maxlength="20" placeholder="Enter your name" value="${escapeHtml(getSignedInLiveName() || state.onlineQuiz.username)}" ${state.account.auth ? "disabled" : ""} />
+                </label>
+              `
+          }
+        </div>
+        <div class="mode-panel">
+          <label class="field">
+            <span>Join code</span>
+            <input id="online-quiz-code" type="text" inputmode="numeric" maxlength="6" placeholder="6 digits" value="${escapeHtml(state.onlineQuiz.joinCode)}" />
+          </label>
+          <div class="button-row">
+            <button type="button" class="button button--ghost" data-action="join-online-quiz" ${state.onlineQuiz.busy ? "disabled" : ""}>Join online quiz</button>
+            ${state.onlineQuiz.auth ? `<button type="button" class="button button--ghost" data-action="refresh-online-quiz">Refresh lobby</button>` : ""}
+          </div>
+        </div>
+      </div>
+      <div class="${feedbackClass}">
+        <strong>${escapeHtml(state.onlineQuiz.message)}</strong>
+      </div>
+      ${
+        session
+          ? `
+            <div class="online-quiz-lobby">
+              <div>
+                <span class="insight-card__label">Join code</span>
+                <strong>${escapeHtml(session.code)}</strong>
+              </div>
+              <div>
+                <span class="insight-card__label">Quiz</span>
+                <strong>${escapeHtml(session.title)}</strong>
+              </div>
+              <div>
+                <span class="insight-card__label">Questions</span>
+                <strong>${session.questionCount}</strong>
+              </div>
+              <div>
+                <span class="insight-card__label">Status</span>
+                <strong>${escapeHtml(session.status || "Lobby")}</strong>
+              </div>
+              <div>
+                <span class="insight-card__label">Participants</span>
+                <strong>${session.participants.length}</strong>
+              </div>
+            </div>
+            ${
+              session.status === "lobby" && isHost
+                ? `<div class="question-card__actions"><button type="button" class="button button--primary" data-action="start-online-quiz" ${state.onlineQuiz.busy ? "disabled" : ""}>Start online quiz</button></div>`
+                : ""
+            }
+            ${
+              active
+                ? `
+                  <article class="question-card question-card--practice ${session.status === "reveal" ? "question-card--answered" : ""}">
+                    <div class="question-card__meta">
+                      <span class="pill">Question ${active.number} of ${active.total}</span>
+                      <span class="pill">${escapeHtml(active.category || "Category")}</span>
+                      <span class="pill">${active.answerCount} answered</span>
+                    </div>
+                    <h3>${formatScientificText(active.question)}</h3>
+                    ${renderQuestionMedia(active)}
+                    <div class="option-list">
+                      ${active.options
+                        .map((option, index) => {
+                          const classes = [
+                            "option",
+                            selectedAnswer === index ? "is-selected" : "",
+                            session.status === "reveal" && active.correctAnswerIndex === index ? "is-correct" : "",
+                            session.status === "reveal" &&
+                            selectedAnswer === index &&
+                            active.correctAnswerIndex !== index
+                              ? "is-wrong"
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ");
+                          return `
+                            <button
+                              type="button"
+                              class="${classes}"
+                              data-action="select-online-quiz-answer"
+                              data-index="${index}"
+                              ${session.status !== "question" ? "disabled" : ""}
+                            >
+                              <span>${String.fromCharCode(65 + index)}</span>
+                              <strong>${formatScientificText(option)}</strong>
+                            </button>
+                          `;
+                        })
+                        .join("")}
+                    </div>
+                    ${
+                      session.status === "reveal"
+                        ? `
+                          <div class="feedback ${
+                            active.viewerAnswer && active.viewerAnswer.correct ? "feedback--correct" : "feedback--wrong"
+                          }">
+                            <strong>${
+                              active.viewerAnswer && active.viewerAnswer.correct
+                                ? "Correct"
+                                : `Correct answer: ${formatScientificText(active.options[active.correctAnswerIndex])}`
+                            }</strong>
+                            ${renderExplanationContent(active)}
+                          </div>
+                        `
+                        : ""
+                    }
+                    <div class="question-card__actions">
+                      ${
+                        session.status === "question"
+                          ? `<button type="button" class="button button--primary" data-action="submit-online-quiz-answer" ${
+                              state.onlineQuiz.answerIndex === null || state.onlineQuiz.busy ? "disabled" : ""
+                            }>Submit answer</button>`
+                          : ""
+                      }
+                      ${
+                        session.status === "question" && isHost
+                          ? `<button type="button" class="button button--ghost" data-action="reveal-online-quiz" ${state.onlineQuiz.busy ? "disabled" : ""}>Reveal answer</button>`
+                          : ""
+                      }
+                      ${
+                        session.status === "reveal" && isHost
+                          ? `<button type="button" class="button button--primary" data-action="next-online-quiz" ${state.onlineQuiz.busy ? "disabled" : ""}>${active.number >= active.total ? "Finish quiz" : "Next question"}</button>`
+                          : ""
+                      }
+                    </div>
+                  </article>
+                `
+                : session.status === "finished"
+                  ? `<div class="empty-state"><strong>Online quiz complete.</strong><p>The participant list below is sorted by score.</p></div>`
+                  : ""
+            }
+            <div class="player-list">
+              ${session.participants
+                .map(
+                  (participant) => `
+                    <article class="player-row">
+                      <strong>${escapeHtml(participant.username)}</strong>
+                      <span>${participant.isHost ? "Host" : "Participant"} • ${participant.connected ? "Active" : "Joined"} • ${participant.score || 0}/${session.questionCount}</span>
+                    </article>
+                  `,
+                )
+                .join("")}
+            </div>
+          `
+          : ""
+      }
+    </section>
+  `;
+}
+
 function renderAccountView() {
   const summary = computePerformanceSummary();
   const recentAttempts = [...state.performance].slice(-12).reverse();
@@ -3471,6 +4178,7 @@ function getTopbarNavItems() {
     ["dashboard", "Dashboard"],
     ["profile", "Profile"],
     ...(isInstructor() ? [["instructor", "Instructor View"]] : []),
+    ...(isInstructor() ? [["customquiz", "Custom Quiz Creation"]] : []),
     ["bank", "Question Bank"],
   ];
 }
@@ -3528,6 +4236,17 @@ function getHeroCopy(view) {
         ["Class trends", "Compare performance across board-style categories"],
         ["Student drilldown", "Select a learner to review individual history"],
         ["Teaching signals", "Use misses to guide review sessions and remediation"],
+      ],
+    },
+    customquiz: {
+      title: "Custom Quiz Creation",
+      subtitle: "Build instructor-selected quiz sets.",
+      body:
+        "Custom Quiz Creation lets instructors save targeted quizzes by exam number, question number, subject, or sub-subject for later online hosting.",
+      highlights: [
+        ["Targeted sets", "Filter by exam/question numbers or registry-style subjects"],
+        ["Saved quizzes", "Store reusable custom quizzes for review sessions"],
+        ["Online ready", "Use saved sets in the Quiz page's Online Quiz lobby"],
       ],
     },
     bank: {
@@ -3632,18 +4351,21 @@ function renderHeroStatus(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
   return `
     <div class="topbar__meta headline__meta">
-      <article class="status-chip">
-        <span>Readiness</span>
-        <strong>${formatPercent(summary.readiness)}</strong>
-      </article>
-      <article class="status-chip">
-        <span>Question Bank</span>
-        <strong>${getAllQuestions().length}</strong>
-      </article>
-      <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
-        <span>Last live code used</span>
-        <strong>${escapeHtml(liveCode)}</strong>
-      </article>
+      ${renderTopbarNav()}
+      <div class="headline__status">
+        <article class="status-chip">
+          <span>Readiness</span>
+          <strong>${formatPercent(summary.readiness)}</strong>
+        </article>
+        <article class="status-chip">
+          <span>Question Bank</span>
+          <strong>${getAllQuestions().length}</strong>
+        </article>
+        <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
+          <span>Last live code used</span>
+          <strong>${escapeHtml(liveCode)}</strong>
+        </article>
+      </div>
     </div>
   `;
 }
@@ -3674,7 +4396,6 @@ function renderPageHero(summary) {
       <div class="headline__copy">
         <h1>${escapeHtml(copy.title)}</h1>
         <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
-        ${renderTopbarNav()}
       </div>
       ${renderHeroStatus(summary)}
     </section>
@@ -3820,6 +4541,7 @@ function renderQuizView(summary) {
           "Once you import your real bank, quiz mode will adapt to your own history only.",
           "Your solo quiz attempts still sync to the shared server, but no other user's accuracy will change your personal quiz selection.",
         )}
+        ${renderOnlineQuizPanel()}
       </section>
     `;
   }
@@ -3865,6 +4587,7 @@ function renderQuizView(summary) {
             <button type="button" class="button button--primary" data-action="start-quiz">Start quiz</button>
           </div>
         </div>
+        ${renderOnlineQuizPanel()}
       </section>
     `;
   }
@@ -3889,6 +4612,7 @@ function renderQuizView(summary) {
             <button type="button" class="button button--ghost" data-action="set-jeopardy-mode" data-mode="online">Open online Jeopardy</button>
           </div>
         </div>
+        ${renderOnlineQuizPanel()}
       </section>
     `;
   }
@@ -5115,6 +5839,7 @@ function renderApp() {
     dashboard: renderDashboard(summary),
     profile: renderProfileView(summary),
     instructor: renderInstructorView(),
+    customquiz: renderCustomQuizCreationView(),
     bank: renderQuestionBankView(),
     quiz: renderQuizView(summary),
     mock: renderMockView(),
@@ -5126,7 +5851,6 @@ function renderApp() {
 
   app.innerHTML = `
     <div class="shell">
-      ${renderAppChrome()}
       ${renderPageHero(summary)}
       ${renderPracticeNav()}
       <main>
@@ -5176,6 +5900,68 @@ app.addEventListener("click", (event) => {
 
   if (action === "refresh-instructor-stats") {
     loadInstructorStats();
+    return;
+  }
+
+  if (action === "save-custom-quiz") {
+    saveCustomQuiz();
+  }
+
+  if (action === "delete-custom-quiz") {
+    deleteCustomQuiz(button.dataset.quizId);
+  }
+
+  if (action === "custom-quiz-select-all") {
+    selectAllCustomQuizPreviewQuestions();
+  }
+
+  if (action === "custom-quiz-clear-selection") {
+    clearCustomQuizSelectedQuestions();
+  }
+
+  if (action === "toggle-custom-quiz-question") {
+    if (button.matches("input")) {
+      return;
+    }
+    toggleCustomQuizQuestion(button.dataset.questionId);
+  }
+
+  if (action === "host-online-quiz") {
+    hostOnlineQuiz().finally(renderApp);
+    return;
+  }
+
+  if (action === "join-online-quiz") {
+    joinOnlineQuiz().finally(renderApp);
+    return;
+  }
+
+  if (action === "refresh-online-quiz") {
+    refreshOnlineQuizLobby().finally(renderApp);
+    return;
+  }
+
+  if (action === "start-online-quiz") {
+    sendOnlineQuizAction("start").finally(renderApp);
+    return;
+  }
+
+  if (action === "select-online-quiz-answer") {
+    state.onlineQuiz.answerIndex = Number(button.dataset.index);
+  }
+
+  if (action === "submit-online-quiz-answer") {
+    sendOnlineQuizAction("answer", { answerIndex: state.onlineQuiz.answerIndex }).finally(renderApp);
+    return;
+  }
+
+  if (action === "reveal-online-quiz") {
+    sendOnlineQuizAction("reveal").finally(renderApp);
+    return;
+  }
+
+  if (action === "next-online-quiz") {
+    sendOnlineQuizAction("next").finally(renderApp);
     return;
   }
 
@@ -5439,6 +6225,26 @@ app.addEventListener("input", (event) => {
   if (target.id === "live-code") {
     state.live.joinCode = normalizeLiveCode(target.value);
   }
+
+  if (target.id === "custom-quiz-title") {
+    state.customQuizBuilder.title = target.value;
+  }
+
+  if (target.id === "custom-quiz-description") {
+    state.customQuizBuilder.description = target.value;
+  }
+
+  if (target.id === "custom-quiz-question-numbers") {
+    state.customQuizBuilder.questionNumbers = target.value;
+  }
+
+  if (target.id === "online-quiz-code") {
+    state.onlineQuiz.joinCode = normalizeLiveCode(target.value);
+  }
+
+  if (target.id === "online-quiz-username") {
+    state.onlineQuiz.username = target.value;
+  }
 });
 
 app.addEventListener("change", (event) => {
@@ -5446,6 +6252,10 @@ app.addEventListener("change", (event) => {
 
   if (target.dataset.bankEditField) {
     updateQuestionBankDraft(target);
+  }
+
+  if (target.dataset.action === "toggle-custom-quiz-question") {
+    toggleCustomQuizQuestion(target.dataset.questionId);
   }
 
   if (target.id === "quiz-category") {
@@ -5475,6 +6285,23 @@ app.addEventListener("change", (event) => {
 
   if (target.id === "instructor-user-select") {
     state.instructor.selectedUser = target.value || "all";
+  }
+
+  if (target.id === "custom-quiz-exam") {
+    state.customQuizBuilder.exam = target.value || "all";
+  }
+
+  if (target.id === "custom-quiz-category") {
+    state.customQuizBuilder.category = target.value || "all";
+    state.customQuizBuilder.topic = "all";
+  }
+
+  if (target.id === "custom-quiz-topic") {
+    state.customQuizBuilder.topic = target.value || "all";
+  }
+
+  if (target.id === "online-quiz-select") {
+    state.onlineQuiz.selectedQuizId = target.value;
   }
 
   if (target.id === "mock-format") {
@@ -5538,6 +6365,23 @@ window.setInterval(() => {
     renderApp();
   }
 }, 1000);
+
+window.setInterval(() => {
+  if (
+    state.activeView === "quiz" &&
+    state.onlineQuiz.auth &&
+    state.onlineQuiz.session &&
+    !state.onlineQuiz.busy &&
+    !onlineQuizRefreshInFlight
+  ) {
+    onlineQuizRefreshInFlight = true;
+    refreshOnlineQuizLobby(true)
+      .then(() => renderApp())
+      .finally(() => {
+        onlineQuizRefreshInFlight = false;
+      });
+  }
+}, 3000);
 
 buildJeopardyBoard();
 renderApp();

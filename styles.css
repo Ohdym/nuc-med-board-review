@@ -64,7 +64,7 @@ button {
 .shell {
   width: min(1200px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 0.75rem 0 3rem;
+  padding: 0.45rem 0 3rem;
 }
 
 .topbar {
@@ -289,17 +289,17 @@ button {
 
 .status-chip {
   display: grid;
-  gap: 0.2rem;
-  min-width: 112px;
-  padding: 0.65rem 0.9rem;
+  gap: 0.14rem;
+  min-width: 98px;
+  padding: 0.45rem 0.65rem;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 13px;
   background: rgba(247, 250, 253, 0.95);
 }
 
 .status-chip span {
   color: var(--slate);
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -307,7 +307,7 @@ button {
 
 .status-chip strong {
   color: var(--blue);
-  font-size: 1rem;
+  font-size: 0.88rem;
 }
 
 .status-chip--live {
@@ -319,9 +319,9 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
-  padding: 1rem 1.1rem;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  padding: 0.72rem 0.86rem;
   border: 1px solid rgba(0, 55, 103, 0.16);
   border-radius: var(--radius-lg);
   background:
@@ -337,7 +337,7 @@ button {
   max-width: none;
   display: grid;
   align-content: start;
-  gap: 0.55rem;
+  gap: 0.34rem;
 }
 
 .headline__account {
@@ -348,11 +348,22 @@ button {
 
 .headline__meta {
   grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-self: end;
   justify-content: flex-end;
   align-self: end;
-  gap: 0.55rem;
-  margin-top: 0.1rem;
+  gap: 0.4rem;
+  margin-top: 0;
+}
+
+.headline__status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
 }
 
 .headline--oregon-tech {
@@ -376,10 +387,14 @@ button {
 }
 
 .headline h1 {
-  margin: 0 0 0.5rem;
+  margin: 0;
   font-family: "Source Serif 4", serif;
-  font-size: clamp(1.65rem, 2.4vw, 2.4rem);
+  font-size: clamp(1.48rem, 2.1vw, 2.05rem);
   line-height: 1.06;
+}
+
+.headline p {
+  margin: 0;
 }
 
 .headline p,
@@ -390,7 +405,7 @@ button {
 .player-row span,
 .player-result span {
   color: var(--slate);
-  line-height: 1.55;
+  line-height: 1.42;
 }
 
 .headline__actions,
@@ -446,10 +461,15 @@ button {
 }
 
 .nav-tabs--topbar {
-  gap: 0.42rem;
+  width: min(520px, 100%);
+  min-height: 0;
+  justify-content: flex-end;
+  align-items: center;
+  align-content: center;
+  gap: 0.28rem;
   margin: 0;
-  padding-top: 0.56rem;
-  border-top: 1px solid rgba(0, 55, 103, 0.1);
+  padding-top: 0;
+  border-top: 0;
 }
 
 .mode-panel {
@@ -516,14 +536,14 @@ button {
 }
 
 .nav-tabs--topbar .nav-tab {
-  min-height: 34px;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.8rem;
+  min-height: 28px;
+  padding: 0.32rem 0.52rem;
+  font-size: 0.72rem;
   line-height: 1.05;
 }
 
 .nav-tabs--topbar .nav-tab--stacked {
-  min-width: 74px;
+  min-width: 58px;
 }
 
 .nav-tab--stacked {
@@ -696,6 +716,78 @@ button {
 
 .category-card h4 {
   margin: 0 0 0.35rem;
+}
+
+.custom-quiz-numbers {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.custom-quiz-preview,
+.custom-quiz-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.custom-quiz-question,
+.custom-quiz-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.8rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.custom-quiz-question input {
+  margin-top: 0.25rem;
+}
+
+.custom-quiz-question span,
+.custom-quiz-row div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.custom-quiz-question em,
+.custom-quiz-row span {
+  color: var(--slate);
+  font-size: 0.88rem;
+}
+
+.custom-quiz-question small {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.custom-quiz-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.online-quiz-panel {
+  border-color: rgba(255, 210, 79, 0.5);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 255, 0.92)),
+    radial-gradient(circle at top right, rgba(255, 210, 79, 0.2), transparent 34%);
+}
+
+.online-quiz-lobby {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.online-quiz-lobby div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .category-card__meta {
@@ -1709,6 +1801,7 @@ button {
   .bank-edit-grid,
   .placement-podium,
   .instructor-toolbar,
+  .online-quiz-lobby,
   .review-list,
   .jeopardy-board {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1727,11 +1820,11 @@ button {
   }
 
   .nav-tabs--topbar {
-    justify-content: stretch;
+    justify-content: flex-start;
   }
 
   .nav-tabs--topbar .nav-tab {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
   }
 }
 
@@ -1756,6 +1849,15 @@ button {
   .question-card {
     padding: 0.85rem;
     border-radius: 18px;
+  }
+
+  .headline {
+    padding: 0.72rem;
+  }
+
+  .nav-tabs--topbar .nav-tab {
+    padding: 0.3rem 0.46rem;
+    font-size: 0.68rem;
   }
 
   .topbar,
@@ -1801,6 +1903,7 @@ button {
   .profile-columns,
   .placement-podium,
   .instructor-toolbar,
+  .online-quiz-lobby,
   .instructor-roster-row,
   .review-list,
   .jeopardy-board {

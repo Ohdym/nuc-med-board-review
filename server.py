@@ -1382,7 +1382,216 @@ class GameSession:
         await self.broadcast_state()
 
 
+class OnlineQuizSession:
+    def __init__(self, code, title, description, question_ids, question_summaries, host_name, host_account_username=None):
+        self.code = code
+        self.created_at = time.time()
+        self.title = title
+        self.description = description
+        self.question_ids = question_ids
+        self.question_summaries = question_summaries
+        self.host_account_username = host_account_username
+        self.participants = {}
+        self.host_participant_id = None
+        self.status = "lobby"
+        self.current_index = 0
+        self.answers = {}
+        self._create_participant(host_name, is_host=True, account_username=host_account_username)
+
+    def _create_participant(self, username, is_host=False, account_username=None):
+        participant_id = secrets.token_hex(6)
+        token = secrets.token_urlsafe(18)
+        participant = {
+            "id": participant_id,
+            "token": token,
+            "username": username,
+            "account_username": account_username,
+            "is_host": is_host,
+            "connected": True,
+            "score": 0,
+            "joined_at": time.time(),
+        }
+        self.participants[participant_id] = participant
+        if is_host:
+            self.host_participant_id = participant_id
+        return participant
+
+    def create_join_response(self, participant):
+        return {
+            "code": self.code,
+            "participantId": participant["id"],
+            "participantToken": participant["token"],
+            "host": participant["is_host"],
+            "session": self.public_state(participant["token"]),
+        }
+
+    def get_participant_by_token(self, token):
+        for participant in self.participants.values():
+            if participant["token"] == token:
+                return participant
+        return None
+
+    def require_participant_by_token(self, token):
+        participant = self.get_participant_by_token(token)
+        if not participant:
+            raise web.HTTPForbidden(
+                text=json.dumps({"error": "Invalid online quiz token."}),
+                content_type="application/json",
+            )
+        return participant
+
+    def require_host_by_token(self, token):
+        participant = self.require_participant_by_token(token)
+        if not participant["is_host"]:
+            raise web.HTTPForbidden(
+                text=json.dumps({"error": "Only the host can control the online quiz."}),
+                content_type="application/json",
+            )
+        return participant
+
+    def join(self, username, account_username=None):
+        if account_username:
+            for participant in self.participants.values():
+                if participant.get("account_username") == account_username:
+                    participant["connected"] = True
+                    participant["token"] = secrets.token_urlsafe(18)
+                    return participant
+
+        for participant in self.participants.values():
+            if participant["username"].lower() == username.lower():
+                if account_username:
+                    continue
+                participant["connected"] = True
+                participant["token"] = secrets.token_urlsafe(18)
+                return participant
+
+        return self._create_participant(username, account_username=account_username)
+
+    def active_question(self):
+        if self.status not in {"question", "reveal"} or self.current_index >= len(self.question_ids):
+            return None
+        question_id = self.question_ids[self.current_index]
+        return QUESTION_BY_ID.get(question_id)
+
+    def start(self, token):
+        self.require_host_by_token(token)
+        if not self.question_ids:
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "This online quiz does not have any questions."}),
+                content_type="application/json",
+            )
+        self.status = "question"
+        self.current_index = 0
+        self.answers = {}
+
+    def submit_answer(self, token, answer_index):
+        participant = self.require_participant_by_token(token)
+        if self.status != "question":
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "The online quiz is not accepting answers right now."}),
+                content_type="application/json",
+            )
+        question = self.active_question()
+        if not question:
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "No active question was found."}),
+                content_type="application/json",
+            )
+        if answer_index < 0 or answer_index >= len(question.get("options", [])):
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "Choose a valid answer option."}),
+                content_type="application/json",
+            )
+        self.answers[participant["id"]] = {
+            "selectedIndex": answer_index,
+            "correct": answer_index == int(question.get("answerIndex", -1)),
+        }
+
+    def reveal(self, token):
+        self.require_host_by_token(token)
+        if self.status != "question":
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "There is no active question to reveal."}),
+                content_type="application/json",
+            )
+        for participant_id, answer in self.answers.items():
+            if answer.get("correct") and participant_id in self.participants:
+                self.participants[participant_id]["score"] += 1
+        self.status = "reveal"
+
+    def next_question(self, token):
+        self.require_host_by_token(token)
+        if self.status not in {"reveal", "question"}:
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "Start the online quiz before advancing."}),
+                content_type="application/json",
+            )
+        if self.current_index + 1 >= len(self.question_ids):
+            self.status = "finished"
+            self.answers = {}
+            return
+        self.current_index += 1
+        self.answers = {}
+        self.status = "question"
+
+    def public_state(self, viewer_token=None):
+        viewer = self.get_participant_by_token(viewer_token) if viewer_token else None
+        participants = sorted(
+            self.participants.values(),
+            key=lambda participant: (-participant["score"], participant["joined_at"]),
+        )
+        question = self.active_question()
+        active = None
+        if question:
+            viewer_answer = self.answers.get(viewer["id"]) if viewer else None
+            active = {
+                "questionId": question["id"],
+                "number": self.current_index + 1,
+                "total": len(self.question_ids),
+                "label": self.question_summaries[self.current_index].get("label", question["id"])
+                if self.current_index < len(self.question_summaries)
+                else question["id"],
+                "category": question.get("category"),
+                "topic": question.get("topic"),
+                "type": question.get("type"),
+                "question": question.get("question"),
+                "image": question.get("image"),
+                "imageAlt": question.get("imageAlt"),
+                "imageCaption": question.get("imageCaption"),
+                "options": question.get("options", []),
+                "answerCount": len(self.answers),
+                "viewerAnswer": viewer_answer,
+            }
+            if self.status == "reveal":
+                active["correctAnswerIndex"] = question.get("answerIndex")
+                active["explanation"] = question.get("explanation")
+                active["source"] = question.get("source")
+
+        return {
+            "code": self.code,
+            "status": self.status,
+            "title": self.title,
+            "description": self.description,
+            "questionCount": len(self.question_ids),
+            "questions": self.question_summaries[:25],
+            "activeQuestion": active,
+            "createdAt": int(self.created_at * 1000),
+            "hostParticipantId": self.host_participant_id,
+            "participants": [
+                {
+                    "id": participant["id"],
+                    "username": participant["username"],
+                    "isHost": participant["is_host"],
+                    "connected": participant["connected"],
+                    "score": participant["score"],
+                }
+                for participant in participants
+            ],
+        }
+
+
 SESSIONS = {}
+ONLINE_QUIZ_SESSIONS = {}
 
 
 async def json_body(request):
@@ -1490,6 +1699,135 @@ async def join_game(request):
     session = SESSIONS[code]
     player = session.join(username, account_username=auth_username)
     return web.json_response(session.create_join_response(player))
+
+
+async def create_online_quiz(request):
+    instructor_username = require_instructor_username(request)
+    payload = await json_body(request)
+    title = " ".join(str(payload.get("title") or "Online Quiz").strip().split())[:120] or "Online Quiz"
+    description = " ".join(str(payload.get("description") or "").strip().split())[:240]
+    question_ids = []
+    seen_ids = set()
+
+    for raw_id in payload.get("questionIds", []):
+      question_id = str(raw_id or "").strip()
+      if question_id and question_id in QUESTION_BY_ID and question_id not in seen_ids:
+          question_ids.append(question_id)
+          seen_ids.add(question_id)
+
+    if not question_ids:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Select at least one valid question before hosting an online quiz."}),
+            content_type="application/json",
+        )
+
+    summary_by_id = {}
+    for item in payload.get("questionSummaries", []):
+        if not isinstance(item, dict):
+            continue
+        question_id = str(item.get("id") or "").strip()
+        if question_id in seen_ids:
+            summary_by_id[question_id] = {
+                "id": question_id,
+                "label": str(item.get("label") or question_id)[:80],
+                "category": str(item.get("category") or QUESTION_BY_ID[question_id].get("category") or "Unknown")[:80],
+                "topic": str(item.get("topic") or QUESTION_BY_ID[question_id].get("topic") or "Unknown")[:120],
+                "question": str(item.get("question") or QUESTION_BY_ID[question_id].get("question") or question_id)[:400],
+            }
+
+    question_summaries = []
+    for question_id in question_ids:
+        if question_id in summary_by_id:
+            question_summaries.append(summary_by_id[question_id])
+            continue
+        question = QUESTION_BY_ID[question_id]
+        question_summaries.append({
+            "id": question_id,
+            "label": question_id,
+            "category": question.get("category") or "Unknown",
+            "topic": question.get("topic") or "Unknown",
+            "question": question.get("question") or question_id,
+        })
+
+    code = random_code(set(SESSIONS.keys()) | set(ONLINE_QUIZ_SESSIONS.keys()))
+    host_name = live_name_for_account(instructor_username, "Instructor")
+    session = OnlineQuizSession(
+        code,
+        title,
+        description,
+        question_ids,
+        question_summaries,
+        host_name,
+        host_account_username=instructor_username,
+    )
+    ONLINE_QUIZ_SESSIONS[code] = session
+    host_participant = session.participants[session.host_participant_id]
+    return web.json_response(session.create_join_response(host_participant))
+
+
+async def join_online_quiz(request):
+    payload = await json_body(request)
+    auth_username = get_auth_username(request)
+    requested_username = sanitize_username(payload.get("username"))
+    username = live_name_for_account(auth_username, requested_username)
+    code = str(payload.get("code", "")).strip()
+
+    if code not in ONLINE_QUIZ_SESSIONS:
+        raise web.HTTPNotFound(
+            text=json.dumps({"error": "Online quiz not found. Check the join code and try again."}),
+            content_type="application/json",
+        )
+
+    session = ONLINE_QUIZ_SESSIONS[code]
+    participant = session.join(username, account_username=auth_username)
+    return web.json_response(session.create_join_response(participant))
+
+
+async def online_quiz_state(request):
+    code = request.match_info.get("code", "").strip()
+    token = request.query.get("token", "").strip()
+
+    if code not in ONLINE_QUIZ_SESSIONS:
+        raise web.HTTPNotFound(
+            text=json.dumps({"error": "Online quiz not found."}),
+            content_type="application/json",
+        )
+
+    session = ONLINE_QUIZ_SESSIONS[code]
+    if token:
+        session.require_participant_by_token(token)
+
+    return web.json_response({"session": session.public_state(token)})
+
+
+async def online_quiz_action(request):
+    code = request.match_info.get("code", "").strip()
+    action = request.match_info.get("action", "").strip()
+    payload = await json_body(request)
+    token = str(payload.get("token") or "").strip()
+
+    if code not in ONLINE_QUIZ_SESSIONS:
+        raise web.HTTPNotFound(
+            text=json.dumps({"error": "Online quiz not found."}),
+            content_type="application/json",
+        )
+
+    session = ONLINE_QUIZ_SESSIONS[code]
+    if action == "start":
+        session.start(token)
+    elif action == "answer":
+        session.submit_answer(token, int(payload.get("answerIndex", -1)))
+    elif action == "reveal":
+        session.reveal(token)
+    elif action == "next":
+        session.next_question(token)
+    else:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "Unsupported online quiz action."}),
+            content_type="application/json",
+        )
+
+    return web.json_response({"session": session.public_state(token)})
 
 
 async def record_attempts(request):
@@ -1625,6 +1963,10 @@ def create_app():
     app.router.add_get("/api/system/storage", storage_status)
     app.router.add_post("/api/games/create", create_game)
     app.router.add_post("/api/games/join", join_game)
+    app.router.add_post("/api/online-quizzes/create", create_online_quiz)
+    app.router.add_post("/api/online-quizzes/join", join_online_quiz)
+    app.router.add_get("/api/online-quizzes/{code}", online_quiz_state)
+    app.router.add_post("/api/online-quizzes/{code}/{action}", online_quiz_action)
     app.router.add_post("/api/attempts", record_attempts)
     app.router.add_get("/ws", websocket_handler)
     app.router.add_get("/source-pdfs/{book_key}.pdf", serve_source_pdf)
