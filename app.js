@@ -3628,47 +3628,53 @@ function renderHeadlineHighlights() {
   `;
 }
 
-function renderAppChrome(summary) {
+function renderHeroStatus(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
+  return `
+    <div class="topbar__meta headline__meta">
+      <article class="status-chip">
+        <span>Readiness</span>
+        <strong>${formatPercent(summary.readiness)}</strong>
+      </article>
+      <article class="status-chip">
+        <span>Question Bank</span>
+        <strong>${getAllQuestions().length}</strong>
+      </article>
+      <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
+        <span>Last live code used</span>
+        <strong>${escapeHtml(liveCode)}</strong>
+      </article>
+    </div>
+  `;
+}
+
+function renderAppChrome() {
   return `
     <header class="topbar">
       <div class="topbar__main">
         <div class="brand">
           <div class="brand__copy">
             <span class="brand__eyebrow">Registry Review Workspace</span>
-            <strong>Nuclear Medicine Boards Review</strong>
             <span>Solo prep, mock exams, active recall, and live multiplayer Jeopardy</span>
           </div>
         </div>
         <div class="topbar__right">
           ${renderAccountCorner()}
-          <div class="topbar__meta">
-            <article class="status-chip">
-              <span>Readiness</span>
-              <strong>${formatPercent(summary.readiness)}</strong>
-            </article>
-            <article class="status-chip">
-              <span>Question Bank</span>
-              <strong>${getAllQuestions().length}</strong>
-            </article>
-            <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
-              <span>Last live code used</span>
-              <strong>${escapeHtml(liveCode)}</strong>
-            </article>
-          </div>
         </div>
       </div>
     </header>
   `;
 }
 
-function renderPageHero() {
+function renderPageHero(summary) {
   const copy = getHeroCopy(state.activeView);
   return `
+    <div class="headline__app-title">Nuclear Medicine Boards Review</div>
     <section class="headline headline--oregon-tech">
       <div class="headline__copy">
         <h1>${escapeHtml(copy.title)}</h1>
         <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
+        ${renderHeroStatus(summary)}
         ${renderTopbarNav()}
       </div>
     </section>
@@ -5120,8 +5126,8 @@ function renderApp() {
 
   app.innerHTML = `
     <div class="shell">
-      ${renderAppChrome(summary)}
-      ${renderPageHero()}
+      ${renderAppChrome()}
+      ${renderPageHero(summary)}
       ${renderPracticeNav()}
       <main>
         ${viewMap[state.activeView] || viewMap.dashboard}
