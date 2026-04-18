@@ -1732,6 +1732,16 @@ function saveQuestionBankEdits() {
   };
 }
 
+function scrollPracticeQuestionIntoView() {
+  window.requestAnimationFrame(() => {
+    const card = document.querySelector(".question-card--practice");
+    if (!card) {
+      return;
+    }
+    card.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 function getActiveQuizQuestion() {
   return state.quizSession ? state.quizSession.questions[state.quizSession.index] : null;
 }
@@ -1768,6 +1778,7 @@ function advanceQuizQuestion() {
   session.index += 1;
   session.selectedIndex = null;
   session.submitted = false;
+  scrollPracticeQuestionIntoView();
 }
 
 function resetQuiz() {
@@ -3749,7 +3760,7 @@ function renderQuizView(summary) {
         <span>Question ${session.index + 1} of ${session.questions.length}</span>
         <span>Adaptive weighting active</span>
       </div>
-      <article class="question-card question-card--practice">
+      <article class="question-card question-card--practice ${session.submitted ? "question-card--answered" : ""}">
         <div class="question-card__meta">
           <span class="pill">${escapeHtml(question.type)}</span>
           <span class="pill">${escapeHtml(question.topic)}</span>
@@ -4955,6 +4966,7 @@ app.addEventListener("click", (event) => {
 
   if (action === "mock-prev" && state.mockSession) {
     state.mockSession.currentIndex = Math.max(0, state.mockSession.currentIndex - 1);
+    scrollPracticeQuestionIntoView();
   }
 
   if (action === "mock-next" && state.mockSession) {
@@ -4966,6 +4978,7 @@ app.addEventListener("click", (event) => {
       state.mockSession.questions.length - 1,
       state.mockSession.currentIndex + 1,
     );
+    scrollPracticeQuestionIntoView();
   }
 
   if (action === "submit-mock") {

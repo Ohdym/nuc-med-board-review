@@ -365,6 +365,10 @@ button {
   gap: 0.8rem;
 }
 
+.question-card__actions {
+  margin-top: 0.75rem;
+}
+
 .headline__highlights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1591,6 +1595,15 @@ button {
   line-height: 1.28;
 }
 
+.question-card--practice {
+  scroll-margin-top: 0.75rem;
+  scroll-margin-bottom: 6rem;
+}
+
+.question-card--answered {
+  padding-bottom: 2rem;
+}
+
 .button:disabled,
 .toggle:disabled,
 .option:disabled,
@@ -1832,12 +1845,16 @@ button {
     bottom: 0.35rem;
     z-index: 2;
     gap: 0.45rem;
-    margin-top: 0.1rem;
+    margin-top: 0.45rem;
     padding: 0.45rem;
     border: 1px solid var(--line);
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.96);
     box-shadow: 0 10px 22px rgba(0, 29, 56, 0.08);
+  }
+
+  .question-card--answered {
+    padding-bottom: 4.8rem;
   }
 
   .question-card--practice > .question-card__actions p,
