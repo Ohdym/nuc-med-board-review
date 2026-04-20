@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 .shared_attempts.json
+.question_flags.json
 .users.json
 .user_passwords.csv
 user_credentials.json

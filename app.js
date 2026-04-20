@@ -12,6 +12,7 @@ const STORAGE_KEYS = {
   sharedUserId: "nmb-review-shared-user-id",
   accountAuth: "nmb-review-account-auth",
   theme: "nmb-review-theme",
+  questionFlags: "nmb-review-question-flags",
 };
 
 const BOARD_VALUES = [100, 200, 300, 400, 500];
@@ -101,6 +102,8 @@ const state = {
   importedFlashcards: loadJSON(STORAGE_KEYS.importedFlashcards, []),
   questionEdits: loadJSON(STORAGE_KEYS.questionEdits, {}),
   performance: loadJSON(STORAGE_KEYS.performance, []),
+  questionFlags: loadJSON(STORAGE_KEYS.questionFlags, { mine: [], all: [] }),
+  pendingQuestionFlags: {},
   account: {
     auth: savedAccountAuth,
     verifying: Boolean(savedAccountAuth && savedAccountAuth.token),
@@ -1084,15 +1087,17 @@ function computePerformanceSummary() {
   const weakestCategory = weakestCategoryEntry ? weakestCategoryEntry[0] : null;
   const weakestTopic = weakestTopicEntry ? weakestTopicEntry[0] : null;
   const uniqueAnswered = new Set(state.performance.map((entry) => entry.questionId)).size;
+  const uniqueCorrect = new Set(state.performance.filter((entry) => entry.correct).map((entry) => entry.questionId)).size;
   const totalQuestions = getAllQuestions().length;
   const coverage = totalQuestions ? (uniqueAnswered / totalQuestions) * 100 : 0;
-  const readiness = clamp(Math.round(accuracy * 0.7 + coverage * 0.3), 0, 100);
+  const readiness = totalQuestions ? clamp(Math.round((uniqueCorrect / totalQuestions) * 100), 0, 100) : 0;
 
   return {
     total,
     correct,
     accuracy,
     coverage,
+    uniqueCorrect,
     readiness,
     categoryMap,
     topicMap,
@@ -2420,6 +2425,254 @@ function syncAccountAttemptsToServer(attempts) {
   });
 }
 
+function normalizeQuestionFlags(payload) {
+  const mine = Array.isArray(payload && payload.mine) ? payload.mine : [];
+  const all = Array.isArray(payload && payload.all) ? payload.all : [];
+  return { mine, all };
+}
+
+function persistQuestionFlags() {
+  saveJSON(STORAGE_KEYS.questionFlags, state.questionFlags);
+}
+
+async function loadQuestionFlags(renderWhenDone = true) {
+  if (!hasAccountSession()) {
+    state.questionFlags = { mine: [], all: [] };
+    persistQuestionFlags();
+    if (renderWhenDone) {
+      renderApp();
+    }
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/api/question-flags", "GET");
+    state.questionFlags = normalizeQuestionFlags(data);
+    persistQuestionFlags();
+    if (renderWhenDone) {
+      renderApp();
+    }
+  } catch (error) {
+    // Flagging is a review aid, so practice should continue if syncing is unavailable.
+  }
+}
+
+function getQuestionId(entry) {
+  return entry && (entry.id || entry.questionId) ? String(entry.id || entry.questionId) : "";
+}
+
+function getQuestionFlagKey(questionId, targetType = "question", answerIndex = null) {
+  return `${questionId}:${targetType}:${targetType === "answer" ? answerIndex : targetType}`;
+}
+
+function isFlaggedByCurrentUser(questionId, targetType = "question", answerIndex = null) {
+  const key = getQuestionFlagKey(questionId, targetType, answerIndex);
+  if (Object.prototype.hasOwnProperty.call(state.pendingQuestionFlags, key)) {
+    return Boolean(state.pendingQuestionFlags[key].flagged);
+  }
+  const flags = isInstructor() ? state.questionFlags.all : state.questionFlags.mine;
+  return flags.some((flag) => {
+    return getQuestionFlagKey(flag.questionId, flag.targetType, flag.answerIndex) === key;
+  });
+}
+
+function getAllQuestionFlags() {
+  return isInstructor() ? state.questionFlags.all : state.questionFlags.mine;
+}
+
+function questionHasFlags(questionId) {
+  return getAllQuestionFlags().some((flag) => String(flag.questionId) === String(questionId));
+}
+
+function getFlagCount(questionId) {
+  return getAllQuestionFlags().filter((flag) => String(flag.questionId) === String(questionId)).length;
+}
+
+function formatFlagTarget(flag) {
+  if (flag.targetType === "answer") {
+    const index = Number(flag.answerIndex);
+    return Number.isFinite(index) ? `Answer ${String.fromCharCode(65 + index)}` : "Answer";
+  }
+  if (flag.targetType === "explanation") {
+    return "Explanation";
+  }
+  return "Question";
+}
+
+function getFlaggedQuestionSummaries(limit = 8) {
+  const grouped = new Map();
+  getAllQuestionFlags().forEach((flag) => {
+    const questionId = String(flag.questionId || "").trim();
+    if (!questionId) {
+      return;
+    }
+    const existing =
+      grouped.get(questionId) ||
+      {
+        questionId,
+        label: flag.label || questionId,
+        category: flag.category || "Unknown",
+        topic: flag.topic || "Unknown",
+        question: flag.question || questionId,
+        flags: [],
+        latestAt: 0,
+      };
+    existing.flags.push(flag);
+    existing.latestAt = Math.max(existing.latestAt, Number(flag.updatedAt || flag.createdAt || 0));
+    grouped.set(questionId, existing);
+  });
+
+  return [...grouped.values()].sort((first, second) => second.latestAt - first.latestAt).slice(0, limit);
+}
+
+function renderFlagControl(entry, targetType = "question", answerIndex = null) {
+  const questionId = getQuestionId(entry);
+  if (!questionId || !hasAccountSession()) {
+    return "";
+  }
+
+  const active = isFlaggedByCurrentUser(questionId, targetType, answerIndex);
+  const label = active
+    ? isInstructor()
+      ? state.activeView === "bank"
+        ? "Resolve flag"
+        : "Flagged"
+      : "Flagged"
+    : targetType === "answer"
+      ? "Flag answer"
+      : targetType === "explanation"
+        ? "Flag explanation"
+        : "Flag";
+  return `
+    <button
+      type="button"
+      class="flag-control ${
+        targetType === "answer"
+          ? "flag-control--answer"
+          : targetType === "explanation"
+            ? "flag-control--explanation"
+            : "flag-control--question"
+      } ${active ? "is-active" : ""}"
+      data-action="toggle-question-flag"
+      data-question-id="${escapeHtml(questionId)}"
+      data-flag-target="${escapeHtml(targetType)}"
+      ${targetType === "answer" ? `data-answer-index="${answerIndex}"` : ""}
+      aria-pressed="${active ? "true" : "false"}"
+    >
+      <span>${escapeHtml(label)}</span>
+      <span class="flag-control__box">${active ? "✓" : ""}</span>
+    </button>
+  `;
+}
+
+function renderFlaggedOption(entry, option, index, classes, action, disabled = false) {
+  return `
+    <div class="option-shell">
+      <button
+        type="button"
+        class="${classes}"
+        data-action="${escapeHtml(action)}"
+        data-index="${index}"
+        ${disabled ? "disabled" : ""}
+      >
+        <span>${String.fromCharCode(65 + index)}</span>
+        <strong>${formatScientificText(option)}</strong>
+      </button>
+      ${renderFlagControl(entry, "answer", index)}
+    </div>
+  `;
+}
+
+function updateQuestionFlagsFromPayload(payload, data) {
+  state.questionFlags = normalizeQuestionFlags(data);
+  const key = getQuestionFlagKey(payload.questionId, payload.targetType, payload.answerIndex);
+  delete state.pendingQuestionFlags[key];
+  persistQuestionFlags();
+}
+
+async function sendQuestionFlagPayload(payload) {
+  const data = await apiRequest("/api/question-flags", "POST", payload);
+  updateQuestionFlagsFromPayload(payload, data);
+}
+
+async function flushPendingQuestionFlags() {
+  const pending = Object.values(state.pendingQuestionFlags);
+  if (!pending.length || !hasAccountSession()) {
+    return;
+  }
+
+  for (const payload of pending) {
+    await sendQuestionFlagPayload(payload);
+  }
+}
+
+function queueQuestionFlag(payload) {
+  const key = getQuestionFlagKey(payload.questionId, payload.targetType, payload.answerIndex);
+  state.pendingQuestionFlags[key] = payload;
+}
+
+function toggleQuestionFlag(button) {
+  const questionId = String(button.dataset.questionId || "").trim();
+  const targetType = ["answer", "explanation"].includes(button.dataset.flagTarget)
+    ? button.dataset.flagTarget
+    : "question";
+  const answerIndex = targetType === "answer" ? Number(button.dataset.answerIndex) : null;
+  if (!questionId || !hasAccountSession()) {
+    return;
+  }
+
+  const question = getAllQuestions().find((item) => item.id === questionId) || {};
+  const active = isFlaggedByCurrentUser(questionId, targetType, answerIndex);
+  if (active && !isInstructor()) {
+    return;
+  }
+  if (active && isInstructor() && state.activeView !== "bank") {
+    return;
+  }
+
+  const flagged = !active;
+  const payload = {
+    questionId,
+    targetType,
+    answerIndex,
+    flagged,
+    resolveAll: isInstructor() && !flagged,
+    category: question.category || button.dataset.flagCategory || "",
+    topic: question.topic || button.dataset.flagTopic || "",
+    label: question.id ? formatQuestionBankLabel(question) : button.dataset.flagLabel || questionId,
+    question: question.question || button.dataset.flagQuestion || "",
+  };
+
+  if (state.activeView === "bank" || state.activeView === "instructor") {
+    sendQuestionFlagPayload(payload)
+      .catch((error) => {
+        state.questionBank.feedback = {
+          tone: "error",
+          message: error.message || "Could not save the question flag.",
+        };
+      })
+      .finally(renderApp);
+    return;
+  }
+
+  queueQuestionFlag(payload);
+  renderApp();
+}
+
+function flushPendingQuestionFlagsThen(callback) {
+  flushPendingQuestionFlags()
+    .catch((error) => {
+      state.questionBank.feedback = {
+        tone: "error",
+        message: error.message || "Could not save the pending question flag.",
+      };
+    })
+    .finally(() => {
+      callback();
+      renderApp();
+    });
+}
+
 function applyAccountSession(data) {
   const localPerformance = Array.isArray(state.performance) ? state.performance : [];
   const serverPerformance = Array.isArray(data.performance) ? data.performance : [];
@@ -2504,6 +2757,7 @@ async function loginAccount() {
     const data = await apiRequest("/api/auth/login", "POST", { username, password });
     state.account.password = "";
     applyAccountSession(data);
+    await loadQuestionFlags(false);
     if (isInstructor()) {
       await loadCustomQuizLibrary(false);
       await loadInstructorStats(false);
@@ -2530,6 +2784,8 @@ async function logoutAccount() {
   state.account.verifying = false;
   state.account.password = "";
   state.account.placements = [];
+  state.questionFlags = { mine: [], all: [] };
+  persistQuestionFlags();
   state.instructor.data = null;
   state.instructor.selectedUser = "all";
   state.instructor.selectedGradYear = "";
@@ -2558,6 +2814,7 @@ async function restoreAccountSession() {
   try {
     const data = await apiRequest("/api/auth/me", "GET");
     applyAccountSession(data);
+    await loadQuestionFlags(false);
     if (isInstructor()) {
       await loadCustomQuizLibrary(false);
       await loadInstructorStats(false);
@@ -2616,6 +2873,7 @@ async function refreshAccountSession() {
   try {
     const data = await apiRequest("/api/auth/me", "GET");
     applyAccountSession(data);
+    await loadQuestionFlags(false);
     renderApp();
   } catch (error) {
     setAccountMessage("error", "Could not refresh profile history from the server.");
@@ -3044,11 +3302,15 @@ function renderMetric(label, value, tone = "default") {
 }
 
 function renderSectionIntro(eyebrow, title, body) {
+  const summary = computePerformanceSummary();
   return `
     <div class="section-intro screen-header">
-      <span class="section-intro__eyebrow">${escapeHtml(eyebrow)}</span>
-      <h2>${escapeHtml(title)}</h2>
-      <p>${escapeHtml(body)}</p>
+      <div class="screen-header__copy">
+        <span class="section-intro__eyebrow">${escapeHtml(eyebrow)}</span>
+        <h2>${escapeHtml(title)}</h2>
+        <p>${escapeHtml(body)}</p>
+      </div>
+      ${renderHeroStatus(summary)}
     </div>
   `;
 }
@@ -3079,7 +3341,12 @@ function renderExplanationContent(entry) {
       : "";
   const explanation = entry && entry.explanation ? `<p>${formatTextWithSourceLinks(entry.explanation)}</p>` : "";
   const source = entry && entry.source ? `<p><em>${formatTextWithSourceLinks(entry.source)}</em></p>` : "";
-  return `${difficulty}${explanation}${source}`;
+  return `
+    <div class="explanation-content">
+      ${renderFlagControl(entry, "explanation")}
+      ${difficulty}${explanation}${source}
+    </div>
+  `;
 }
 
 function renderQuestionMedia(entry) {
@@ -3107,14 +3374,18 @@ function renderQuestionBankEditor(question) {
   if (!isInstructor()) {
     return `
       <div class="bank-readonly">
+        ${renderFlagControl(question)}
         <h3>${formatScientificText(question.question)}</h3>
         <div class="option-list option-list--bank">
           ${[0, 1, 2, 3, 4]
             .map(
               (index) => `
-                <div class="option ${index === answerIndex ? "is-correct" : ""}">
-                  <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${formatScientificText(options[index] || "")}</strong>
+                <div class="option-shell">
+                  <div class="option ${index === answerIndex ? "is-correct" : ""}">
+                    <span>${String.fromCharCode(65 + index)}</span>
+                    <strong>${formatScientificText(options[index] || "")}</strong>
+                  </div>
+                  ${renderFlagControl(question, "answer", index)}
                 </div>
               `,
             )
@@ -3129,6 +3400,7 @@ function renderQuestionBankEditor(question) {
 
   return `
     <div class="bank-editor">
+      ${renderFlagControl(question)}
       <label class="bank-edit-field bank-edit-field--wide">
         <span>Question Stem</span>
         <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="question" rows="3">${escapeHtml(
@@ -3168,6 +3440,7 @@ function renderQuestionBankEditor(question) {
                   type="text"
                   value="${escapeHtml(options[index] || "")}"
                 />
+                ${renderFlagControl(question, "answer", index)}
               </label>
             `,
           )
@@ -3230,7 +3503,15 @@ function getFilteredQuestionBank() {
       return false;
     }
 
-    if (state.questionBank.category !== "all" && question.category !== state.questionBank.category) {
+    if (state.questionBank.category === "__flagged__" && !questionHasFlags(question.id)) {
+      return false;
+    }
+
+    if (
+      state.questionBank.category !== "all" &&
+      state.questionBank.category !== "__flagged__" &&
+      question.category !== state.questionBank.category
+    ) {
       return false;
     }
 
@@ -3295,6 +3576,7 @@ function renderQuestionBankView() {
   const hasActiveFilter = hasQuestionBankFilter();
   const questions = hasActiveFilter ? getFilteredQuestionBank() : [];
   const totalQuestions = allQuestions.length;
+  const flaggedCount = isInstructor() ? new Set(getAllQuestionFlags().map((flag) => flag.questionId)).size : 0;
   const sharedCount = allQuestions.filter((question) => getQuestionOrigin(question) === "shared").length;
   const importedCount = totalQuestions - sharedCount;
   const bankFeedbackClass = `import-feedback import-feedback--${state.questionBank.feedback.tone}`;
@@ -3310,6 +3592,7 @@ function renderQuestionBankView() {
         ${renderMetric("Visible Questions", `${hasActiveFilter ? questions.length : 0}`, "gold")}
         ${renderMetric("Shared Seeded", `${sharedCount}`, "blue")}
         ${renderMetric("Imported Local", `${importedCount}`, "default")}
+        ${isInstructor() ? renderMetric("Flagged Review", `${flaggedCount}`, "default") : ""}
       </div>
       <section class="panel bank-save-bar">
         <div>
@@ -3377,6 +3660,11 @@ function renderQuestionBankView() {
             <span>Category</span>
             <select id="question-bank-category">
               <option value="all" ${state.questionBank.category === "all" ? "selected" : ""}>All categories</option>
+              ${
+                isInstructor()
+                  ? `<option value="__flagged__" ${state.questionBank.category === "__flagged__" ? "selected" : ""}>Flagged for Review</option>`
+                  : ""
+              }
               ${categories
                 .map(
                   (category) =>
@@ -3425,7 +3713,7 @@ function renderQuestionBankView() {
                     <article class="review-card review-card--bank">
                       <div class="review-card__header">
                         <span>${escapeHtml(formatQuestionBankLabel(question))}</span>
-                        <strong>${origin === "shared" ? "Shared Seeded" : "Imported Local"}</strong>
+                        <strong>${getFlagCount(question.id) ? `${getFlagCount(question.id)} flag(s)` : origin === "shared" ? "Shared Seeded" : "Imported Local"}</strong>
                       </div>
                       <div class="question-card__meta">
                         <span class="pill">${escapeHtml(question.category)}</span>
@@ -3459,6 +3747,7 @@ function renderProfileView(summary) {
 
   return `
     <section class="view">
+      ${renderPracticeNav()}
       ${renderSectionIntro(
         "Profile",
         `${displayName} stats`,
@@ -3840,6 +4129,59 @@ function renderInstructorRosterTools() {
   `;
 }
 
+function renderInstructorFlaggedReview() {
+  const flaggedQuestions = getFlaggedQuestionSummaries(8);
+  const totalFlaggedQuestions = new Set(getAllQuestionFlags().map((flag) => flag.questionId)).size;
+  const totalFlags = getAllQuestionFlags().length;
+
+  return `
+    <section class="panel instructor-flag-review">
+      <div class="panel__header panel__header--inline">
+        <div>
+          <h3>Flagged question review</h3>
+          <p>Questions or answer choices students marked for possible spelling, missing-letter, or content issues.</p>
+        </div>
+        <div class="question-card__actions">
+          <button type="button" class="button button--ghost button--compact" data-action="open-flagged-question-bank">
+            Open flagged bank
+          </button>
+        </div>
+      </div>
+      <div class="card-grid card-grid--metrics">
+        ${renderMetric("Flagged Questions", `${totalFlaggedQuestions}`, "gold")}
+        ${renderMetric("Total Flags", `${totalFlags}`, "blue")}
+      </div>
+      <div class="history-list flag-review-list">
+        ${
+          flaggedQuestions.length
+            ? flaggedQuestions
+                .map((item) => {
+                  const reporters = [...new Set(item.flags.map((flag) => flag.displayName || flag.username).filter(Boolean))]
+                    .slice(0, 4)
+                    .join(", ");
+                  const targets = [...new Set(item.flags.map(formatFlagTarget))].join(", ");
+                  return `
+                    <article class="history-row flag-review-row">
+                      <div>
+                        <strong>${escapeHtml(item.label)}</strong>
+                        <span>${escapeHtml(item.category)} • ${escapeHtml(item.topic)} • ${escapeHtml(targets || "Question")}</span>
+                        <small>${formatScientificText(item.question)}</small>
+                      </div>
+                      <div class="flag-review-row__meta">
+                        <strong>${item.flags.length} flag${item.flags.length === 1 ? "" : "s"}</strong>
+                        <span>${escapeHtml(reporters || "Signed-in users")}</span>
+                      </div>
+                    </article>
+                  `;
+                })
+                .join("")
+            : `<div class="empty-state"><strong>No flagged questions yet.</strong><p>When students flag questions or answers, they will appear here and in the Question Bank flagged filter.</p></div>`
+        }
+      </div>
+    </section>
+  `;
+}
+
 function renderInstructorView() {
   if (!isInstructor()) {
     return `
@@ -3918,6 +4260,7 @@ function renderInstructorView() {
           <strong>${escapeHtml(state.instructor.message)}</strong>
         </div>
       </section>
+      ${renderInstructorFlaggedReview()}
       ${
         !aggregate
           ? `<section class="panel"><div class="empty-state"><strong>No instructor metrics loaded yet.</strong><p>Press Refresh Stats to pull the latest roster data from the server.</p></div></section>`
@@ -4285,6 +4628,7 @@ function renderOnlineQuizPanel() {
               active
                 ? `
                   <article class="question-card question-card--practice ${session.status === "reveal" ? "question-card--answered" : ""}">
+                    ${renderFlagControl(active)}
                     <div class="question-card__meta">
                       <span class="pill">Question ${active.number} of ${active.total}</span>
                       <span class="pill">${escapeHtml(active.category || "Category")}</span>
@@ -4307,18 +4651,14 @@ function renderOnlineQuizPanel() {
                           ]
                             .filter(Boolean)
                             .join(" ");
-                          return `
-                            <button
-                              type="button"
-                              class="${classes}"
-                              data-action="select-online-quiz-answer"
-                              data-index="${index}"
-                              ${session.status !== "question" ? "disabled" : ""}
-                            >
-                              <span>${String.fromCharCode(65 + index)}</span>
-                              <strong>${formatScientificText(option)}</strong>
-                            </button>
-                          `;
+                          return renderFlaggedOption(
+                            active,
+                            option,
+                            index,
+                            classes,
+                            "select-online-quiz-answer",
+                            session.status !== "question",
+                          );
                         })
                         .join("")}
                     </div>
@@ -4817,13 +5157,6 @@ function renderPageHero(summary) {
         ${renderAccountCorner()}
       </div>
     </header>
-    <section class="app-overline" aria-label="Review status">
-      <div>
-        <span>${escapeHtml(copy.subtitle)}</span>
-        <strong>${escapeHtml(copy.body)}</strong>
-      </div>
-      ${renderHeroStatus(summary)}
-    </section>
   `;
 }
 
@@ -4880,7 +5213,6 @@ function renderDashboard(summary) {
       const accuracy = summary.categoryMap[category.name] ? summary.categoryMap[category.name].accuracy : undefined;
       return `
         <article class="list-row category-card">
-          <span class="list-row__icon">${escapeHtml(category.shortName.slice(0, 1))}</span>
           <div class="list-row__body">
             <h4>${escapeHtml(category.shortName)}</h4>
             <p>${escapeHtml(category.description)}</p>
@@ -4898,13 +5230,6 @@ function renderDashboard(summary) {
     <section class="view view--dashboard">
       ${renderPracticeNav()}
       <section class="overview-card">
-        <div class="overview-card__main">
-          <span class="overview-icon">⌂</span>
-          <div>
-            <h2>Focused Nuclear Medicine preparation</h2>
-            <p>Train by registry-style content areas, close knowledge gaps with adaptive practice, and move into live recall sessions with shared Jeopardy play.</p>
-          </div>
-        </div>
         <div class="overview-stats">
           <article class="stat-item">
             <strong class="stat-value">${formatPercent(summary.readiness)}</strong>
@@ -5079,6 +5404,7 @@ function renderQuizView(summary) {
         <span>Adaptive weighting active</span>
       </div>
       <article class="question-card question-card--practice ${session.submitted ? "question-card--answered" : ""}">
+        ${renderFlagControl(question)}
         <div class="question-card__meta">
           <span class="pill">${escapeHtml(question.type)}</span>
           <span class="pill">${escapeHtml(question.topic)}</span>
@@ -5099,18 +5425,7 @@ function renderQuizView(summary) {
               ]
                 .filter(Boolean)
                 .join(" ");
-              return `
-                <button
-                  type="button"
-                  class="${classes}"
-                  data-action="select-quiz-option"
-                  data-index="${index}"
-                  ${session.submitted ? "disabled" : ""}
-                >
-                  <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${formatScientificText(option)}</strong>
-                </button>
-              `;
+              return renderFlaggedOption(question, option, index, classes, "select-quiz-option", session.submitted);
             })
             .join("")}
         </div>
@@ -5173,6 +5488,7 @@ function renderQuickStartView() {
         <span>${session.total ? `${session.correct}/${session.total} correct this run` : "No answers yet this run"}</span>
       </div>
       <article class="question-card question-card--practice ${session.submitted ? "question-card--answered" : ""}">
+        ${renderFlagControl(question)}
         <div class="question-card__meta">
           <span class="pill">${escapeHtml(question.type)}</span>
           <span class="pill">${escapeHtml(question.topic)}</span>
@@ -5193,18 +5509,7 @@ function renderQuickStartView() {
               ]
                 .filter(Boolean)
                 .join(" ");
-              return `
-                <button
-                  type="button"
-                  class="${classes}"
-                  data-action="select-quickstart-option"
-                  data-index="${index}"
-                  ${session.submitted ? "disabled" : ""}
-                >
-                  <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${formatScientificText(option)}</strong>
-                </button>
-              `;
+              return renderFlaggedOption(question, option, index, classes, "select-quickstart-option", session.submitted);
             })
             .join("")}
         </div>
@@ -5351,22 +5656,20 @@ function renderMockView() {
         <span class="timer">Time remaining ${minutes}:${seconds}</span>
       </div>
       <article class="question-card question-card--practice">
+        ${renderFlagControl(currentQuestion)}
         <h3>${formatScientificText(currentQuestion.question)}</h3>
         ${renderQuestionMedia(currentQuestion)}
         <div class="option-list">
           ${currentQuestion.options
             .map(
-              (option, index) => `
-                <button
-                  type="button"
-                  class="option ${selectedIndex === index ? "is-selected" : ""}"
-                  data-action="select-mock-option"
-                  data-index="${index}"
-                >
-                  <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${formatScientificText(option)}</strong>
-                </button>
-              `,
+              (option, index) =>
+                renderFlaggedOption(
+                  currentQuestion,
+                  option,
+                  index,
+                  `option ${selectedIndex === index ? "is-selected" : ""}`,
+                  "select-mock-option",
+                ),
             )
             .join("")}
         </div>
@@ -5518,6 +5821,7 @@ function renderJeopardyModal() {
   return `
     <div class="modal-backdrop">
       <article class="modal modal--question">
+        ${renderFlagControl(question)}
         <div class="modal__header">
           <div>
             <span class="pill">$${tile.value}</span>
@@ -5538,18 +5842,7 @@ function renderJeopardyModal() {
               ]
                 .filter(Boolean)
                 .join(" ");
-              return `
-                <button
-                  type="button"
-                  class="${classes}"
-                  data-action="select-jeopardy-option"
-                  data-index="${index}"
-                  ${submitted ? "disabled" : ""}
-                >
-                  <span>${String.fromCharCode(65 + index)}</span>
-                  <strong>${formatScientificText(option)}</strong>
-                </button>
-              `;
+              return renderFlaggedOption(question, option, index, classes, "select-jeopardy-option", submitted);
             })
             .join("")}
         </div>
@@ -5916,6 +6209,7 @@ function renderLiveQuestionPanel(session) {
             <span>${active.answerCount} selection(s) ready</span>
           </div>
           <div class="question-card question-card--live">
+            ${renderFlagControl(active)}
             <div class="question-card__meta">
               <span class="pill">${escapeHtml(formatOnlineCategoryLabel(active.category))}</span>
             </div>
@@ -5924,17 +6218,14 @@ function renderLiveQuestionPanel(session) {
             <div class="option-list">
               ${active.options
                 .map(
-                  (option, index) => `
-                    <button
-                      type="button"
-                      class="option ${state.live.answerIndex === index ? "is-selected" : ""}"
-                      data-action="select-live-answer"
-                      data-index="${index}"
-                    >
-                      <span>${String.fromCharCode(65 + index)}</span>
-                      <strong>${formatScientificText(option)}</strong>
-                    </button>
-                  `,
+                  (option, index) =>
+                    renderFlaggedOption(
+                      active,
+                      option,
+                      index,
+                      `option ${state.live.answerIndex === index ? "is-selected" : ""}`,
+                      "select-live-answer",
+                    ),
                 )
                 .join("")}
             </div>
@@ -6351,8 +6642,24 @@ app.addEventListener("click", (event) => {
     return;
   }
 
+  if (action === "toggle-question-flag") {
+    toggleQuestionFlag(button);
+    return;
+  }
+
   if (action === "refresh-instructor-stats") {
-    loadInstructorStats();
+    Promise.all([loadInstructorStats(false), loadQuestionFlags(false)]).finally(renderApp);
+    return;
+  }
+
+  if (action === "open-flagged-question-bank") {
+    state.questionBank.search = "";
+    state.questionBank.exam = "all";
+    state.questionBank.question = "all";
+    state.questionBank.category = "__flagged__";
+    state.questionBank.source = "all";
+    state.activeView = "bank";
+    renderApp();
     return;
   }
 
@@ -6426,7 +6733,9 @@ app.addEventListener("click", (event) => {
   }
 
   if (action === "next-online-quiz") {
-    sendOnlineQuizAction("next").finally(renderApp);
+    flushPendingQuestionFlags()
+      .catch(() => {})
+      .finally(() => sendOnlineQuizAction("next").finally(renderApp));
     return;
   }
 
@@ -6452,7 +6761,8 @@ app.addEventListener("click", (event) => {
   }
 
   if (action === "next-quickstart") {
-    loadQuickStartQuestion();
+    flushPendingQuestionFlagsThen(loadQuickStartQuestion);
+    return;
   }
 
   if (action === "select-quiz-option" && state.quizSession && !state.quizSession.submitted) {
@@ -6464,11 +6774,13 @@ app.addEventListener("click", (event) => {
   }
 
   if (action === "next-quiz") {
-    advanceQuizQuestion();
+    flushPendingQuestionFlagsThen(advanceQuizQuestion);
+    return;
   }
 
   if (action === "restart-quiz") {
-    resetQuiz();
+    flushPendingQuestionFlagsThen(resetQuiz);
+    return;
   }
 
   if (action === "start-mock") {
@@ -6486,19 +6798,23 @@ app.addEventListener("click", (event) => {
   }
 
   if (action === "mock-next" && state.mockSession) {
-    if (state.mockSession.currentIndex === state.mockSession.questions.length - 1) {
-      finalizeMockExam();
-      return;
-    }
-    state.mockSession.currentIndex = Math.min(
-      state.mockSession.questions.length - 1,
-      state.mockSession.currentIndex + 1,
-    );
-    scrollPracticeQuestionIntoView();
+    flushPendingQuestionFlagsThen(() => {
+      if (state.mockSession.currentIndex === state.mockSession.questions.length - 1) {
+        finalizeMockExam();
+        return;
+      }
+      state.mockSession.currentIndex = Math.min(
+        state.mockSession.questions.length - 1,
+        state.mockSession.currentIndex + 1,
+      );
+      scrollPracticeQuestionIntoView();
+    });
+    return;
   }
 
   if (action === "submit-mock") {
-    finalizeMockExam();
+    flushPendingQuestionFlagsThen(finalizeMockExam);
+    return;
   }
 
   if (action === "restart-mock") {
@@ -6522,7 +6838,8 @@ app.addEventListener("click", (event) => {
   }
 
   if (action === "close-jeopardy") {
-    closeJeopardyTile();
+    flushPendingQuestionFlagsThen(closeJeopardyTile);
+    return;
   }
 
   if (action === "live-create") {
@@ -6561,7 +6878,10 @@ app.addEventListener("click", (event) => {
   }
 
   if (action === "advance-live-round") {
-    sendLiveAction("advance_round", {});
+    flushPendingQuestionFlags()
+      .catch(() => {})
+      .finally(() => sendLiveAction("advance_round", {}));
+    return;
   }
 
   if (action === "terminate-live-game") {

@@ -23,6 +23,7 @@ except Exception:
 ROOT = Path(__file__).parent
 DATA_PATH = ROOT / "data.js"
 ATTEMPTS_PATH = Path(os.getenv("ATTEMPTS_PATH", str(ROOT / ".shared_attempts.json")))
+QUESTION_FLAGS_PATH = Path(os.getenv("QUESTION_FLAGS_PATH", str(ROOT / ".question_flags.json")))
 USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
 USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
 USER_CREDENTIALS_JSON = os.getenv("USER_CREDENTIALS_JSON", "").strip()
@@ -44,6 +45,7 @@ PASSWORD_ITERATIONS = 260000
 MAX_USER_ATTEMPTS = 10000
 MAX_USER_PLACEMENTS = 500
 MAX_CUSTOM_QUIZZES = 200
+MAX_QUESTION_FLAGS = 20000
 
 
 def parse_js_literal(node):
@@ -207,6 +209,64 @@ def save_attempt_store():
         return
     ATTEMPTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     ATTEMPTS_PATH.write_text(json.dumps(ATTEMPT_STORE))
+
+
+def load_question_flag_store():
+    fallback = {"items": {}}
+    if QUESTION_FLAGS_PATH.exists():
+        try:
+            store = json.loads(QUESTION_FLAGS_PATH.read_text())
+            if isinstance(store.get("items"), dict):
+                fallback = store
+        except Exception:
+            pass
+    return load_database_store("question_flags", fallback)
+
+
+QUESTION_FLAG_STORE = load_question_flag_store()
+
+
+def save_question_flag_store():
+    if save_database_store("question_flags", QUESTION_FLAG_STORE):
+        return
+    QUESTION_FLAGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    QUESTION_FLAGS_PATH.write_text(json.dumps(QUESTION_FLAG_STORE, indent=2))
+
+
+def public_question_flag(flag):
+    question = QUESTION_BY_ID.get(flag.get("questionId"), {})
+    return {
+        "id": flag.get("id"),
+        "questionId": flag.get("questionId"),
+        "targetType": flag.get("targetType") or "question",
+        "answerIndex": flag.get("answerIndex"),
+        "username": flag.get("username"),
+        "displayName": flag.get("displayName") or flag.get("username"),
+        "category": flag.get("category") or question.get("category") or "Unknown",
+        "topic": flag.get("topic") or question.get("topic") or "Unknown",
+        "label": flag.get("label") or flag.get("questionId"),
+        "question": flag.get("question") or question.get("question") or flag.get("questionId"),
+        "createdAt": flag.get("createdAt") or 0,
+        "updatedAt": flag.get("updatedAt") or flag.get("createdAt") or 0,
+    }
+
+
+def question_flag_payload_for(username):
+    flags = [
+        public_question_flag(flag)
+        for flag in QUESTION_FLAG_STORE.get("items", {}).values()
+        if flag.get("username") == username
+    ]
+    flags.sort(key=lambda item: int(item.get("updatedAt") or item.get("createdAt") or 0), reverse=True)
+    response = {"mine": flags}
+
+    user = USER_STORE.get("users", {}).get(username, {})
+    if user.get("role") == "instructor":
+        all_flags = [public_question_flag(flag) for flag in QUESTION_FLAG_STORE.get("items", {}).values()]
+        all_flags.sort(key=lambda item: int(item.get("updatedAt") or item.get("createdAt") or 0), reverse=True)
+        response["all"] = all_flags[:MAX_QUESTION_FLAGS]
+
+    return response
 
 
 def load_user_store():
@@ -2119,6 +2179,78 @@ async def record_attempts(request):
     return web.json_response({"recorded": recorded, "userRecorded": userRecorded})
 
 
+async def question_flags(request):
+    username = require_auth_username(request)
+
+    if request.method == "GET":
+        return web.json_response(question_flag_payload_for(username))
+
+    payload = await json_body(request)
+    question_id = str(payload.get("questionId", "")).strip()
+    if not question_id:
+        raise web.HTTPBadRequest(
+            text=json.dumps({"error": "A questionId is required."}),
+            content_type="application/json",
+        )
+
+    target_type = str(payload.get("targetType") or "question").strip()
+    if target_type not in ("question", "answer", "explanation"):
+        target_type = "question"
+
+    answer_index = None
+    if target_type == "answer":
+        try:
+            answer_index = int(payload.get("answerIndex"))
+        except Exception:
+            answer_index = None
+        if answer_index is None or answer_index < 0 or answer_index > 4:
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "A valid answerIndex is required for answer flags."}),
+                content_type="application/json",
+            )
+
+    flagged = bool(payload.get("flagged"))
+    flag_segment = answer_index if answer_index is not None else target_type
+    flag_id = f"{username}:{question_id}:{target_type}:{flag_segment}"
+    items = QUESTION_FLAG_STORE.setdefault("items", {})
+    user = USER_STORE.get("users", {}).get(username, {})
+
+    if flagged:
+        now_ms = int(time.time() * 1000)
+        question = QUESTION_BY_ID.get(question_id, {})
+        existing = items.get(flag_id, {})
+        items[flag_id] = {
+            "id": flag_id,
+            "questionId": question_id,
+            "targetType": target_type,
+            "answerIndex": answer_index,
+            "username": username,
+            "displayName": user.get("display_name") or username,
+            "category": str(payload.get("category") or question.get("category") or "Unknown")[:120],
+            "topic": str(payload.get("topic") or question.get("topic") or "Unknown")[:160],
+            "label": str(payload.get("label") or question_id)[:120],
+            "question": str(payload.get("question") or question.get("question") or question_id)[:1000],
+            "createdAt": existing.get("createdAt") or now_ms,
+            "updatedAt": now_ms,
+        }
+    elif payload.get("resolveAll") and user.get("role") == "instructor":
+        for item_id, item in list(items.items()):
+            if item.get("questionId") != question_id or item.get("targetType") != target_type:
+                continue
+            if target_type == "answer" and item.get("answerIndex") != answer_index:
+                continue
+            items.pop(item_id, None)
+    elif user.get("role") == "instructor":
+        items.pop(flag_id, None)
+
+    if len(items) > MAX_QUESTION_FLAGS:
+        newest = sorted(items.values(), key=lambda item: int(item.get("updatedAt") or item.get("createdAt") or 0), reverse=True)
+        QUESTION_FLAG_STORE["items"] = {item["id"]: item for item in newest[:MAX_QUESTION_FLAGS]}
+
+    save_question_flag_store()
+    return web.json_response(question_flag_payload_for(username))
+
+
 async def websocket_handler(request):
     code = request.query.get("code", "").strip()
     token = request.query.get("token", "").strip()
@@ -2226,6 +2358,8 @@ def create_app():
     app.router.add_get("/api/online-quizzes/{code}", online_quiz_state)
     app.router.add_post("/api/online-quizzes/{code}/{action}", online_quiz_action)
     app.router.add_post("/api/attempts", record_attempts)
+    app.router.add_get("/api/question-flags", question_flags)
+    app.router.add_post("/api/question-flags", question_flags)
     app.router.add_get("/ws", websocket_handler)
     app.router.add_get("/source-pdfs/{book_key}.pdf", serve_source_pdf)
     app.router.add_get("/{path:.*}", serve_app)
