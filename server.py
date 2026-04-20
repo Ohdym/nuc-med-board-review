@@ -24,6 +24,7 @@ ROOT = Path(__file__).parent
 DATA_PATH = ROOT / "data.js"
 ATTEMPTS_PATH = Path(os.getenv("ATTEMPTS_PATH", str(ROOT / ".shared_attempts.json")))
 QUESTION_FLAGS_PATH = Path(os.getenv("QUESTION_FLAGS_PATH", str(ROOT / ".question_flags.json")))
+QUESTION_EDITS_PATH = Path(os.getenv("QUESTION_EDITS_PATH", str(ROOT / ".question_edits.json")))
 USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
 USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
 USER_CREDENTIALS_JSON = os.getenv("USER_CREDENTIALS_JSON", "").strip()
@@ -46,6 +47,7 @@ MAX_USER_ATTEMPTS = 10000
 MAX_USER_PLACEMENTS = 500
 MAX_CUSTOM_QUIZZES = 200
 MAX_QUESTION_FLAGS = 20000
+MAX_QUESTION_EDITS = 2000
 
 
 def parse_js_literal(node):
@@ -231,6 +233,87 @@ def save_question_flag_store():
         return
     QUESTION_FLAGS_PATH.parent.mkdir(parents=True, exist_ok=True)
     QUESTION_FLAGS_PATH.write_text(json.dumps(QUESTION_FLAG_STORE, indent=2))
+
+
+QUESTION_EDIT_FIELDS = {
+    "question",
+    "category",
+    "topic",
+    "type",
+    "answerIndex",
+    "difficulty",
+    "examNumber",
+    "questionNumber",
+    "explanation",
+    "source",
+}
+
+
+def normalize_question_edit(question_id, edit):
+    if question_id not in QUESTION_BY_ID or not isinstance(edit, dict):
+        return None
+
+    normalized = {}
+    for field in QUESTION_EDIT_FIELDS:
+        if field not in edit:
+            continue
+        value = edit.get(field)
+        if field in {"answerIndex", "difficulty", "examNumber", "questionNumber"}:
+            try:
+                number = int(value)
+            except Exception:
+                continue
+            if field == "answerIndex":
+                number = max(0, min(4, number))
+            normalized[field] = number
+        elif field in {"question", "explanation", "source"}:
+            normalized[field] = str(value or "")[:12000]
+        else:
+            normalized[field] = str(value or "")[:240]
+
+    if "options" in edit and isinstance(edit.get("options"), list):
+        options = [str(option or "")[:4000] for option in edit.get("options", [])[:5]]
+        while len(options) < 5:
+            options.append("")
+        normalized["options"] = options
+
+    return normalized or None
+
+
+def normalize_question_edit_store(raw):
+    raw_edits = raw.get("edits", raw) if isinstance(raw, dict) else {}
+    if not isinstance(raw_edits, dict):
+        return {"edits": {}}
+
+    edits = {}
+    for question_id, edit in raw_edits.items():
+        cleaned_id = str(question_id or "").strip()
+        normalized = normalize_question_edit(cleaned_id, edit)
+        if normalized:
+            edits[cleaned_id] = normalized
+        if len(edits) >= MAX_QUESTION_EDITS:
+            break
+    return {"edits": edits}
+
+
+def load_question_edit_store():
+    fallback = {"edits": {}}
+    if QUESTION_EDITS_PATH.exists():
+        try:
+            fallback = normalize_question_edit_store(json.loads(QUESTION_EDITS_PATH.read_text()))
+        except Exception:
+            pass
+    return normalize_question_edit_store(load_database_store("question_edits", fallback))
+
+
+QUESTION_EDIT_STORE = load_question_edit_store()
+
+
+def save_question_edit_store():
+    if save_database_store("question_edits", QUESTION_EDIT_STORE):
+        return
+    QUESTION_EDITS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    QUESTION_EDITS_PATH.write_text(json.dumps(QUESTION_EDIT_STORE, indent=2))
 
 
 def public_question_flag(flag):
@@ -1845,6 +1928,7 @@ async def login_user(request):
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
         "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
+        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
     })
 
 
@@ -1865,6 +1949,7 @@ async def current_user(request):
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
         "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
+        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
     })
 
 
@@ -1890,6 +1975,25 @@ async def instructor_custom_quizzes(request):
     save_user_store()
     return web.json_response({
         "customQuizzes": quizzes,
+    })
+
+
+async def question_edits(request):
+    if request.method == "GET":
+        require_auth_username(request)
+        return web.json_response({
+            "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        })
+
+    require_instructor_username(request)
+    payload = await json_body(request)
+    normalized = normalize_question_edit_store(payload.get("questionEdits", {}))
+    QUESTION_EDIT_STORE["edits"] = normalized["edits"]
+    QUESTION_EDIT_STORE["updated_at"] = int(time.time() * 1000)
+    save_question_edit_store()
+    return web.json_response({
+        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "saved": True,
     })
 
 
@@ -1976,6 +2080,7 @@ async def storage_status(request):
         "postgresDriverAvailable": bool(psycopg and Jsonb),
         "userCount": len(USER_STORE.get("users", {})),
         "sharedQuestionBuckets": len(ATTEMPT_STORE.get("questions", {})),
+        "questionEditCount": len(QUESTION_EDIT_STORE.get("edits", {})),
     })
 
 
@@ -2358,6 +2463,8 @@ def create_app():
     app.router.add_get("/api/online-quizzes/{code}", online_quiz_state)
     app.router.add_post("/api/online-quizzes/{code}/{action}", online_quiz_action)
     app.router.add_post("/api/attempts", record_attempts)
+    app.router.add_get("/api/question-edits", question_edits)
+    app.router.add_put("/api/question-edits", question_edits)
     app.router.add_get("/api/question-flags", question_flags)
     app.router.add_post("/api/question-flags", question_flags)
     app.router.add_get("/ws", websocket_handler)

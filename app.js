@@ -2187,7 +2187,7 @@ function updateQuestionBankDraft(target) {
   };
 }
 
-function saveQuestionBankEdits() {
+async function saveQuestionBankEdits() {
   if (!isInstructor()) {
     state.questionBank.feedback = {
       tone: "error",
@@ -2196,12 +2196,31 @@ function saveQuestionBankEdits() {
     return;
   }
 
-  saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
-  state.questionBank.hasUnsavedChanges = false;
   state.questionBank.feedback = {
-    tone: "success",
-    message: "Question bank changes saved locally on this device.",
+    tone: "info",
+    message: "Saving question bank changes to the persistent database...",
   };
+  renderApp();
+
+  try {
+    const data = await apiRequest("/api/question-edits", "PUT", {
+      questionEdits: state.questionEdits,
+    });
+    state.questionEdits = data.questionEdits || {};
+    saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
+    state.questionBank.hasUnsavedChanges = false;
+    state.questionBank.feedback = {
+      tone: "success",
+      message: "Question bank changes saved to the persistent database.",
+    };
+  } catch (error) {
+    saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
+    state.questionBank.feedback = {
+      tone: "error",
+      message: `${error.message || "Could not save question bank changes to the database."} Local fallback saved on this device only.`,
+    };
+  }
+  renderApp();
 }
 
 function scrollPracticeQuestionIntoView() {
@@ -2690,6 +2709,11 @@ function applyAccountSession(data) {
   state.performance = mergePerformanceAttempts(serverPerformance, localAccountAttempts);
   saveJSON(STORAGE_KEYS.performance, state.performance);
   syncAccountAttemptsToServer(localAccountAttempts);
+  if (data.questionEdits && typeof data.questionEdits === "object") {
+    state.questionEdits = data.questionEdits;
+    saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
+    state.questionBank.hasUnsavedChanges = false;
+  }
   state.account.placements = Array.isArray(data.placements) ? data.placements : [];
   if (isInstructor() && Array.isArray(data.customQuizzes)) {
     state.customQuizBuilder.saved = mergeCustomQuizLibraries(data.customQuizzes, state.customQuizBuilder.saved);
@@ -6925,6 +6949,7 @@ app.addEventListener("click", (event) => {
 
   if (action === "save-question-bank-edits") {
     saveQuestionBankEdits();
+    return;
   }
 
   if (action === "clear-flashcards") {
