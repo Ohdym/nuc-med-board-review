@@ -3045,12 +3045,11 @@ function renderMetric(label, value, tone = "default") {
 
 function renderSectionIntro(eyebrow, title, body) {
   return `
-    <div class="section-intro">
+    <div class="section-intro screen-header">
       <span class="section-intro__eyebrow">${escapeHtml(eyebrow)}</span>
       <h2>${escapeHtml(title)}</h2>
       <p>${escapeHtml(body)}</p>
     </div>
-    ${renderHeadlineHighlights()}
   `;
 }
 
@@ -4715,11 +4714,49 @@ function renderNavTabs(items, modifier = "") {
 }
 
 function renderTopbarNav() {
-  return renderNavTabs(getTopbarNavItems(), "nav-tabs--topbar");
+  return renderNavTabs(getTopbarNavItems(), "nav-tabs--primary");
+}
+
+function getViewIcon(view) {
+  const icons = {
+    quickstart: "↗",
+    dashboard: "⌂",
+    profile: "◉",
+    instructor: "▤",
+    customquiz: "✎",
+    bank: "▦",
+    quiz: "?",
+    mock: "◷",
+    jeopardy: "$",
+    flashcards: "◇",
+    import: "+",
+    live: "●",
+  };
+  return icons[view] || "•";
+}
+
+function getPracticeModeSummary(view) {
+  const copy = getHeroCopy(view);
+  return copy.subtitle.replace(/\.$/, "");
 }
 
 function renderPracticeNav() {
-  return renderNavTabs(getPracticeNavItems(), "nav-tabs--practice");
+  return `
+    <section class="mode-grid app-mode-grid" aria-label="Study modes">
+      ${getPracticeNavItems()
+        .map(([view, label]) => {
+          const copy = getHeroCopy(view);
+          return `
+            <button type="button" class="mode-card ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
+              <span class="mode-card__icon">${escapeHtml(getViewIcon(view))}</span>
+              <strong>${escapeHtml(label)}</strong>
+              <small>${escapeHtml(getPracticeModeSummary(view))}</small>
+            </button>
+          `;
+        })
+        .join("")}
+    </section>
+  `;
 }
 
 function renderHeadlineHighlights() {
@@ -4743,22 +4780,19 @@ function renderHeadlineHighlights() {
 function renderHeroStatus(summary) {
   const liveCode = state.live.auth ? state.live.auth.code : "No live game";
   return `
-    <div class="topbar__meta headline__meta">
-      ${renderTopbarNav()}
-      <div class="headline__status">
-        <article class="status-chip">
-          <span>Readiness</span>
-          <strong>${formatPercent(summary.readiness)}</strong>
-        </article>
-        <article class="status-chip">
-          <span>Question Bank</span>
-          <strong>${getAllQuestions().length}</strong>
-        </article>
-        <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
-          <span>Last live code used</span>
-          <strong>${escapeHtml(liveCode)}</strong>
-        </article>
-      </div>
+    <div class="topbar__meta headline__meta app-status">
+      <article class="status-chip">
+        <span>Readiness</span>
+        <strong>${formatPercent(summary.readiness)}</strong>
+      </article>
+      <article class="status-chip">
+        <span>Question Bank</span>
+        <strong>${getAllQuestions().length}</strong>
+      </article>
+      <article class="status-chip ${state.live.auth ? "status-chip--live" : ""}">
+        <span>Last live code used</span>
+        <strong>${escapeHtml(liveCode)}</strong>
+      </article>
     </div>
   `;
 }
@@ -4766,14 +4800,27 @@ function renderHeroStatus(summary) {
 function renderPageHero(summary) {
   const copy = getHeroCopy(state.activeView);
   return `
-    <div class="headline__app-title">Nuclear Medicine Boards Review</div>
-    <section class="headline headline--oregon-tech">
-      <div class="headline__account">
+    <header class="app-header">
+      <div class="app-header__brand">
+        <button type="button" class="app-header__home" data-view="dashboard" aria-label="Open dashboard">
+          NMT
+        </button>
+        <div class="app-header__title">
+          <strong>Nuclear Medicine Boards Review</strong>
+          <span>${escapeHtml(copy.title)}</span>
+        </div>
+      </div>
+      <div class="app-header__nav">
+        ${renderTopbarNav()}
+      </div>
+      <div class="app-header__account">
         ${renderAccountCorner()}
       </div>
-      <div class="headline__copy">
-        <h1>${escapeHtml(copy.title)}</h1>
-        <p><strong>${escapeHtml(copy.subtitle)}</strong> ${escapeHtml(copy.body)}</p>
+    </header>
+    <section class="app-overline" aria-label="Review status">
+      <div>
+        <span>${escapeHtml(copy.subtitle)}</span>
+        <strong>${escapeHtml(copy.body)}</strong>
       </div>
       ${renderHeroStatus(summary)}
     </section>
@@ -4826,20 +4873,56 @@ function renderDashboard(summary) {
   const categories = getCategories();
   const weakAreas = [...summary.weakTopics].slice(0, 3);
   const hasQuestions = hasStudyQuestions();
+  const totalQuestions = getAllQuestions().length;
+  const categoryRows = categories
+    .map((category) => {
+      const count = getAllQuestions().filter((question) => question.category === category.name).length;
+      const accuracy = summary.categoryMap[category.name] ? summary.categoryMap[category.name].accuracy : undefined;
+      return `
+        <article class="list-row category-card">
+          <span class="list-row__icon">${escapeHtml(category.shortName.slice(0, 1))}</span>
+          <div class="list-row__body">
+            <h4>${escapeHtml(category.shortName)}</h4>
+            <p>${escapeHtml(category.description)}</p>
+          </div>
+          <div class="category-card__meta">
+            <span>${count} questions</span>
+            <span>${accuracy !== undefined ? formatPercent(accuracy) : "No attempts yet"}</span>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
 
   return `
     <section class="view view--dashboard">
-      ${renderSectionIntro(
-        "Board Review",
-        "Focused Nuclear Medicine preparation",
-        "Train by registry-style content areas, close knowledge gaps with adaptive practice, and move into live recall sessions with shared Jeopardy play.",
-      )}
-      <div class="card-grid card-grid--metrics">
-        ${renderMetric("Readiness", formatPercent(summary.readiness), "gold")}
-        ${renderMetric("Overall Accuracy", formatPercent(summary.accuracy), "blue")}
-        ${renderMetric("Question Bank", `${getAllQuestions().length} total`, "default")}
-        ${renderMetric("Weakest Category", summary.weakestCategory || "Not enough data yet", "default")}
-      </div>
+      ${renderPracticeNav()}
+      <section class="overview-card">
+        <div class="overview-card__main">
+          <span class="overview-icon">⌂</span>
+          <div>
+            <h2>Focused Nuclear Medicine preparation</h2>
+            <p>Train by registry-style content areas, close knowledge gaps with adaptive practice, and move into live recall sessions with shared Jeopardy play.</p>
+          </div>
+        </div>
+        <div class="overview-stats">
+          <article class="stat-item">
+            <strong class="stat-value">${formatPercent(summary.readiness)}</strong>
+            <span class="stat-label">Readiness</span>
+          </article>
+          <article class="stat-item">
+            <strong class="stat-value">${formatPercent(summary.accuracy)}</strong>
+            <span class="stat-label">Accuracy</span>
+          </article>
+          <article class="stat-item">
+            <strong class="stat-value">${totalQuestions}</strong>
+            <span class="stat-label">Questions</span>
+          </article>
+        </div>
+        <div class="progress-bar" aria-label="Readiness progress">
+          <span class="progress-fill" style="width: ${clamp(Number(summary.readiness) || 0, 0, 100)}%"></span>
+        </div>
+      </section>
       ${
         hasQuestions
           ? ""
@@ -4852,7 +4935,7 @@ function renderDashboard(summary) {
       <div class="split-layout">
         <section class="panel">
           <div class="panel__header">
-            <h3>ARRT / NM Board-style categories</h3>
+            <h3>ARRT / NM board-style categories</h3>
             <p>${
               hasQuestions
                 ? "Organized for quick topic selection, targeted drilling, and full-board review."
@@ -4860,26 +4943,7 @@ function renderDashboard(summary) {
             }</p>
           </div>
           <div class="category-list">
-            ${categories
-              .map((category) => {
-                const count = getAllQuestions().filter((question) => question.category === category.name).length;
-                const accuracy = summary.categoryMap[category.name]
-                  ? summary.categoryMap[category.name].accuracy
-                  : undefined;
-                return `
-                  <article class="category-card">
-                    <div>
-                      <h4>${escapeHtml(category.shortName)}</h4>
-                      <p>${escapeHtml(category.description)}</p>
-                    </div>
-                    <div class="category-card__meta">
-                      <span>${count} questions</span>
-                      <span>${accuracy !== undefined ? formatPercent(accuracy) : "No attempts yet"}</span>
-                    </div>
-                  </article>
-                `;
-              })
-              .join("")}
+            ${categoryRows}
           </div>
         </section>
         <section class="panel">
@@ -6235,8 +6299,7 @@ function renderApp() {
   app.innerHTML = `
     <div class="shell">
       ${renderPageHero(summary)}
-      ${renderPracticeNav()}
-      <main>
+      <main class="content">
         ${viewMap[state.activeView] || viewMap.dashboard}
       </main>
     </div>
