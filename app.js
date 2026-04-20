@@ -11,6 +11,7 @@ const STORAGE_KEYS = {
   onlineQuizAuth: "nmb-review-online-quiz-auth",
   sharedUserId: "nmb-review-shared-user-id",
   accountAuth: "nmb-review-account-auth",
+  theme: "nmb-review-theme",
 };
 
 const BOARD_VALUES = [100, 200, 300, 400, 500];
@@ -63,6 +64,21 @@ const ISOTOPE_SYMBOL_PATTERN = Object.keys(ISOTOPE_MASSES_BY_SYMBOL)
 const app = document.querySelector("#app");
 const savedAccountAuth = loadJSON(STORAGE_KEYS.accountAuth, null);
 
+function getInitialTheme() {
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
+  if (["light", "dark"].includes(savedTheme)) {
+    return savedTheme;
+  }
+
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  const normalizedTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = normalizedTheme;
+  localStorage.setItem(STORAGE_KEYS.theme, normalizedTheme);
+}
+
 function loadSharedUserId() {
   const existing = localStorage.getItem(STORAGE_KEYS.sharedUserId);
   if (existing) {
@@ -79,6 +95,7 @@ function loadSharedUserId() {
 
 const state = {
   activeView: "dashboard",
+  theme: getInitialTheme(),
   sharedUserId: loadSharedUserId(),
   importedQuestions: loadJSON(STORAGE_KEYS.importedQuestions, []),
   importedFlashcards: loadJSON(STORAGE_KEYS.importedFlashcards, []),
@@ -206,6 +223,8 @@ const state = {
     message: "Import JSON or CSV to add your own board-style questions.",
   },
 };
+
+applyTheme(state.theme);
 
 let mockTimerHandle = null;
 let onlineQuizRefreshInFlight = false;
@@ -3759,11 +3778,13 @@ function renderInstructorUserDetail(user) {
 function renderInstructorRosterTools() {
   const result = state.instructor.rosterResult;
   return `
-    <section class="panel panel--compact">
-      <div class="panel__header">
-        <h3>Student roster import</h3>
-        <p>Paste one student per line as First Last. Logins are created automatically.</p>
-      </div>
+    <details class="panel panel--compact disclosure-panel">
+      <summary>
+        <span>
+          <strong>Student roster import</strong>
+          <small>Paste one student per line as First Last. Logins are created automatically.</small>
+        </span>
+      </summary>
       <div class="form-grid form-grid--two">
         <label class="field">
           <span>Graduation year</span>
@@ -3783,7 +3804,7 @@ function renderInstructorRosterTools() {
       <div class="question-card__actions">
         <button type="button" class="button button--primary" data-action="import-instructor-students" ${state.instructor.loading ? "disabled" : ""}>Import students and create logins</button>
       </div>
-    </section>
+    </details>
     ${
       result
         ? `<section class="panel">
@@ -4534,6 +4555,9 @@ function renderAccountCorner() {
 
   return `
     <aside class="account-corner" aria-label="Signed-in account controls">
+      <button type="button" class="button button--tiny button--ghost theme-toggle" data-action="toggle-theme" aria-label="Switch to ${state.theme === "dark" ? "light" : "dark"} mode">
+        ${state.theme === "dark" ? "Light" : "Dark"}
+      </button>
       <button type="button" class="account-corner__user" data-view="profile">
         ${escapeHtml(state.account.auth.displayName || state.account.auth.username)}
       </button>
@@ -4764,6 +4788,11 @@ function renderLoginGate() {
   return `
     <main class="login-gate">
       <section class="login-card">
+        <div class="login-card__utility">
+          <button type="button" class="button button--tiny button--ghost theme-toggle" data-action="toggle-theme">
+            ${state.theme === "dark" ? "Light mode" : "Dark mode"}
+          </button>
+        </div>
         <div class="login-card__header">
           <h1>Nuclear Medicine Boards Review</h1>
           <p>${isCheckingSession ? "Verifying your saved login before opening the review workspace." : "Sign in to access quizzes, mock exams, the question bank, profile stats, and live Jeopardy review."}</p>
@@ -6249,6 +6278,13 @@ app.addEventListener("click", (event) => {
 
   if (action === "account-logout") {
     logoutAccount();
+    return;
+  }
+
+  if (action === "toggle-theme") {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    applyTheme(state.theme);
+    renderApp();
     return;
   }
 
