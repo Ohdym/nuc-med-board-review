@@ -342,8 +342,16 @@ a:focus-visible {
 [data-theme="dark"] .field span,
 [data-theme="dark"] .timer,
 [data-theme="dark"] .source-link,
-[data-theme="dark"] .pill {
+[data-theme="dark"] .pill,
+[data-theme="dark"] .headline__app-title,
+[data-theme="dark"] .headline__eyebrow,
+[data-theme="dark"] .section-intro__eyebrow {
   color: var(--gold);
+}
+
+[data-theme="dark"] .status-chip--live {
+  background: rgba(255, 210, 79, 0.12);
+  border-color: rgba(255, 210, 79, 0.38);
 }
 
 .headline {
@@ -1222,6 +1230,13 @@ a:focus-visible {
   color: var(--gold);
 }
 
+[data-theme="dark"] .nav-tab {
+  border-color: rgba(255, 210, 79, 0.28);
+  background: rgba(255, 210, 79, 0.14);
+  color: var(--gold);
+  box-shadow: none;
+}
+
 [data-theme="dark"] .button--primary,
 [data-theme="dark"] .toggle.is-on,
 [data-theme="dark"] .mode-switch__button.is-active,
@@ -1653,7 +1668,11 @@ a:focus-visible {
 }
 
 [data-theme="dark"] .metric-card--gold {
-  color: rgb(12, 28, 43);
+  border-color: rgba(255, 210, 79, 0.34);
+  background:
+    linear-gradient(135deg, rgba(255, 210, 79, 0.18), rgba(255, 210, 79, 0.08)),
+    var(--surface);
+  color: var(--gold);
 }
 
 [data-theme="dark"] .metric-card--blue,
@@ -1699,6 +1718,19 @@ a:focus-visible {
 [data-theme="dark"] .disclosure-panel summary::after {
   background: rgba(255, 210, 79, 0.13);
   color: var(--gold);
+}
+
+[data-theme="dark"] .jeopardy-tile {
+  border-color: rgba(255, 210, 79, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 210, 79, 0.18), rgba(255, 210, 79, 0.09)),
+    var(--surface-soft);
+  color: var(--gold);
+}
+
+[data-theme="dark"] .jeopardy-tile.is-answered {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
 }
 
 [data-theme="dark"] code {
