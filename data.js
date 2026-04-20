@@ -1412,11 +1412,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "If 4 millicuries of [20'T] thallous chloride is the prescribed unit dosage, which of the following dose calibrator measurements, acconting to the NRC, verifies that a dosage within acceptable limits has been dispensed into the syringe?",
     "options": [
-      "I. 35 mCi I only",
-      "II. 4.0 mCi II only II or Ill only",
-      "III. 4.3 mCi",
-      "IV. 4.5 mCi I, II, or III only",
-      "I, II, III, or IV"
+      "A. 35 mCi A only",
+      "B. 4.0 mCi B only B or C only",
+      "C. 4.3 mCi",
+      "D. 4.5 mCi A, B, or C only",
+      "A, B, C, or D"
     ],
     "answerIndex": 4,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10CFR 35.63). The NRC states that the administered dosage must fall within the prescribed dosage range or may not differ from the prescribed dosage by more than 20%. If the prescribed dosage is 4 mCi, the measured dosage must be between 3.2 and 4/8 mCi (#20% of 4 mCi).",
@@ -3414,11 +3414,11 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "To calculate the yield of a 99Mo/99mTc generator, in what sequence should the following steps be performed?",
     "options": [
-      "I, II, III, IV, V",
-      "V, II, IV, I, III",
-      "IV, II, V, III, I",
-      "I, V, II, IV, III",
-      "II, V, I, IV, III"
+      "A, B, C, D, E",
+      "E, B, D, A, C",
+      "D, B, E, C, A",
+      "A, E, B, D, C",
+      "B, E, A, D, C"
     ],
     "answerIndex": 1,
     "explanation": "Generator yield—amount of 99mTc that may be eluted from a 99Mo/99mTc generator-— is calculated by using decay equations that determine the amount of 99mTc formed from the decay of 99Mo at any given time. The sequence for calculating the generator yield is as follows:",
@@ -3590,11 +3590,11 @@ export const QUESTION_BANK = [
     "difficulty": 2,
     "question": "Venipuncture materials labeled with which of the following expiration dates may be used safely on August 10, 2017?",
     "options": [
-      "I. July 31, 2017 IV only",
-      "II. August 31, 2017 III or IV only",
-      "III. September 30, 2017 II or IlI only",
-      "IV. October 1, 2018 II, III, or IV only",
-      "I, II, III, or IV"
+      "A. July 31, 2017 D only",
+      "B. August 31, 2017 C or D only",
+      "C. September 30, 2017 B or C only",
+      "D. October 1, 2018 B, C, or D only",
+      "A, B, C, or D"
     ],
     "answerIndex": 3,
     "explanation": "Material that has passed its expiration date should not be used with patients. In the case of venipuncture materials, the sterility of the materials may be compromised.",
@@ -6661,13 +6661,13 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 1,
-    "question": "A [99mTc] medronate image of the region shown would best demonstrate which of the following structures? I. iliac crests II. distal femur IIl. ischium IV. thoracic vertebrae 10-12",
+    "question": "A [99mTc] medronate image of the region shown would best demonstrate which of the following structures? A. iliac crests B. distal femur C. ischium D. thoracic vertebrae 10-12",
     "options": [
-      "III and IV only",
-      "I and III only",
-      "Ill only",
-      "I, III, and IV only",
-      "I, II, III, and IV"
+      "C and D only",
+      "A and C only",
+      "C only",
+      "A, C, and D only",
+      "A, B, C, and D"
     ],
     "answerIndex": 2,
     "explanation": "The diagram depicts a posterior view of the lower lumbar spine, the pelvis, and the proximal femurs. The iliac crests would be demonstrated on an anterior view of the pelvis. The distal femurs and the tenth through twelfth thoracic vertebrae are inferior and superior, respectively, to the structures shown in the diagram.",
@@ -7277,13 +7277,13 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "protocol",
     "difficulty": 4,
-    "question": "The following studies are ordered for a patient: I. ERPF determination; II. total-body bone imaging; III. [111In] pentetreotide imaging. In which order should the studies be performed so they do not interfere with one another and they can be accomplished in the shortest amount of time?",
+    "question": "The following studies are ordered for a patient: A. ERPF determination; B. total-body bone imaging; C. [111In] pentetreotide imaging. In which order should the studies be performed so they do not interfere with one another and they can be accomplished in the shortest amount of time?",
     "options": [
-      "I, II, III",
-      "I, III, II",
-      "II, I, III",
-      "III, II, I",
-      "II, III, I"
+      "A, B, C",
+      "A, C, B",
+      "B, A, C",
+      "C, B, A",
+      "B, C, A"
     ],
     "answerIndex": 0,
     "explanation": "In general, a quantitative study—any study whose results are a number—should be performed first, so radioactivity from another study does not interfere with or have to be accounted for when calculating the results of a quantitative study. An ERPF is performed with [99mTc] mertiatide. This radiopharmaceutical clears the kidneys quickly. Its 6-hr half-life is short enough to permit bone imaging the next day. [111In] pentetreotide imaging should be performed last. 111In has a three-day half-life, and the tracer may remain in the body for an extended period.",
@@ -9089,11 +9089,11 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "Normal sinus rhythm is characterized by which of the following?",
     "options": [
-      "I. 60-100 beats/min I and Il only",
-      "II. R wave occurs at constant intervals I and III only",
-      "III. PR interval 0.12-0.20 sec long Il and III only",
-      "I, II, and III",
-      "IlI only"
+      "A. 60-100 beats/min A and B only",
+      "B. R wave occurs at constant intervals A and C only",
+      "C. PR interval 0.12-0.20 sec long B and C only",
+      "A, B, and C",
+      "C only"
     ],
     "answerIndex": 3,
     "explanation": "The characteristics of normal sinus rhythm as they appear on an ECG tracing are: (1) heart rate of 60-100 beats per minute, (2) R waves at regular intervals (variance of less than 0.12 sec), (3) P waves present and precede QRS complex, (4) PR interval between 0.12 and 0.20 sec long, and (5) QRS complex less than 0.12 sec.",
@@ -11650,11 +11650,11 @@ export const QUESTION_BANK = [
     "difficulty": 2,
     "question": "Which of the following quantitative renal techniques require(s) the calculation of kidney depth?",
     "options": [
-      "I. Schlegel technique I Il and III",
-      "II. Gates' method",
-      "III. Two-compartment effective renal plasma flow (ERPF) IlI and IV II and IV",
+      "A. Schlegel technique A, B, and C",
+      "B. Gates' method",
+      "C. Two-compartment effective renal plasma flow (ERPF) C and D B and D",
       "determination",
-      "IV. Russell's glomerular filtration rate (GFR) method I and II is to:"
+      "D. Russell's glomerular filtration rate (GFR) method A and B is to:"
     ],
     "answerIndex": 4,
     "explanation": "sampling. These methods allow determination of these parameters separately for each kidney and derive values for global renal function.",
