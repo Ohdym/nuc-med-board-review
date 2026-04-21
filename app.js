@@ -903,16 +903,15 @@ function applyOnlineQuizSession(session) {
         : null;
     state.onlineQuiz.lastQuestionId = nextQuestionId;
   }
-  const revealKey =
+  const completionKey =
     session &&
-    session.status === "reveal" &&
-    session.activeQuestion &&
-    session.activeQuestion.viewerAnswer &&
+    session.viewerProgress &&
+    session.viewerProgress.finished &&
     state.account.auth
-      ? `${session.code}:${session.activeQuestion.questionId}:${session.activeQuestion.number}`
+      ? `${session.code}:${session.viewerProgress.finishedAt || session.viewerProgress.correctCount || 0}`
       : null;
-  if (revealKey && state.onlineQuiz.lastSyncedRevealKey !== revealKey) {
-    state.onlineQuiz.lastSyncedRevealKey = revealKey;
+  if (completionKey && state.onlineQuiz.lastSyncedRevealKey !== completionKey) {
+    state.onlineQuiz.lastSyncedRevealKey = completionKey;
     refreshAccountSession();
   }
   const analytics = Array.isArray(session && session.analytics) ? session.analytics : [];
@@ -923,6 +922,57 @@ function applyOnlineQuizSession(session) {
     state.onlineQuiz.selectedParticipantId = analytics[0] ? analytics[0].id : "all";
   }
   state.onlineQuiz.session = session;
+}
+
+function getOnlineQuizViewerProgress(session = state.onlineQuiz.session) {
+  return session && session.viewerProgress ? session.viewerProgress : null;
+}
+
+function getOnlineQuizActiveQuestion(session = state.onlineQuiz.session) {
+  return session && session.activeQuestion ? session.activeQuestion : null;
+}
+
+async function saveOnlineQuizCurrentAnswer() {
+  const active = getOnlineQuizActiveQuestion();
+  if (!active || state.onlineQuiz.answerIndex === null) {
+    return true;
+  }
+
+  await sendOnlineQuizAction("answer", {
+    questionIndex: Number(active.number || 1) - 1,
+    answerIndex: state.onlineQuiz.answerIndex,
+  });
+  return state.onlineQuiz.tone !== "error";
+}
+
+async function navigateOnlineQuizQuestion(nextIndex) {
+  const progress = getOnlineQuizViewerProgress();
+  if (!progress || progress.finished) {
+    return;
+  }
+
+  const maxIndex = Math.max(0, Number(progress.total || 1) - 1);
+  const targetIndex = clamp(Number(nextIndex) || 0, 0, maxIndex);
+  const didSave = await saveOnlineQuizCurrentAnswer();
+  if (!didSave) {
+    return;
+  }
+
+  await sendOnlineQuizAction("navigate", { questionIndex: targetIndex });
+}
+
+async function finishOnlineQuizSession() {
+  const progress = getOnlineQuizViewerProgress();
+  if (!progress || progress.finished) {
+    return;
+  }
+
+  const didSave = await saveOnlineQuizCurrentAnswer();
+  if (!didSave) {
+    return;
+  }
+
+  await sendOnlineQuizAction("finish");
 }
 
 async function sendOnlineQuizAction(action, payload = {}) {
@@ -2543,12 +2593,75 @@ function getAllQuestionFlags() {
   return isInstructor() ? state.questionFlags.all : state.questionFlags.mine;
 }
 
+function getQuestionFlagsForTarget(questionId, targetType = "question", answerIndex = null) {
+  const key = getQuestionFlagKey(questionId, targetType, answerIndex);
+  return getAllQuestionFlags().filter((flag) => {
+    return getQuestionFlagKey(flag.questionId, flag.targetType, flag.answerIndex) === key;
+  });
+}
+
+function targetHasFlags(questionId, targetType = "question", answerIndex = null) {
+  return getQuestionFlagsForTarget(questionId, targetType, answerIndex).length > 0;
+}
+
 function questionHasFlags(questionId) {
   return getAllQuestionFlags().some((flag) => String(flag.questionId) === String(questionId));
 }
 
 function getFlagCount(questionId) {
   return getAllQuestionFlags().filter((flag) => String(flag.questionId) === String(questionId)).length;
+}
+
+function getQuestionFlagSummary(questionId) {
+  const flags = getAllQuestionFlags().filter((flag) => String(flag.questionId) === String(questionId));
+  if (!flags.length) {
+    return [];
+  }
+
+  const grouped = new Map();
+  flags.forEach((flag) => {
+    const key = getQuestionFlagKey(flag.questionId, flag.targetType, flag.answerIndex);
+    const existing =
+      grouped.get(key) || {
+        key,
+        label: formatFlagTarget(flag),
+        count: 0,
+        reporters: new Set(),
+      };
+    existing.count += 1;
+    if (flag.displayName || flag.username) {
+      existing.reporters.add(flag.displayName || flag.username);
+    }
+    grouped.set(key, existing);
+  });
+
+  return [...grouped.values()].map((item) => ({
+    ...item,
+    reporters: [...item.reporters],
+  }));
+}
+
+function renderQuestionFlagSummary(questionId) {
+  const summary = getQuestionFlagSummary(questionId);
+  if (!summary.length) {
+    return "";
+  }
+
+  return `
+    <div class="flag-summary">
+      ${summary
+        .map((item) => {
+          const reporterText = item.reporters.length ? item.reporters.slice(0, 3).join(", ") : "Signed-in users";
+          return `
+            <article class="flag-summary__item">
+              <strong>${escapeHtml(item.label)}</strong>
+              <span>${item.count} flag${item.count === 1 ? "" : "s"} • ${escapeHtml(reporterText)}</span>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
 }
 
 function formatFlagTarget(flag) {
@@ -2594,18 +2707,14 @@ function renderFlagControl(entry, targetType = "question", answerIndex = null) {
     return "";
   }
 
+  if (isInstructor() && state.activeView === "bank" && state.questionBank.category === "__flagged__") {
+    if (!targetHasFlags(questionId, targetType, answerIndex)) {
+      return "";
+    }
+  }
+
   const active = isFlaggedByCurrentUser(questionId, targetType, answerIndex);
-  const label = active
-    ? isInstructor()
-      ? state.activeView === "bank"
-        ? "Resolve flag"
-        : "Flagged"
-      : "Flagged"
-    : targetType === "answer"
-      ? "Flag answer"
-      : targetType === "explanation"
-        ? "Flag explanation"
-        : "Flag";
+  const label = active && isInstructor() && state.activeView === "bank" ? "Resolve" : "Flag";
   return `
     <button
       type="button"
@@ -3575,6 +3684,10 @@ function getFilteredQuestionBank() {
       return false;
     }
 
+    if (state.questionBank.category !== "__flagged__" && questionHasFlags(question.id)) {
+      return false;
+    }
+
     if (
       state.questionBank.category !== "all" &&
       state.questionBank.category !== "__flagged__" &&
@@ -3777,17 +3890,18 @@ function renderQuestionBankView() {
               ${questions
                 .map((question) => {
                   const origin = getQuestionOrigin(question);
-                  return `
-                    <article class="review-card review-card--bank">
-                      <div class="review-card__header">
-                        <span>${escapeHtml(formatQuestionBankLabel(question))}</span>
-                        <strong>${getFlagCount(question.id) ? `${getFlagCount(question.id)} flag(s)` : origin === "shared" ? "Shared Seeded" : "Imported Local"}</strong>
-                      </div>
-                      <div class="question-card__meta">
-                        <span class="pill">${escapeHtml(question.category)}</span>
-                        <span class="pill">${escapeHtml(question.topic)}</span>
-                        <span class="pill">${escapeHtml(question.type)}</span>
-                      </div>
+	                  return `
+	                    <article class="review-card review-card--bank">
+	                      <div class="review-card__header">
+	                        <span>${escapeHtml(formatQuestionBankLabel(question))}</span>
+	                        <strong>${getFlagCount(question.id) ? `${getFlagCount(question.id)} flag(s)` : origin === "shared" ? "Shared Seeded" : "Imported Local"}</strong>
+	                      </div>
+	                      ${state.questionBank.category === "__flagged__" ? renderQuestionFlagSummary(question.id) : ""}
+	                      <div class="question-card__meta">
+	                        <span class="pill">${escapeHtml(question.category)}</span>
+	                        <span class="pill">${escapeHtml(question.topic)}</span>
+	                        <span class="pill">${escapeHtml(question.type)}</span>
+	                      </div>
                       ${renderQuestionMedia(question)}
                       ${renderQuestionBankEditor(question)}
                     </article>
@@ -4209,7 +4323,7 @@ function renderInstructorFlaggedReview() {
     <div class="panel__header panel__header--inline">
       <div>
         <h3>Flagged question review</h3>
-        <p>Questions or answer choices students marked for possible spelling, missing-letter, or content issues.</p>
+        <p>Questions, answers, or explanations students marked for possible spelling, missing-letter, or content issues.</p>
       </div>
       <div class="question-card__actions">
         <button type="button" class="button button--ghost button--compact" data-action="open-flagged-question-bank">
@@ -4308,30 +4422,34 @@ function renderInstructorOnlineQuizAnalysis(session) {
                               `,
                             )
                             .join("")
-                        : `<div class="empty-state"><strong>No recorded answers yet.</strong><p>This participant has not answered a revealed quiz question yet.</p></div>`
+                        : `<div class="empty-state"><strong>No recorded answers yet.</strong><p>This participant has not finished the online quiz yet.</p></div>`
                     }
                   </div>
                 `
                 : `
                   <div class="history-list">
                     ${analytics
-                      .map(
-                        (participant) => `
-                          <article class="history-row">
-                            <div>
-                              <strong>${escapeHtml(participant.username)}</strong>
-                              <span>${participant.isHost ? "Host" : "Participant"} • ${participant.answeredCount} answered • ${participant.correctCount} correct</span>
-                            </div>
-                            <strong>${formatPercent(Number(participant.accuracy) || 0)}</strong>
-                          </article>
-                        `,
-                      )
+	                      .map(
+	                        (participant) => `
+	                          <article class="history-row">
+	                            <div>
+	                              <strong>${escapeHtml(participant.username)}</strong>
+	                              <span>${participant.isHost ? "Host" : "Participant"} • ${
+	                                participant.completed ? "Finished" : "In progress"
+	                              } • ${participant.answeredCount} answered • ${
+	                                participant.completed ? `${participant.correctCount} correct` : "Results pending"
+	                              }</span>
+	                            </div>
+	                            <strong>${participant.completed ? formatPercent(Number(participant.accuracy) || 0) : "--"}</strong>
+	                          </article>
+	                        `,
+	                      )
                       .join("")}
                   </div>
                 `
             }
           `
-          : `<div class="empty-state"><strong>No online quiz answers yet.</strong><p>Analytics appear here after participants answer revealed online quiz questions.</p></div>`
+          : `<div class="empty-state"><strong>No online quiz answers yet.</strong><p>Analytics appear here after participants finish their online quiz attempts.</p></div>`
       }
     </section>
   `;
@@ -4689,8 +4807,9 @@ function renderOnlineQuizPanel() {
       ? session.participants.find((participant) => participant.id === state.onlineQuiz.auth.participantId)
       : null;
   const isHost = Boolean(selfParticipant && selfParticipant.isHost);
-  const active = session ? session.activeQuestion : null;
-  const analytics = Array.isArray(session && session.analytics) ? session.analytics : [];
+  const active = getOnlineQuizActiveQuestion(session);
+  const progress = getOnlineQuizViewerProgress(session);
+  const isFinished = Boolean(progress && progress.finished);
   const selectedAnswer =
     active && active.viewerAnswer && Number.isInteger(active.viewerAnswer.selectedIndex)
       ? active.viewerAnswer.selectedIndex
@@ -4701,7 +4820,7 @@ function renderOnlineQuizPanel() {
     <section class="panel online-quiz-panel">
       <div class="panel__header">
         <h3>Online Quiz</h3>
-        <p>Join an instructor-selected custom quiz lobby with a shared join code. Only the instructor host can create a lobby.</p>
+        <p>Join an instructor-selected custom quiz lobby with a shared join code. The instructor opens the lobby, then each participant moves through the quiz independently and sees results only after finishing.</p>
       </div>
       <div class="split-layout">
         <div class="mode-panel">
@@ -4774,6 +4893,10 @@ function renderOnlineQuizPanel() {
                 <span class="insight-card__label">Participants</span>
                 <strong>${session.participants.length}</strong>
               </div>
+              <div>
+                <span class="insight-card__label">Completed</span>
+                <strong>${session.completedCount || 0}</strong>
+              </div>
             </div>
             ${
               session.status === "lobby" && isHost
@@ -4783,12 +4906,12 @@ function renderOnlineQuizPanel() {
             ${
               active
                 ? `
-                  <article class="question-card question-card--practice ${session.status === "reveal" ? "question-card--answered" : ""}">
+                  <article class="question-card question-card--practice ${isFinished ? "question-card--answered" : ""}">
                     ${renderFlagControl(active)}
                     <div class="question-card__meta">
-                      <span class="pill">Question ${active.number} of ${active.total}</span>
+                      <span class="pill">${isFinished ? "Review" : "Question"} ${active.number} of ${active.total}</span>
                       <span class="pill">${escapeHtml(active.category || "Category")}</span>
-                      <span class="pill">${active.answerCount} answered</span>
+                      <span class="pill">${progress ? `${progress.answeredCount}/${progress.total} answered` : "Waiting"}</span>
                     </div>
                     <h3>${formatScientificText(active.question)}</h3>
                     ${renderQuestionMedia(active)}
@@ -4798,8 +4921,8 @@ function renderOnlineQuizPanel() {
                           const classes = [
                             "option",
                             selectedAnswer === index ? "is-selected" : "",
-                            session.status === "reveal" && active.correctAnswerIndex === index ? "is-correct" : "",
-                            session.status === "reveal" &&
+                            isFinished && active.correctAnswerIndex === index ? "is-correct" : "",
+                            isFinished &&
                             selectedAnswer === index &&
                             active.correctAnswerIndex !== index
                               ? "is-wrong"
@@ -4813,13 +4936,13 @@ function renderOnlineQuizPanel() {
                             index,
                             classes,
                             "select-online-quiz-answer",
-                            session.status !== "question",
+                            isFinished || session.status !== "active",
                           );
                         })
                         .join("")}
                     </div>
                     ${
-                      session.status === "reveal"
+                      isFinished
                         ? `
                           <div class="feedback ${
                             active.viewerAnswer && active.viewerAnswer.correct ? "feedback--correct" : "feedback--wrong"
@@ -4836,27 +4959,42 @@ function renderOnlineQuizPanel() {
                     }
                     <div class="question-card__actions">
                       ${
-                        session.status === "question"
-                          ? `<button type="button" class="button button--primary" data-action="submit-online-quiz-answer" ${
-                              state.onlineQuiz.answerIndex === null || state.onlineQuiz.busy ? "disabled" : ""
-                            }>Submit answer</button>`
+                        !isFinished
+                          ? `<button type="button" class="button button--ghost" data-action="online-quiz-prev" ${
+                              !progress || progress.currentIndex <= 0 || state.onlineQuiz.busy ? "disabled" : ""
+                            }>Previous</button>`
                           : ""
                       }
                       ${
-                        session.status === "question" && isHost
-                          ? `<button type="button" class="button button--ghost" data-action="reveal-online-quiz" ${state.onlineQuiz.busy ? "disabled" : ""}>Reveal answer</button>`
+                        !isFinished
+                          ? `<button type="button" class="button button--primary" data-action="${
+                              progress && progress.currentIndex >= progress.total - 1 ? "finish-online-quiz" : "online-quiz-next"
+                            }" ${state.onlineQuiz.busy ? "disabled" : ""}>${
+                              progress && progress.currentIndex >= progress.total - 1 ? "Finish quiz" : "Next question"
+                            }</button>`
                           : ""
                       }
                       ${
-                        session.status === "reveal" && isHost
-                          ? `<button type="button" class="button button--primary" data-action="next-online-quiz" ${state.onlineQuiz.busy ? "disabled" : ""}>${active.number >= active.total ? "Finish quiz" : "Next question"}</button>`
+                        isFinished
+                          ? `<button type="button" class="button button--ghost" data-action="online-quiz-prev" ${
+                              !progress || progress.currentIndex <= 0 || state.onlineQuiz.busy ? "disabled" : ""
+                            }>Previous</button>`
+                          : ""
+                      }
+                      ${
+                        isFinished
+                          ? `<button type="button" class="button button--primary" data-action="online-quiz-next" ${
+                              !progress || progress.currentIndex >= progress.total - 1 || state.onlineQuiz.busy ? "disabled" : ""
+                            }>Next review item</button>`
                           : ""
                       }
                     </div>
                   </article>
                 `
                 : session.status === "finished"
-                  ? `<div class="empty-state"><strong>Online quiz complete.</strong><p>The participant list below is sorted by score.</p></div>`
+                  ? `<div class="empty-state"><strong>Online quiz complete.</strong><p>The participant list below is sorted by completed score.</p></div>`
+                  : session.status === "active"
+                    ? `<div class="empty-state"><strong>Quiz is in progress.</strong><p>Refresh if you just joined and your first question is not showing yet.</p></div>`
                   : ""
             }
             <div class="player-list">
@@ -4865,7 +5003,9 @@ function renderOnlineQuizPanel() {
                   (participant) => `
                     <article class="player-row">
                       <strong>${escapeHtml(participant.username)}</strong>
-                      <span>${participant.isHost ? "Host" : "Participant"} • ${participant.connected ? "Active" : "Joined"} • ${participant.score || 0}/${session.questionCount}</span>
+                      <span>${participant.isHost ? "Host" : "Participant"} • ${participant.connected ? "Active" : "Joined"} • ${
+                        participant.finished ? `Finished • ${participant.score || 0}/${session.questionCount}` : `${participant.answeredCount || 0}/${session.questionCount} answered`
+                      }</span>
                     </article>
                   `,
                 )
@@ -6883,20 +7023,24 @@ app.addEventListener("click", (event) => {
     state.onlineQuiz.answerIndex = Number(button.dataset.index);
   }
 
-  if (action === "submit-online-quiz-answer") {
-    sendOnlineQuizAction("answer", { answerIndex: state.onlineQuiz.answerIndex }).finally(renderApp);
-    return;
-  }
-
-  if (action === "reveal-online-quiz") {
-    sendOnlineQuizAction("reveal").finally(renderApp);
-    return;
-  }
-
-  if (action === "next-online-quiz") {
+  if (action === "online-quiz-prev") {
     flushPendingQuestionFlags()
       .catch(() => {})
-      .finally(() => sendOnlineQuizAction("next").finally(renderApp));
+      .finally(() => navigateOnlineQuizQuestion((getOnlineQuizViewerProgress()?.currentIndex || 0) - 1).finally(renderApp));
+    return;
+  }
+
+  if (action === "online-quiz-next") {
+    flushPendingQuestionFlags()
+      .catch(() => {})
+      .finally(() => navigateOnlineQuizQuestion((getOnlineQuizViewerProgress()?.currentIndex || 0) + 1).finally(renderApp));
+    return;
+  }
+
+  if (action === "finish-online-quiz") {
+    flushPendingQuestionFlags()
+      .catch(() => {})
+      .finally(() => finishOnlineQuizSession().finally(renderApp));
     return;
   }
 

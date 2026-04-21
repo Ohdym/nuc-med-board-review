@@ -1696,8 +1696,6 @@ class OnlineQuizSession:
         self.participants = {}
         self.host_participant_id = None
         self.status = "lobby"
-        self.current_index = 0
-        self.answers = {}
         self._create_participant(host_name, is_host=True, account_username=host_account_username)
 
     def _create_participant(self, username, is_host=False, account_username=None):
@@ -1712,6 +1710,10 @@ class OnlineQuizSession:
             "connected": True,
             "score": 0,
             "joined_at": time.time(),
+            "started_at": None,
+            "current_index": 0,
+            "answers": {},
+            "finished_at": None,
             "results": [],
         }
         self.participants[participant_id] = participant
@@ -1758,6 +1760,8 @@ class OnlineQuizSession:
                 if participant.get("account_username") == account_username:
                     participant["connected"] = True
                     participant["token"] = secrets.token_urlsafe(18)
+                    if self.status == "active" and participant.get("finished_at") is None:
+                        participant["started_at"] = participant.get("started_at") or time.time()
                     return participant
 
         for participant in self.participants.values():
@@ -1766,14 +1770,24 @@ class OnlineQuizSession:
                     continue
                 participant["connected"] = True
                 participant["token"] = secrets.token_urlsafe(18)
+                if self.status == "active" and participant.get("finished_at") is None:
+                    participant["started_at"] = participant.get("started_at") or time.time()
                 return participant
 
-        return self._create_participant(username, account_username=account_username)
+        participant = self._create_participant(username, account_username=account_username)
+        if self.status == "active":
+            participant["started_at"] = time.time()
+        return participant
 
-    def active_question(self):
-        if self.status not in {"question", "reveal"} or self.current_index >= len(self.question_ids):
+    def active_question_for_participant(self, participant):
+        if self.status not in {"active", "finished"} or not self.question_ids:
             return None
-        question_id = self.question_ids[self.current_index]
+        if not participant:
+            return None
+        current_index = int(participant.get("current_index") or 0)
+        current_index = max(0, min(current_index, len(self.question_ids) - 1))
+        participant["current_index"] = current_index
+        question_id = self.question_ids[current_index]
         return QUESTION_BY_ID.get(question_id)
 
     def start(self, token):
@@ -1783,18 +1797,34 @@ class OnlineQuizSession:
                 text=json.dumps({"error": "This online quiz does not have any questions."}),
                 content_type="application/json",
             )
-        self.status = "question"
-        self.current_index = 0
-        self.answers = {}
+        self.status = "active"
+        for participant in self.participants.values():
+            participant["score"] = 0
+            participant["started_at"] = time.time()
+            participant["current_index"] = 0
+            participant["answers"] = {}
+            participant["finished_at"] = None
+            participant["results"] = []
 
-    def submit_answer(self, token, answer_index):
+    def submit_answer(self, token, question_index, answer_index):
         participant = self.require_participant_by_token(token)
-        if self.status != "question":
+        if self.status != "active":
             raise web.HTTPBadRequest(
                 text=json.dumps({"error": "The online quiz is not accepting answers right now."}),
                 content_type="application/json",
             )
-        question = self.active_question()
+        if participant.get("finished_at"):
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "This participant has already finished the online quiz."}),
+                content_type="application/json",
+            )
+        if question_index < 0 or question_index >= len(self.question_ids):
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "Choose a valid online quiz question."}),
+                content_type="application/json",
+            )
+        question_id = self.question_ids[question_index]
+        question = QUESTION_BY_ID.get(question_id)
         if not question:
             raise web.HTTPBadRequest(
                 text=json.dumps({"error": "No active question was found."}),
@@ -1805,39 +1835,49 @@ class OnlineQuizSession:
                 text=json.dumps({"error": "Choose a valid answer option."}),
                 content_type="application/json",
             )
-        self.answers[participant["id"]] = {
-            "selectedIndex": answer_index,
-            "correct": answer_index == int(question.get("answerIndex", -1)),
-        }
+        participant.setdefault("answers", {})[question_id] = int(answer_index)
 
-    def reveal(self, token):
-        self.require_host_by_token(token)
-        if self.status != "question":
+    def navigate(self, token, question_index):
+        participant = self.require_participant_by_token(token)
+        if self.status not in {"active", "finished"}:
             raise web.HTTPBadRequest(
-                text=json.dumps({"error": "There is no active question to reveal."}),
+                text=json.dumps({"error": "Start the online quiz before moving through questions."}),
                 content_type="application/json",
             )
-        question = self.active_question()
-        if not question:
+        if question_index < 0 or question_index >= len(self.question_ids):
             raise web.HTTPBadRequest(
-                text=json.dumps({"error": "No active question was found."}),
+                text=json.dumps({"error": "Choose a valid online quiz question."}),
                 content_type="application/json",
             )
+        participant["current_index"] = int(question_index)
 
+    def finish(self, token):
+        participant = self.require_participant_by_token(token)
+        if self.status != "active":
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "Start the online quiz before finishing it."}),
+                content_type="application/json",
+            )
+        if participant.get("finished_at"):
+            return
+
+        answers = participant.setdefault("answers", {})
         recorded_attempts = []
         timestamp = int(time.time() * 1000)
-        for participant_id, participant in self.participants.items():
-            answer = self.answers.get(participant_id) or {}
-            selected_index = answer.get("selectedIndex")
-            correct = bool(answer.get("correct"))
+        results = []
+        correct_count = 0
+        for index, question_id in enumerate(self.question_ids):
+            question = QUESTION_BY_ID.get(question_id)
+            if not question:
+                continue
+            selected_index = answers.get(question_id)
+            correct = selected_index == int(question.get("answerIndex", -1))
             if correct:
-                participant["score"] += 1
-
-            participant.setdefault("results", []).append({
+                correct_count += 1
+            summary = self.question_summaries[index] if index < len(self.question_summaries) else {}
+            results.append({
                 "questionId": question["id"],
-                "label": self.question_summaries[self.current_index].get("label", question["id"])
-                if self.current_index < len(self.question_summaries)
-                else question["id"],
+                "label": summary.get("label", question["id"]),
                 "question": question.get("question") or question["id"],
                 "category": question.get("category") or "Unknown",
                 "topic": question.get("topic") or "Unknown",
@@ -1845,6 +1885,8 @@ class OnlineQuizSession:
                 "correctAnswerIndex": int(question.get("answerIndex", -1)),
                 "correct": correct,
                 "timestamp": timestamp,
+                "explanation": question.get("explanation") or "",
+                "source": question.get("source") or "",
             })
 
             record_shared_attempt(
@@ -1867,30 +1909,22 @@ class OnlineQuizSession:
                             "difficulty": int(question.get("difficulty") or 1),
                             "mode": "online-quiz",
                             "correct": correct,
-                            "timestamp": timestamp,
+                            "timestamp": timestamp + index,
                         },
                     )
                 )
 
+        participant["results"] = results
+        participant["score"] = correct_count
+        participant["finished_at"] = timestamp
+        participant["current_index"] = 0
         for username, attempt in recorded_attempts:
             record_user_attempts(username, [attempt])
-
-        self.status = "reveal"
-
-    def next_question(self, token):
-        self.require_host_by_token(token)
-        if self.status not in {"reveal", "question"}:
-            raise web.HTTPBadRequest(
-                text=json.dumps({"error": "Start the online quiz before advancing."}),
-                content_type="application/json",
-            )
-        if self.current_index + 1 >= len(self.question_ids):
+        if self.completed_count() >= len(self.participants):
             self.status = "finished"
-            self.answers = {}
-            return
-        self.current_index += 1
-        self.answers = {}
-        self.status = "question"
+
+    def completed_count(self):
+        return sum(1 for participant in self.participants.values() if participant.get("finished_at"))
 
     def participant_analytics(self):
         analytics = []
@@ -1899,8 +1933,9 @@ class OnlineQuizSession:
             key=lambda item: (-item["score"], item["joined_at"]),
         ):
             results = list(participant.get("results", []))
-            answered_count = sum(1 for result in results if result.get("selectedIndex") is not None)
-            correct_count = sum(1 for result in results if result.get("correct"))
+            answers = participant.get("answers", {})
+            answered_count = sum(1 for answer in answers.values() if answer is not None)
+            correct_count = sum(1 for result in results if result.get("correct")) if results else 0
             accuracy = round((correct_count / answered_count) * 100, 1) if answered_count else 0
             analytics.append({
                 "id": participant["id"],
@@ -1908,6 +1943,7 @@ class OnlineQuizSession:
                 "accountUsername": participant.get("account_username"),
                 "isHost": participant["is_host"],
                 "score": participant["score"],
+                "completed": bool(participant.get("finished_at")),
                 "answeredCount": answered_count,
                 "correctCount": correct_count,
                 "accuracy": accuracy,
@@ -1921,16 +1957,25 @@ class OnlineQuizSession:
             self.participants.values(),
             key=lambda participant: (-participant["score"], participant["joined_at"]),
         )
-        question = self.active_question()
+        question = self.active_question_for_participant(viewer) if viewer else None
         active = None
         if question:
-            viewer_answer = self.answers.get(viewer["id"]) if viewer else None
+            current_index = int(viewer.get("current_index") or 0)
+            viewer_answers = viewer.get("answers", {}) if viewer else {}
+            selected_index = viewer_answers.get(question["id"])
+            viewer_answer = None
+            if selected_index is not None:
+                viewer_answer = {
+                    "selectedIndex": selected_index,
+                }
+                if viewer.get("finished_at"):
+                    viewer_answer["correct"] = selected_index == int(question.get("answerIndex", -1))
             active = {
                 "questionId": question["id"],
-                "number": self.current_index + 1,
+                "number": current_index + 1,
                 "total": len(self.question_ids),
-                "label": self.question_summaries[self.current_index].get("label", question["id"])
-                if self.current_index < len(self.question_summaries)
+                "label": self.question_summaries[current_index].get("label", question["id"])
+                if current_index < len(self.question_summaries)
                 else question["id"],
                 "category": question.get("category"),
                 "topic": question.get("topic"),
@@ -1940,13 +1985,28 @@ class OnlineQuizSession:
                 "imageAlt": question.get("imageAlt"),
                 "imageCaption": question.get("imageCaption"),
                 "options": question.get("options", []),
-                "answerCount": len(self.answers),
+                "answerCount": self.completed_count(),
                 "viewerAnswer": viewer_answer,
             }
-            if self.status == "reveal":
+            if viewer and viewer.get("finished_at"):
                 active["correctAnswerIndex"] = question.get("answerIndex")
                 active["explanation"] = question.get("explanation")
                 active["source"] = question.get("source")
+
+        viewer_progress = None
+        if viewer:
+            answers = viewer.get("answers", {})
+            answered_count = sum(1 for answer in answers.values() if answer is not None)
+            results = viewer.get("results", [])
+            correct_count = sum(1 for result in results if result.get("correct")) if results else 0
+            viewer_progress = {
+                "currentIndex": int(viewer.get("current_index") or 0),
+                "answeredCount": answered_count,
+                "correctCount": correct_count,
+                "total": len(self.question_ids),
+                "finished": bool(viewer.get("finished_at")),
+                "finishedAt": int(viewer.get("finished_at") or 0),
+            }
 
         return {
             "code": self.code,
@@ -1954,8 +2014,10 @@ class OnlineQuizSession:
             "title": self.title,
             "description": self.description,
             "questionCount": len(self.question_ids),
+            "completedCount": self.completed_count(),
             "questions": self.question_summaries[:25],
             "activeQuestion": active,
+            "viewerProgress": viewer_progress,
             "createdAt": int(self.created_at * 1000),
             "hostParticipantId": self.host_participant_id,
             "participants": [
@@ -1965,6 +2027,8 @@ class OnlineQuizSession:
                     "isHost": participant["is_host"],
                     "connected": participant["connected"],
                     "score": participant["score"],
+                    "answeredCount": sum(1 for answer in participant.get("answers", {}).values() if answer is not None),
+                    "finished": bool(participant.get("finished_at")),
                 }
                 for participant in participants
             ],
@@ -2315,11 +2379,15 @@ async def online_quiz_action(request):
     if action == "start":
         session.start(token)
     elif action == "answer":
-        session.submit_answer(token, int(payload.get("answerIndex", -1)))
-    elif action == "reveal":
-        session.reveal(token)
-    elif action == "next":
-        session.next_question(token)
+        session.submit_answer(
+            token,
+            int(payload.get("questionIndex", 0)),
+            int(payload.get("answerIndex", -1)),
+        )
+    elif action == "navigate":
+        session.navigate(token, int(payload.get("questionIndex", 0)))
+    elif action == "finish":
+        session.finish(token)
     else:
         raise web.HTTPBadRequest(
             text=json.dumps({"error": "Unsupported online quiz action."}),

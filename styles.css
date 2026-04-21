@@ -1765,6 +1765,32 @@ a:focus-visible {
   font-size: 0.78rem;
 }
 
+.flag-summary {
+  display: grid;
+  gap: 0.42rem;
+  margin-bottom: 0.62rem;
+}
+
+.flag-summary__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.48rem 0.58rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-glass);
+}
+
+.flag-summary__item strong {
+  font-size: 0.78rem;
+}
+
+.flag-summary__item span {
+  font-size: 0.72rem;
+  color: var(--slate);
+}
+
 .online-quiz-panel .panel {
   margin-top: 0.8rem;
 }
