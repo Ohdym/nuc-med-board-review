@@ -1116,6 +1116,7 @@ function computePerformanceSummary() {
   const total = state.performance.length;
   const correct = state.performance.filter((entry) => entry.correct).length;
   const accuracy = total ? (correct / total) * 100 : 0;
+  const modeStats = groupAttempts(state.performance, "mode");
   const categoryMap = groupAttempts(state.performance, "category");
   const topicMap = groupAttempts(state.performance, "topic");
   const typeMap = groupAttempts(state.performance, "type");
@@ -1134,12 +1135,14 @@ function computePerformanceSummary() {
   const readiness = totalQuestions ? clamp(Math.round((uniqueCorrect / totalQuestions) * 100), 0, 100) : 0;
 
   return {
+    attempts: total,
     total,
     correct,
     accuracy,
     coverage,
     uniqueCorrect,
     readiness,
+    modeStats,
     categoryMap,
     topicMap,
     typeMap,
