@@ -1712,6 +1712,7 @@ class OnlineQuizSession:
             "connected": True,
             "score": 0,
             "joined_at": time.time(),
+            "results": [],
         }
         self.participants[participant_id] = participant
         if is_host:
@@ -1816,9 +1817,64 @@ class OnlineQuizSession:
                 text=json.dumps({"error": "There is no active question to reveal."}),
                 content_type="application/json",
             )
-        for participant_id, answer in self.answers.items():
-            if answer.get("correct") and participant_id in self.participants:
-                self.participants[participant_id]["score"] += 1
+        question = self.active_question()
+        if not question:
+            raise web.HTTPBadRequest(
+                text=json.dumps({"error": "No active question was found."}),
+                content_type="application/json",
+            )
+
+        recorded_attempts = []
+        timestamp = int(time.time() * 1000)
+        for participant_id, participant in self.participants.items():
+            answer = self.answers.get(participant_id) or {}
+            selected_index = answer.get("selectedIndex")
+            correct = bool(answer.get("correct"))
+            if correct:
+                participant["score"] += 1
+
+            participant.setdefault("results", []).append({
+                "questionId": question["id"],
+                "label": self.question_summaries[self.current_index].get("label", question["id"])
+                if self.current_index < len(self.question_summaries)
+                else question["id"],
+                "question": question.get("question") or question["id"],
+                "category": question.get("category") or "Unknown",
+                "topic": question.get("topic") or "Unknown",
+                "selectedIndex": selected_index,
+                "correctAnswerIndex": int(question.get("answerIndex", -1)),
+                "correct": correct,
+                "timestamp": timestamp,
+            })
+
+            record_shared_attempt(
+                participant.get("account_username") or participant["id"],
+                question["id"],
+                correct,
+                "online-quiz",
+            )
+
+            account_username = participant.get("account_username")
+            if account_username and account_username in USER_STORE.get("users", {}):
+                recorded_attempts.append(
+                    (
+                        account_username,
+                        {
+                            "questionId": question["id"],
+                            "category": question.get("category") or "Unknown",
+                            "topic": question.get("topic") or "Unknown",
+                            "type": question.get("type") or "unknown",
+                            "difficulty": int(question.get("difficulty") or 1),
+                            "mode": "online-quiz",
+                            "correct": correct,
+                            "timestamp": timestamp,
+                        },
+                    )
+                )
+
+        for username, attempt in recorded_attempts:
+            record_user_attempts(username, [attempt])
+
         self.status = "reveal"
 
     def next_question(self, token):
@@ -1835,6 +1891,29 @@ class OnlineQuizSession:
         self.current_index += 1
         self.answers = {}
         self.status = "question"
+
+    def participant_analytics(self):
+        analytics = []
+        for participant in sorted(
+            self.participants.values(),
+            key=lambda item: (-item["score"], item["joined_at"]),
+        ):
+            results = list(participant.get("results", []))
+            answered_count = sum(1 for result in results if result.get("selectedIndex") is not None)
+            correct_count = sum(1 for result in results if result.get("correct"))
+            accuracy = round((correct_count / answered_count) * 100, 1) if answered_count else 0
+            analytics.append({
+                "id": participant["id"],
+                "username": participant["username"],
+                "accountUsername": participant.get("account_username"),
+                "isHost": participant["is_host"],
+                "score": participant["score"],
+                "answeredCount": answered_count,
+                "correctCount": correct_count,
+                "accuracy": accuracy,
+                "results": results[-50:],
+            })
+        return analytics
 
     def public_state(self, viewer_token=None):
         viewer = self.get_participant_by_token(viewer_token) if viewer_token else None
@@ -1889,6 +1968,7 @@ class OnlineQuizSession:
                 }
                 for participant in participants
             ],
+            "analytics": self.participant_analytics() if viewer and viewer.get("is_host") else [],
         }
 
 

@@ -203,12 +203,14 @@ const state = {
   },
   onlineQuiz: {
     selectedQuizId: "",
+    selectedParticipantId: "all",
     joinCode: "",
     username: "",
     auth: loadJSON(STORAGE_KEYS.onlineQuizAuth, null),
     session: null,
     answerIndex: null,
     lastQuestionId: null,
+    lastSyncedRevealKey: null,
     busy: false,
     message: "Instructors can host a saved custom quiz with a join code.",
     tone: "info",
@@ -671,9 +673,9 @@ async function loadCustomQuizLibrary(renderWhenDone = true) {
   }
 }
 
-async function syncCustomQuizLibraryToServer() {
+async function syncCustomQuizLibraryToServer({ throwOnError = false } = {}) {
   if (!isInstructor() || customQuizSyncInFlight) {
-    return;
+    return null;
   }
 
   customQuizSyncInFlight = true;
@@ -686,11 +688,16 @@ async function syncCustomQuizLibraryToServer() {
       state.customQuizBuilder.saved,
     );
     saveJSON(STORAGE_KEYS.customQuizzes, state.customQuizBuilder.saved);
+    return data;
   } catch (error) {
     setCustomQuizBuilderMessage(
       "error",
-      error.message || "Custom quizzes are saved locally, but the server sync failed.",
+      error.message || "Custom quizzes are saved locally, but the persistent database sync failed.",
     );
+    if (throwOnError) {
+      throw error;
+    }
+    return null;
   } finally {
     customQuizSyncInFlight = false;
   }
@@ -773,7 +780,7 @@ function setCustomQuizBuilderMessage(tone, message) {
   state.customQuizBuilder.message = message;
 }
 
-function saveCustomQuiz() {
+async function saveCustomQuiz() {
   if (!isInstructor()) {
     setCustomQuizBuilderMessage("error", "Instructor access is required to save custom quizzes.");
     return;
@@ -810,8 +817,23 @@ function saveCustomQuiz() {
   state.customQuizBuilder.title = "";
   state.customQuizBuilder.description = "";
   state.customQuizBuilder.selectedIds = [];
-  persistCustomQuizzes();
-  setCustomQuizBuilderMessage("success", `Saved "${quiz.title}" with ${quiz.questionIds.length} questions.`);
+  saveJSON(STORAGE_KEYS.customQuizzes, state.customQuizBuilder.saved);
+  setCustomQuizBuilderMessage("info", `Saving "${quiz.title}" to the persistent database...`);
+  renderApp();
+
+  try {
+    await syncCustomQuizLibraryToServer({ throwOnError: true });
+    setCustomQuizBuilderMessage(
+      "success",
+      `Saved "${quiz.title}" to the persistent database for online quiz hosting.`,
+    );
+  } catch (error) {
+    setCustomQuizBuilderMessage(
+      "error",
+      error.message || "Custom quiz saved locally, but the persistent database sync failed.",
+    );
+  }
+  renderApp();
 }
 
 function deleteCustomQuiz(quizId) {
@@ -880,6 +902,25 @@ function applyOnlineQuizSession(session) {
         ? session.activeQuestion.viewerAnswer.selectedIndex
         : null;
     state.onlineQuiz.lastQuestionId = nextQuestionId;
+  }
+  const revealKey =
+    session &&
+    session.status === "reveal" &&
+    session.activeQuestion &&
+    session.activeQuestion.viewerAnswer &&
+    state.account.auth
+      ? `${session.code}:${session.activeQuestion.questionId}:${session.activeQuestion.number}`
+      : null;
+  if (revealKey && state.onlineQuiz.lastSyncedRevealKey !== revealKey) {
+    state.onlineQuiz.lastSyncedRevealKey = revealKey;
+    refreshAccountSession();
+  }
+  const analytics = Array.isArray(session && session.analytics) ? session.analytics : [];
+  if (
+    state.onlineQuiz.selectedParticipantId !== "all" &&
+    !analytics.some((participant) => participant.id === state.onlineQuiz.selectedParticipantId)
+  ) {
+    state.onlineQuiz.selectedParticipantId = analytics[0] ? analytics[0].id : "all";
   }
   state.onlineQuiz.session = session;
 }
@@ -3768,6 +3809,7 @@ function renderProfileView(summary) {
   const strongCategories = sortStatEntries(summary.categoryMap, 5, "strong");
   const missed = Math.max(0, summary.total - summary.correct);
   const displayName = state.account.auth ? state.account.auth.displayName : "Local tester";
+  const onlineQuizStats = summary.modeStats["online-quiz"] || { attempts: 0, accuracy: 0, correct: 0 };
 
   return `
     <section class="view">
@@ -3840,6 +3882,8 @@ function renderProfileView(summary) {
         ${renderMetric("Correct Answers", `${summary.correct}`, "blue")}
         ${renderMetric("Missed Answers", `${missed}`, "default")}
         ${renderMetric("Accuracy", formatPercent(summary.accuracy), "default")}
+        ${renderMetric("Online Quiz Accuracy", formatPercent(Number(onlineQuizStats.accuracy) || 0), "gold")}
+        ${renderMetric("Online Quiz Attempts", `${onlineQuizStats.attempts || 0}`, "blue")}
       </div>
       <div class="split-layout">
         <section class="panel">
@@ -4159,49 +4203,133 @@ function renderInstructorFlaggedReview() {
   const totalFlags = getAllQuestionFlags().length;
 
   return `
-    <section class="panel instructor-flag-review">
-      <div class="panel__header panel__header--inline">
-        <div>
-          <h3>Flagged question review</h3>
-          <p>Questions or answer choices students marked for possible spelling, missing-letter, or content issues.</p>
-        </div>
-        <div class="question-card__actions">
-          <button type="button" class="button button--ghost button--compact" data-action="open-flagged-question-bank">
-            Open flagged bank
-          </button>
-        </div>
+    <div class="panel__header panel__header--inline">
+      <div>
+        <h3>Flagged question review</h3>
+        <p>Questions or answer choices students marked for possible spelling, missing-letter, or content issues.</p>
       </div>
-      <div class="card-grid card-grid--metrics">
-        ${renderMetric("Flagged Questions", `${totalFlaggedQuestions}`, "gold")}
-        ${renderMetric("Total Flags", `${totalFlags}`, "blue")}
+      <div class="question-card__actions">
+        <button type="button" class="button button--ghost button--compact" data-action="open-flagged-question-bank">
+          Open flagged bank
+        </button>
       </div>
-      <div class="history-list flag-review-list">
-        ${
-          flaggedQuestions.length
-            ? flaggedQuestions
-                .map((item) => {
-                  const reporters = [...new Set(item.flags.map((flag) => flag.displayName || flag.username).filter(Boolean))]
-                    .slice(0, 4)
-                    .join(", ");
-                  const targets = [...new Set(item.flags.map(formatFlagTarget))].join(", ");
-                  return `
-                    <article class="history-row flag-review-row">
-                      <div>
-                        <strong>${escapeHtml(item.label)}</strong>
-                        <span>${escapeHtml(item.category)} • ${escapeHtml(item.topic)} • ${escapeHtml(targets || "Question")}</span>
-                        <small>${formatScientificText(item.question)}</small>
-                      </div>
-                      <div class="flag-review-row__meta">
-                        <strong>${item.flags.length} flag${item.flags.length === 1 ? "" : "s"}</strong>
-                        <span>${escapeHtml(reporters || "Signed-in users")}</span>
-                      </div>
-                    </article>
-                  `;
-                })
-                .join("")
-            : `<div class="empty-state"><strong>No flagged questions yet.</strong><p>When students flag questions or answers, they will appear here and in the Question Bank flagged filter.</p></div>`
-        }
+    </div>
+    <div class="card-grid card-grid--metrics instructor-flag-review">
+      ${renderMetric("Flagged Questions", `${totalFlaggedQuestions}`, "gold")}
+      ${renderMetric("Total Flags", `${totalFlags}`, "blue")}
+    </div>
+    <div class="history-list flag-review-list">
+      ${
+        flaggedQuestions.length
+          ? flaggedQuestions
+              .map((item) => {
+                const reporters = [...new Set(item.flags.map((flag) => flag.displayName || flag.username).filter(Boolean))]
+                  .slice(0, 4)
+                  .join(", ");
+                const targets = [...new Set(item.flags.map(formatFlagTarget))].join(", ");
+                return `
+                  <article class="history-row flag-review-row">
+                    <div>
+                      <strong>${escapeHtml(item.label)}</strong>
+                      <span>${escapeHtml(item.category)} • ${escapeHtml(item.topic)} • ${escapeHtml(targets || "Question")}</span>
+                      <small>${formatScientificText(item.question)}</small>
+                    </div>
+                    <div class="flag-review-row__meta">
+                      <strong>${item.flags.length} flag${item.flags.length === 1 ? "" : "s"}</strong>
+                      <span>${escapeHtml(reporters || "Signed-in users")}</span>
+                    </div>
+                  </article>
+                `;
+              })
+              .join("")
+          : `<div class="empty-state"><strong>No flagged questions yet.</strong><p>When students flag questions or answers, they will appear here and in the Question Bank flagged filter.</p></div>`
+      }
+    </div>
+  `;
+}
+
+function renderInstructorOnlineQuizAnalysis(session) {
+  const analytics = Array.isArray(session && session.analytics) ? session.analytics : [];
+  const selectedId = state.onlineQuiz.selectedParticipantId;
+  const selectedParticipant =
+    selectedId === "all" ? null : analytics.find((participant) => participant.id === selectedId) || null;
+
+  return `
+    <section class="panel">
+      <div class="panel__header">
+        <h3>Online quiz performance analysis</h3>
+        <p>Instructor-only review of participants who joined this online quiz lobby.</p>
       </div>
+      ${
+        analytics.length
+          ? `
+            <div class="form-grid form-grid--two">
+              <label class="field">
+                <span>View participant</span>
+                <select id="online-quiz-participant-select">
+                  <option value="all" ${selectedId === "all" ? "selected" : ""}>All participants</option>
+                  ${analytics
+                    .map(
+                      (participant) =>
+                        `<option value="${escapeHtml(participant.id)}" ${selectedId === participant.id ? "selected" : ""}>${escapeHtml(participant.username)}</option>`,
+                    )
+                    .join("")}
+                </select>
+              </label>
+            </div>
+            ${
+              selectedParticipant
+                ? `
+                  <div class="card-grid card-grid--metrics">
+                    ${renderMetric("Score", `${selectedParticipant.score}/${session.questionCount}`, "gold")}
+                    ${renderMetric("Answered", `${selectedParticipant.answeredCount}`, "blue")}
+                    ${renderMetric("Correct", `${selectedParticipant.correctCount}`, "default")}
+                    ${renderMetric("Accuracy", formatPercent(Number(selectedParticipant.accuracy) || 0), "default")}
+                  </div>
+                  <div class="history-list">
+                    ${
+                      selectedParticipant.results.length
+                        ? selectedParticipant.results
+                            .slice()
+                            .reverse()
+                            .map(
+                              (result) => `
+                                <article class="history-row ${result.correct ? "is-correct" : "is-wrong"}">
+                                  <div>
+                                    <strong>${escapeHtml(result.label || result.questionId)}</strong>
+                                    <span>${escapeHtml(result.category)} • ${escapeHtml(result.topic)}</span>
+                                    <small>${formatScientificText(result.question || result.questionId)}</small>
+                                  </div>
+                                  <strong>${result.correct ? "Correct" : result.selectedIndex === null ? "No answer" : "Missed"}</strong>
+                                </article>
+                              `,
+                            )
+                            .join("")
+                        : `<div class="empty-state"><strong>No recorded answers yet.</strong><p>This participant has not answered a revealed quiz question yet.</p></div>`
+                    }
+                  </div>
+                `
+                : `
+                  <div class="history-list">
+                    ${analytics
+                      .map(
+                        (participant) => `
+                          <article class="history-row">
+                            <div>
+                              <strong>${escapeHtml(participant.username)}</strong>
+                              <span>${participant.isHost ? "Host" : "Participant"} • ${participant.answeredCount} answered • ${participant.correctCount} correct</span>
+                            </div>
+                            <strong>${formatPercent(Number(participant.accuracy) || 0)}</strong>
+                          </article>
+                        `,
+                      )
+                      .join("")}
+                  </div>
+                `
+            }
+          `
+          : `<div class="empty-state"><strong>No online quiz answers yet.</strong><p>Analytics appear here after participants answer revealed online quiz questions.</p></div>`
+      }
     </section>
   `;
 }
@@ -4284,7 +4412,6 @@ function renderInstructorView() {
           <strong>${escapeHtml(state.instructor.message)}</strong>
         </div>
       </section>
-      ${renderInstructorFlaggedReview()}
       ${
         !aggregate
           ? `<section class="panel"><div class="empty-state"><strong>No instructor metrics loaded yet.</strong><p>Press Refresh Stats to pull the latest roster data from the server.</p></div></section>`
@@ -4314,11 +4441,13 @@ function renderInstructorView() {
                   ${renderStatBars(dashboardStats.modeStats, 6)}
                 </section>
               </div>
-              <section class="panel">
-                <div class="panel__header">
-                  <h3>Student success rates by graduation year</h3>
-                  <p>${state.instructor.selectedGradYear ? `Showing ${selectedYearUsers.length} student${selectedYearUsers.length === 1 ? "" : "s"} in ${escapeHtml(state.instructor.selectedGradYear)}.` : "Choose a graduation year above to show the student list."}</p>
-                </div>
+              <details class="panel panel--compact disclosure-panel">
+                <summary>
+                  <span>
+                    <strong>Student success rates by graduation year</strong>
+                    <small>${state.instructor.selectedGradYear ? `Showing ${selectedYearUsers.length} student${selectedYearUsers.length === 1 ? "" : "s"} in ${escapeHtml(state.instructor.selectedGradYear)}.` : "Choose a graduation year above to show the student list."}</small>
+                  </span>
+                </summary>
                 ${
                   state.instructor.selectedGradYear
                     ? `
@@ -4354,12 +4483,14 @@ function renderInstructorView() {
                     `
                     : `<div class="empty-state"><strong>No roster shown by default.</strong><p>Select a graduation year to populate the class list.</p></div>`
                 }
-              </section>
-              <section class="panel">
-                <div class="panel__header">
-                  <h3>Recent class answer history</h3>
-                  <p>Latest answers submitted by signed-in users.</p>
-                </div>
+              </details>
+              <details class="panel panel--compact disclosure-panel">
+                <summary>
+                  <span>
+                    <strong>Recent class answer history</strong>
+                    <small>Latest answers submitted by signed-in users.</small>
+                  </span>
+                </summary>
                 <div class="history-list">
                   ${
                     dashboardStats.recentAttempts.length
@@ -4380,7 +4511,16 @@ function renderInstructorView() {
                       : `<div class="empty-state"><strong>No class attempts yet.</strong><p>Student answers will appear here once they practice while signed in.</p></div>`
                   }
                 </div>
-              </section>
+              </details>
+              <details class="panel panel--compact disclosure-panel">
+                <summary>
+                  <span>
+                    <strong>Flagged question review</strong>
+                    <small>Questions, answers, and explanations students marked for review.</small>
+                  </span>
+                </summary>
+                ${renderInstructorFlaggedReview()}
+              </details>
             `
       }
     </section>
@@ -4427,7 +4567,7 @@ function renderCustomQuizCreationView() {
       <section class="panel panel--form">
         <div class="panel__header">
           <h3>Quiz details</h3>
-          <p>Name the quiz, filter the bank, then save the selected set for online hosting.</p>
+          <p>Name the quiz, filter the bank, then save the selected set into the online quiz hosting library.</p>
         </div>
         <div class="form-grid form-grid--two">
           <label class="field">
@@ -4477,17 +4617,19 @@ function renderCustomQuizCreationView() {
         <div class="panel__footer">
           <p>${filteredQuestions.length} matching questions • ${selectedQuestions.length} will be saved</p>
           <div class="button-row">
-            <button type="button" class="button button--ghost" data-action="custom-quiz-select-all">Select visible</button>
             <button type="button" class="button button--ghost" data-action="custom-quiz-clear-selection">Use filters only</button>
             <button type="button" class="button button--primary" data-action="save-custom-quiz">Save custom quiz</button>
           </div>
         </div>
       </section>
       <section class="panel">
-        <div class="panel__header">
+        <div class="panel__header panel__header--inline">
           <h3>Question preview</h3>
-          <p>Select individual questions if you want a hand-picked set. If none are checked, saving uses all current filter matches.</p>
+          <div class="question-card__actions">
+            <button type="button" class="button button--ghost button--compact" data-action="custom-quiz-select-all">Select all</button>
+          </div>
         </div>
+        <p class="muted-copy">Select individual questions if you want a hand-picked set. If none are checked, saving uses all current filter matches.</p>
         <div class="custom-quiz-preview">
           ${
             filteredQuestions.length
@@ -4517,30 +4659,16 @@ function renderCustomQuizCreationView() {
           }
         </div>
       </section>
-      <section class="panel">
+      <section class="panel panel--compact">
         <div class="panel__header">
-          <h3>Saved custom quizzes</h3>
-          <p>These saved sets are kept on this device and synced to the instructor account on the server.</p>
+          <h3>Online quiz library</h3>
+          <p>Saved custom quizzes are available only from the Online Quiz host controls.</p>
         </div>
-        <div class="custom-quiz-list">
-          ${
-            builder.saved.length
-              ? builder.saved
-                  .map(
-                    (quiz) => `
-                      <article class="custom-quiz-row">
-                        <div>
-                          <strong>${escapeHtml(quiz.title)}</strong>
-                          <span>${quiz.questionIds.length} questions${quiz.description ? ` • ${escapeHtml(quiz.description)}` : ""}</span>
-                        </div>
-                        <button type="button" class="button button--ghost" data-action="delete-custom-quiz" data-quiz-id="${escapeHtml(quiz.id)}">Delete</button>
-                      </article>
-                    `,
-                  )
-                  .join("")
-              : `<div class="empty-state"><strong>No saved custom quizzes yet.</strong><p>Create one above, then host it from the Quiz page.</p></div>`
-          }
-        </div>
+        ${
+          builder.saved.length
+            ? `<div class="empty-state"><strong>${builder.saved.length} custom quiz${builder.saved.length === 1 ? "" : "zes"} saved.</strong><p>Open the Online Quiz section to choose one for hosting.</p></div>`
+            : `<div class="empty-state"><strong>No saved custom quizzes yet.</strong><p>Create one above, then host it from the Online Quiz section.</p></div>`
+        }
       </section>
     </section>
   `;
@@ -4559,6 +4687,7 @@ function renderOnlineQuizPanel() {
       : null;
   const isHost = Boolean(selfParticipant && selfParticipant.isHost);
   const active = session ? session.activeQuestion : null;
+  const analytics = Array.isArray(session && session.analytics) ? session.analytics : [];
   const selectedAnswer =
     active && active.viewerAnswer && Number.isInteger(active.viewerAnswer.selectedIndex)
       ? active.viewerAnswer.selectedIndex
@@ -4569,7 +4698,7 @@ function renderOnlineQuizPanel() {
     <section class="panel online-quiz-panel">
       <div class="panel__header">
         <h3>Online Quiz</h3>
-        <p>Host or join an instructor-selected custom quiz lobby with a shared join code.</p>
+        <p>Join an instructor-selected custom quiz lobby with a shared join code. Only the instructor host can create a lobby.</p>
       </div>
       <div class="split-layout">
         <div class="mode-panel">
@@ -4739,6 +4868,11 @@ function renderOnlineQuizPanel() {
                 )
                 .join("")}
             </div>
+            ${
+              isInstructor() && isHost
+                ? renderInstructorOnlineQuizAnalysis(session)
+                : ""
+            }
           `
           : ""
       }
@@ -7126,6 +7260,10 @@ app.addEventListener("change", (event) => {
 
   if (target.id === "online-quiz-select") {
     state.onlineQuiz.selectedQuizId = target.value;
+  }
+
+  if (target.id === "online-quiz-participant-select") {
+    state.onlineQuiz.selectedParticipantId = target.value || "all";
   }
 
   if (target.id === "mock-format") {
