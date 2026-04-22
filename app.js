@@ -5474,8 +5474,14 @@ function renderHeroStatus(summary) {
 
 function renderPageHero(summary) {
   const copy = getHeroCopy(state.activeView);
+  const isSoloJeopardyQuestionOpen = state.activeView === "jeopardy" && state.jeopardy.mode === "solo" && Boolean(state.jeopardy.activeTile);
+  const isLiveJeopardyQuestionOpen =
+    state.activeView === "jeopardy" &&
+    state.jeopardy.mode === "online" &&
+    Boolean(state.live.session && state.live.session.activeQuestion);
+  const mobileHiddenClass = isSoloJeopardyQuestionOpen || isLiveJeopardyQuestionOpen ? " app-header--hidden-mobile" : "";
   return `
-    <header class="app-header">
+    <header class="app-header${mobileHiddenClass}">
       <div class="app-header__brand">
         <button type="button" class="app-header__home" data-view="dashboard" aria-label="Open dashboard">
           <img src="./assets/branding/moly.png" alt="" class="app-header__home-image" />
