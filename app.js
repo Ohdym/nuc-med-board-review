@@ -3157,6 +3157,21 @@ function buildInstructorDashboardStats(users = [], fallbackAggregate = {}) {
   };
 }
 
+function getRecentInstructorUsers(users = [], limit = 10) {
+  return users
+    .map((user) => {
+      const latestAttempt = Array.isArray(user.recentAttempts) && user.recentAttempts.length ? user.recentAttempts[0] : null;
+      return {
+        user,
+        latestAttempt,
+        latestTimestamp: Number((latestAttempt && latestAttempt.timestamp) || 0),
+      };
+    })
+    .filter((entry) => entry.latestAttempt)
+    .sort((first, second) => second.latestTimestamp - first.latestTimestamp)
+    .slice(0, limit);
+}
+
 function formatStudentRosterName(user) {
   const fullName = user.fullName || user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ");
   return fullName || user.username;
@@ -4208,7 +4223,7 @@ function renderInstructorUserDetail(user) {
 
   const summary = user.summary || {};
   const placements = user.placements || { gamesPlayed: 0, podiumCounts: { first: 0, second: 0, third: 0 }, bestScore: 0 };
-  const recentAttempts = Array.isArray(user.recentAttempts) ? user.recentAttempts.slice(0, 12) : [];
+  const recentAttempts = Array.isArray(user.recentAttempts) ? user.recentAttempts.slice(0, 10) : [];
 
   return `
     <div class="instructor-detail">
@@ -4236,8 +4251,8 @@ function renderInstructorUserDetail(user) {
       </div>
       <section class="panel">
         <div class="panel__header">
-          <h3>Recent answer history</h3>
-          <p>Latest saved answers for the selected user.</p>
+          <h3>Recent user history</h3>
+          <p>Last 10 answered questions for the selected user.</p>
         </div>
         <div class="history-list">
           ${
@@ -4499,6 +4514,7 @@ function renderInstructorView() {
     : [];
   const dashboardUsers = state.instructor.selectedGradYear ? selectedYearUsers : users;
   const dashboardStats = aggregate ? buildInstructorDashboardStats(dashboardUsers, aggregate) : null;
+  const recentUsers = getRecentInstructorUsers(dashboardUsers, 10);
   const selectedYearSummary = summarizeInstructorUsers(selectedYearUsers);
   const selectedYearAccuracy = selectedYearSummary.totalAttempts
     ? (selectedYearSummary.totalCorrect / selectedYearSummary.totalAttempts) * 100
@@ -4624,28 +4640,28 @@ function renderInstructorView() {
               <details class="panel panel--compact disclosure-panel">
                 <summary>
                   <span>
-                    <strong>Recent class answer history</strong>
-                    <small>Latest answers submitted by signed-in users.</small>
+                    <strong>Recent user history</strong>
+                    <small>One line per student, showing the latest 10 signed-in users with activity.</small>
                   </span>
                 </summary>
                 <div class="history-list">
                   ${
-                    dashboardStats.recentAttempts.length
-                      ? dashboardStats.recentAttempts
-                          .slice(0, 20)
+                    recentUsers.length
+                      ? recentUsers
                           .map(
-                            (attempt) => `
-                              <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
+                            ({ user, latestAttempt }) => `
+                              <article class="history-row ${latestAttempt.correct ? "is-correct" : "is-wrong"}">
                                 <div>
-                                  <strong>${escapeHtml(attempt.displayName)} • ${formatScientificText(attempt.question || attempt.questionId)}</strong>
-                                  <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${attempt.timestamp ? new Date(attempt.timestamp).toLocaleDateString() : "No date"}</span>
+                                  <strong>${escapeHtml(formatStudentRosterName(user))} (${escapeHtml(user.username)})</strong>
+                                  <span>${escapeHtml(latestAttempt.mode)} • ${escapeHtml(latestAttempt.category)} • ${latestAttempt.timestamp ? new Date(latestAttempt.timestamp).toLocaleDateString() : "No date"}</span>
+                                  <small>${formatScientificText(latestAttempt.question || latestAttempt.questionId)}</small>
                                 </div>
-                                <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
+                                <strong>${latestAttempt.correct ? "Correct" : "Missed"}</strong>
                               </article>
                             `,
                           )
                           .join("")
-                      : `<div class="empty-state"><strong>No class attempts yet.</strong><p>Student answers will appear here once they practice while signed in.</p></div>`
+                      : `<div class="empty-state"><strong>No recent user activity yet.</strong><p>Signed-in student history will appear here once they answer questions.</p></div>`
                   }
                 </div>
               </details>

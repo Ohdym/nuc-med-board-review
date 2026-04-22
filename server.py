@@ -367,12 +367,15 @@ def load_user_store():
 USER_STORE = load_user_store()
 AUTH_TOKENS = {}
 MANUAL_USERNAME_ALIASES = {
-    "nhagoodanderson": "nhagood-anderson",
-    "nhagood-anderson": "nhagood-anderson",
-    "eurzuavasquez": "eurzua-vasquez",
-    "eurzua-vasquez": "eurzua-vasquez",
-    "vcervantesher": "vcervantes-hernandez",
-    "vcervantes-hernandez": "vcervantes-hernandez",
+    "nhagood-anderson": "nhagoodanderson",
+    "nhagoodanderson": "nhagoodanderson",
+    "eurzua-vasquez": "eurzuavasquez",
+    "eurzuavasquez": "eurzuavasquez",
+    "vcervantesher": "vcervanteshernandez",
+    "vcervantes-hernandez": "vcervanteshernandez",
+    "vcervanteshernandez": "vcervanteshernandez",
+    "ewood2": "ewood",
+    "ewood": "ewood",
 }
 
 
@@ -571,8 +574,6 @@ def credential_aliases(credentials):
     aliases = {}
     for username, credential in credentials.items():
         aliases[username] = username
-        if "-" in username:
-            aliases[username.replace("-", "")] = username
         display_first = normalize_name_piece(first_name_from_display(credential.get("display_name")))
         inferred_last = normalize_name_piece(username[1:]) if len(username) > 1 else ""
         if display_first and inferred_last:
