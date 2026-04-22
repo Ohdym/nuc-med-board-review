@@ -3481,6 +3481,7 @@ function renderMetric(label, value, tone = "default") {
 function renderSectionIntro(eyebrow, title, body, options = {}) {
   const summary = computePerformanceSummary();
   const inlineStatus = Boolean(options.inlineStatus);
+  const hideStatus = Boolean(options.hideStatus);
   return `
     <div class="section-intro screen-header ${inlineStatus ? "screen-header--inline-meta" : ""}">
       <div class="screen-header__copy">
@@ -3491,13 +3492,13 @@ function renderSectionIntro(eyebrow, title, body, options = {}) {
             ? `
               <div class="screen-header__body-row">
                 <p>${escapeHtml(body)}</p>
-                ${renderHeroStatus(summary)}
+                ${hideStatus ? "" : renderHeroStatus(summary)}
               </div>
             `
             : `<p>${escapeHtml(body)}</p>`
         }
       </div>
-      ${inlineStatus ? "" : renderHeroStatus(summary)}
+      ${inlineStatus || hideStatus ? "" : renderHeroStatus(summary)}
     </div>
   `;
 }
@@ -4514,6 +4515,7 @@ function renderInstructorView() {
         "Instructor",
         "Class performance dashboard",
         "Monitor roster-wide success rates, identify weak content areas, and drill into individual answer history.",
+        { hideStatus: true },
       )}
       <section class="panel instructor-toolbar">
         <label class="field">

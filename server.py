@@ -366,6 +366,14 @@ def load_user_store():
 
 USER_STORE = load_user_store()
 AUTH_TOKENS = {}
+MANUAL_USERNAME_ALIASES = {
+    "nhagoodanderson": "nhagood-anderson",
+    "nhagood-anderson": "nhagood-anderson",
+    "eurzuavasquez": "eurzua-vasquez",
+    "eurzua-vasquez": "eurzua-vasquez",
+    "vcervantesher": "vcervantes-hernandez",
+    "vcervantes-hernandez": "vcervantes-hernandez",
+}
 
 
 def normalize_credential_entry(username, entry):
@@ -563,6 +571,8 @@ def credential_aliases(credentials):
     aliases = {}
     for username, credential in credentials.items():
         aliases[username] = username
+        if "-" in username:
+            aliases[username.replace("-", "")] = username
         display_first = normalize_name_piece(first_name_from_display(credential.get("display_name")))
         inferred_last = normalize_name_piece(username[1:]) if len(username) > 1 else ""
         if display_first and inferred_last:
@@ -570,11 +580,17 @@ def credential_aliases(credentials):
         if display_first and first_name_counts.get(display_first) == 1:
             aliases[display_first] = username
 
+    for alias, canonical in MANUAL_USERNAME_ALIASES.items():
+        if canonical in credentials:
+            aliases[alias] = canonical
+
     return aliases
 
 
 def infer_canonical_username(username, user, credentials, aliases):
     cleaned = str(username or "").strip().lower()
+    if cleaned in MANUAL_USERNAME_ALIASES and MANUAL_USERNAME_ALIASES[cleaned] in credentials:
+        return MANUAL_USERNAME_ALIASES[cleaned]
     if cleaned in credentials:
         return cleaned
     if cleaned in aliases:
