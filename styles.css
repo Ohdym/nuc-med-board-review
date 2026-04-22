@@ -278,17 +278,32 @@ a:focus-visible {
 
 .mode-card {
   display: grid;
-  place-items: center;
+  align-content: center;
   gap: 0.32rem;
   min-height: 112px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--surface);
+  background:
+    linear-gradient(135deg, rgba(255, 210, 79, 0.12), rgba(255, 210, 79, 0.04)),
+    var(--surface);
   color: var(--ink);
   padding: 0.88rem 0.72rem;
-  text-align: center;
+  text-align: left;
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(14px);
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.mode-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.52rem;
+  min-width: 0;
 }
 
 .mode-card__icon {
@@ -313,6 +328,12 @@ a:focus-visible {
   line-height: 1.25;
 }
 
+.mode-card:hover {
+  transform: scale(1.012);
+  box-shadow: var(--shadow);
+  border-color: rgba(255, 210, 79, 0.34);
+}
+
 .mode-card.is-active {
   border-color: rgba(255, 210, 79, 0.42);
   background:
@@ -323,6 +344,22 @@ a:focus-visible {
 [data-theme="dark"] .mode-card__icon,
 [data-theme="dark"] .mode-card.is-active {
   color: var(--gold);
+}
+
+[data-theme="dark"] .mode-card {
+  background:
+    linear-gradient(135deg, rgba(255, 210, 79, 0.1), rgba(255, 210, 79, 0.03)),
+    var(--surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-card {
+    transition: none;
+  }
+
+  .mode-card:hover {
+    transform: none;
+  }
 }
 
 .overview-stats {

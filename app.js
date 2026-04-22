@@ -5243,7 +5243,7 @@ function getHeroCopy(view) {
   const copyByView = {
     quickstart: {
       title: "Quick Start",
-      subtitle: "Jump straight into one random question at a time.",
+      subtitle: "Jump into one random question at a time.",
       body:
         "Quick Start pulls a random item from the question bank with no timer, no limit, and immediate explanation after you answer.",
       highlights: [
@@ -5309,7 +5309,7 @@ function getHeroCopy(view) {
     },
     quiz: {
       title: "Quiz",
-      subtitle: "Fast untimed active recall in small question sets.",
+      subtitle: "Untimed active recall in small question sets.",
       body:
         "Quiz mode is best for focused practice. Choose a category and a short untimed set, answer one question at a time, and use explanations immediately.",
       highlights: [
@@ -5403,8 +5403,10 @@ function renderPracticeNav() {
           const copy = getHeroCopy(view);
           return `
             <button type="button" class="mode-card ${state.activeView === view ? "is-active" : ""}" data-view="${view}">
-              <span class="mode-card__icon">${escapeHtml(getViewIcon(view))}</span>
-              <strong>${escapeHtml(label)}</strong>
+              <div class="mode-card__header">
+                <span class="mode-card__icon">${escapeHtml(getViewIcon(view))}</span>
+                <strong>${escapeHtml(label)}</strong>
+              </div>
               <small>${escapeHtml(getPracticeModeSummary(view))}</small>
             </button>
           `;
