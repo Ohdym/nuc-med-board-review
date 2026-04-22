@@ -71,7 +71,7 @@ function getInitialTheme() {
     return savedTheme;
   }
 
-  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
 function applyTheme(theme) {
@@ -3478,16 +3478,26 @@ function renderMetric(label, value, tone = "default") {
   `;
 }
 
-function renderSectionIntro(eyebrow, title, body) {
+function renderSectionIntro(eyebrow, title, body, options = {}) {
   const summary = computePerformanceSummary();
+  const inlineStatus = Boolean(options.inlineStatus);
   return `
-    <div class="section-intro screen-header">
+    <div class="section-intro screen-header ${inlineStatus ? "screen-header--inline-meta" : ""}">
       <div class="screen-header__copy">
         <span class="section-intro__eyebrow">${escapeHtml(eyebrow)}</span>
         <h2>${escapeHtml(title)}</h2>
-        <p>${escapeHtml(body)}</p>
+        ${
+          inlineStatus
+            ? `
+              <div class="screen-header__body-row">
+                <p>${escapeHtml(body)}</p>
+                ${renderHeroStatus(summary)}
+              </div>
+            `
+            : `<p>${escapeHtml(body)}</p>`
+        }
       </div>
-      ${renderHeroStatus(summary)}
+      ${inlineStatus ? "" : renderHeroStatus(summary)}
     </div>
   `;
 }
@@ -3650,12 +3660,15 @@ function renderQuestionBankEditor(question) {
           )}" />
         </label>
       </div>
-      <label class="bank-edit-field bank-edit-field--wide">
-        <span>Explanation</span>
+      <div class="bank-edit-field bank-edit-field--wide">
+        <div class="bank-edit-header">
+          <span>Explanation</span>
+          ${renderFlagControl(question, "explanation")}
+        </div>
         <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="explanation" rows="4">${escapeHtml(
           getQuestionBankEditValue(question, "explanation"),
         )}</textarea>
-      </label>
+      </div>
       <label class="bank-edit-field bank-edit-field--wide">
         <span>Source</span>
         <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="source" rows="2">${escapeHtml(
@@ -3935,6 +3948,7 @@ function renderProfileView(summary) {
         "Profile",
         `${displayName} stats`,
         "Review your question-answer performance, category trends, and saved live Jeopardy placements.",
+        { inlineStatus: true },
       )}
       ${
         state.account.auth
@@ -5444,7 +5458,7 @@ function renderPageHero(summary) {
     <header class="app-header">
       <div class="app-header__brand">
         <button type="button" class="app-header__home" data-view="dashboard" aria-label="Open dashboard">
-          NMT
+          <img src="./assets/branding/moly.png" alt="" class="app-header__home-image" />
         </button>
         <div class="app-header__title">
           <strong>Nuclear Medicine Boards Review</strong>
@@ -5507,7 +5521,6 @@ function renderDashboard(summary) {
   const categories = getCategories();
   const weakAreas = [...summary.weakTopics].slice(0, 3);
   const hasQuestions = hasStudyQuestions();
-  const totalQuestions = getAllQuestions().length;
   const categoryRows = categories
     .map((category) => {
       const count = getAllQuestions().filter((question) => question.category === category.name).length;
@@ -5530,25 +5543,6 @@ function renderDashboard(summary) {
   return `
     <section class="view view--dashboard">
       ${renderPracticeNav()}
-      <section class="overview-card">
-        <div class="overview-stats">
-          <article class="stat-item">
-            <strong class="stat-value">${formatPercent(summary.readiness)}</strong>
-            <span class="stat-label">Readiness</span>
-          </article>
-          <article class="stat-item">
-            <strong class="stat-value">${formatPercent(summary.accuracy)}</strong>
-            <span class="stat-label">Accuracy</span>
-          </article>
-          <article class="stat-item">
-            <strong class="stat-value">${totalQuestions}</strong>
-            <span class="stat-label">Questions</span>
-          </article>
-        </div>
-        <div class="progress-bar" aria-label="Readiness progress">
-          <span class="progress-fill" style="width: ${clamp(Number(summary.readiness) || 0, 0, 100)}%"></span>
-        </div>
-      </section>
       ${
         hasQuestions
           ? ""
