@@ -6,6 +6,8 @@
   --ink: rgb(12, 28, 43);
   --slate: rgb(82, 97, 112);
   --muted: rgb(107, 122, 137);
+  --accent-text: rgb(0, 55, 103);
+  --accent-text-strong: rgb(0, 55, 103);
   --line: rgba(0, 55, 103, 0.12);
   --line-strong: rgba(0, 55, 103, 0.22);
   --surface: rgba(255, 255, 255, 0.9);
@@ -28,6 +30,8 @@
   --ink: rgb(241, 247, 252);
   --slate: rgb(177, 194, 208);
   --muted: rgb(145, 162, 176);
+  --accent-text: rgb(171, 206, 232);
+  --accent-text-strong: rgb(219, 236, 248);
   --line: rgba(255, 255, 255, 0.1);
   --line-strong: rgba(255, 255, 255, 0.18);
   --surface: rgba(12, 29, 46, 0.84);
@@ -96,7 +100,7 @@ code {
   padding: 0.15rem 0.4rem;
   border-radius: 8px;
   background: rgba(0, 55, 103, 0.08);
-  color: var(--blue);
+  color: var(--accent-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.92em;
 }
@@ -240,7 +244,7 @@ a:focus-visible {
 }
 
 .app-overline span {
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -443,7 +447,7 @@ a:focus-visible {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface-glass);
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -539,7 +543,7 @@ a:focus-visible {
 }
 
 .top-login__user-link strong {
-  color: var(--blue-deep);
+  color: var(--accent-text-strong);
 }
 
 .top-login__message {
@@ -631,7 +635,7 @@ a:focus-visible {
 }
 
 .status-chip strong {
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.78rem;
 }
 
@@ -722,7 +726,7 @@ a:focus-visible {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: rgba(0, 55, 103, 0.08);
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -783,7 +787,7 @@ a:focus-visible {
 .headline-highlight span {
   display: block;
   margin-bottom: 0.22rem;
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -1210,7 +1214,7 @@ a:focus-visible {
   min-width: 132px;
   font-size: 0.92rem;
   text-align: right;
-  color: var(--blue);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -1310,7 +1314,7 @@ a:focus-visible {
 
 .profile-columns h4 {
   margin: 0 0 0.75rem;
-  color: var(--blue);
+  color: var(--accent-text);
 }
 
 .placement-podium {
@@ -1332,7 +1336,7 @@ a:focus-visible {
 .placement-podium span {
   display: block;
   margin-bottom: 0.3rem;
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -1341,7 +1345,7 @@ a:focus-visible {
 
 .placement-podium strong {
   font-size: 1.75rem;
-  color: var(--blue-deep);
+  color: var(--accent-text-strong);
 }
 
 .instructor-toolbar {
@@ -1535,7 +1539,7 @@ a:focus-visible {
 
 .field span {
   font-weight: 700;
-  color: var(--blue);
+  color: var(--accent-text);
 }
 
 .field select,
@@ -1637,11 +1641,11 @@ a:focus-visible {
 }
 
 .timer {
-  color: var(--blue);
+  color: var(--accent-text);
 }
 
 .source-link {
-  color: var(--blue);
+  color: var(--accent-text);
   font-weight: 800;
   text-decoration: underline;
   text-decoration-color: rgba(255, 210, 79, 0.85);
@@ -1650,7 +1654,7 @@ a:focus-visible {
 }
 
 .source-link:hover {
-  color: var(--blue-deep);
+  color: var(--accent-text-strong);
   background: rgba(255, 210, 79, 0.22);
 }
 
@@ -1968,7 +1972,7 @@ a:focus-visible {
 }
 
 .bank-edit-field span {
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -2041,7 +2045,7 @@ a:focus-visible {
   justify-content: space-between;
   gap: 0.6rem;
   margin-bottom: 0.5rem;
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -2148,7 +2152,7 @@ a:focus-visible {
   height: 36px;
   border-color: var(--line);
   background: var(--surface-strong);
-  color: var(--blue);
+  color: var(--accent-text);
   font-size: 1.5rem;
 }
 
@@ -2492,7 +2496,7 @@ a:focus-visible {
 
 .leaderboard-row__score {
   justify-self: end;
-  color: var(--blue-deep);
+  color: var(--accent-text-strong);
   font-size: 1.35rem;
   font-weight: 800;
 }
