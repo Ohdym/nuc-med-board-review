@@ -311,6 +311,12 @@ function renderIsotope(openBracket, massNumber, symbol, closeBracket) {
   return `${openBracket || ""}<sup>${massNumber}</sup>${symbol}${closeBracket || ""}`;
 }
 
+function formatCaretExponents(text) {
+  return String(text || "").replace(/\^(\([^)]+\)|\[[^\]]+\]|\{[^}]+\}|[A-Za-z0-9.+\-/%]+)/g, (match, exponent) => {
+    return `<sup>${exponent}</sup>`;
+  });
+}
+
 function formatScientificText(value) {
   const escaped = escapeHtml(normalizeIsotopeText(value));
   const massFirstPattern = new RegExp(
@@ -322,7 +328,8 @@ function formatScientificText(value) {
     "g"
   );
 
-  return escaped
+  return formatCaretExponents(
+    escaped
     .replace(symbolFirstPattern, (match, openBracket, symbol, massNumber, closeBracket) => {
       if (!isKnownIsotope(symbol, massNumber)) {
         return match;
@@ -338,7 +345,8 @@ function formatScientificText(value) {
         return match;
       }
       return renderIsotope(openBracket, massNumber, symbol, closeBracket);
-    });
+    }),
+  );
 }
 
 const SOURCE_PDF_BOOKS = [

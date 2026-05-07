@@ -43,6 +43,7 @@ PDF_SOURCE_FILES = {
 }
 BOARD_VALUES = [100, 200, 300, 400, 500]
 PASSWORD_ITERATIONS = 260000
+ACCOUNT_SESSION_DURATION_SECONDS = int(os.getenv("ACCOUNT_SESSION_DURATION_SECONDS", str(60 * 60 * 24 * 45)))
 MAX_USER_ATTEMPTS = 10000
 MAX_USER_PLACEMENTS = 500
 MAX_CUSTOM_QUIZZES = 200
@@ -353,15 +354,22 @@ def question_flag_payload_for(username):
 
 
 def load_user_store():
-    fallback = {"users": {}}
+    fallback = {"users": {}, "auth_sessions": {}}
     if USER_STORE_PATH.exists():
         try:
             store = json.loads(USER_STORE_PATH.read_text())
             if isinstance(store.get("users"), dict):
+                if not isinstance(store.get("auth_sessions"), dict):
+                    store["auth_sessions"] = {}
                 fallback = store
         except Exception:
             pass
-    return load_database_store("user_store", fallback)
+    store = load_database_store("user_store", fallback)
+    if not isinstance(store.get("users"), dict):
+        store["users"] = {}
+    if not isinstance(store.get("auth_sessions"), dict):
+        store["auth_sessions"] = {}
+    return store
 
 
 USER_STORE = load_user_store()
@@ -557,6 +565,73 @@ def save_user_store():
         return
     USER_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
     USER_STORE_PATH.write_text(json.dumps(USER_STORE, indent=2))
+
+
+def prune_expired_auth_sessions(save=False):
+    sessions = USER_STORE.setdefault("auth_sessions", {})
+    now = int(time.time())
+    expired_tokens = []
+    for token, session in list(sessions.items()):
+        username = str(session.get("username") or "").strip().lower() if isinstance(session, dict) else ""
+        expires_at = int(session.get("expiresAt") or 0) if isinstance(session, dict) else 0
+        if not username or username not in USER_STORE.get("users", {}) or expires_at <= now:
+            expired_tokens.append(token)
+
+    for token in expired_tokens:
+        sessions.pop(token, None)
+        AUTH_TOKENS.pop(token, None)
+
+    if expired_tokens and save:
+        save_user_store()
+
+    return bool(expired_tokens)
+
+
+def create_auth_session(username):
+    prune_expired_auth_sessions()
+    token = secrets.token_urlsafe(32)
+    expires_at = int(time.time()) + ACCOUNT_SESSION_DURATION_SECONDS
+    USER_STORE.setdefault("auth_sessions", {})[token] = {
+        "username": username,
+        "createdAt": int(time.time()),
+        "expiresAt": expires_at,
+    }
+    AUTH_TOKENS[token] = username
+    return token, expires_at
+
+
+def revoke_auth_session(token):
+    cleaned = str(token or "").strip()
+    if not cleaned:
+        return
+    AUTH_TOKENS.pop(cleaned, None)
+    USER_STORE.setdefault("auth_sessions", {}).pop(cleaned, None)
+
+
+def username_for_auth_token(token):
+    cleaned = str(token or "").strip()
+    if not cleaned:
+        return None
+
+    cached = AUTH_TOKENS.get(cleaned)
+    if cached and cached in USER_STORE.get("users", {}):
+        session = USER_STORE.setdefault("auth_sessions", {}).get(cleaned)
+        if session and int(session.get("expiresAt") or 0) > int(time.time()):
+            return cached
+
+    session = USER_STORE.setdefault("auth_sessions", {}).get(cleaned)
+    if not isinstance(session, dict):
+        return None
+
+    username = str(session.get("username") or "").strip().lower()
+    expires_at = int(session.get("expiresAt") or 0)
+    if not username or username not in USER_STORE.get("users", {}) or expires_at <= int(time.time()):
+        revoke_auth_session(cleaned)
+        save_user_store()
+        return None
+
+    AUTH_TOKENS[cleaned] = username
+    return username
 
 
 def normalize_name_piece(value):
@@ -834,10 +909,7 @@ def get_auth_username(request):
     if not auth_header.startswith("Bearer "):
         return None
     token = auth_header.removeprefix("Bearer ").strip()
-    username = AUTH_TOKENS.get(token)
-    if username and username in USER_STORE["users"]:
-        return username
-    return None
+    return username_for_auth_token(token)
 
 
 def require_auth_username(request):
@@ -2079,12 +2151,12 @@ async def login_user(request):
             content_type="application/json",
         )
 
-    token = secrets.token_urlsafe(32)
-    AUTH_TOKENS[token] = username
+    token, expires_at = create_auth_session(username)
     user["last_login_at"] = time.time()
     save_user_store()
     return web.json_response({
         "token": token,
+        "expiresAt": expires_at * 1000,
         "user": public_user(username, user),
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
@@ -2097,7 +2169,8 @@ async def logout_user(request):
     auth_header = request.headers.get("Authorization", "")
     if auth_header.startswith("Bearer "):
         token = auth_header.removeprefix("Bearer ").strip()
-        AUTH_TOKENS.pop(token, None)
+        revoke_auth_session(token)
+        save_user_store()
     return web.json_response({"ok": True})
 
 
