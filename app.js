@@ -3322,6 +3322,9 @@ function connectLiveSocket() {
 
     if (message.type === "state") {
       state.live.session = message.session;
+      if (message.session.status === "finished") {
+        state.live.page = "leaderboard";
+      }
       const nextKey = getLiveQuestionKey(message.session);
       if (state.live.lastQuestionKey !== nextKey) {
         state.live.answerIndex = null;
@@ -3501,27 +3504,24 @@ function renderMetric(label, value, tone = "default") {
   `;
 }
 
+function shouldHideSectionIntroForActiveView() {
+  return new Set(["profile", "instructor", "customquiz", "bank", "quickstart", "quiz", "mock", "jeopardy"]).has(
+    state.activeView,
+  );
+}
+
 function renderSectionIntro(eyebrow, title, body, options = {}) {
+  if (shouldHideSectionIntroForActiveView()) {
+    return "";
+  }
   const summary = computePerformanceSummary();
-  const inlineStatus = Boolean(options.inlineStatus);
   const hideStatus = Boolean(options.hideStatus);
   return `
-    <div class="section-intro screen-header ${inlineStatus ? "screen-header--inline-meta" : ""}">
-      <div class="screen-header__copy">
-        <span class="section-intro__eyebrow">${escapeHtml(eyebrow)}</span>
-        <h2>${escapeHtml(title)}</h2>
-        ${
-          inlineStatus
-            ? `
-              <div class="screen-header__body-row">
-                <p>${escapeHtml(body)}</p>
-                ${hideStatus ? "" : renderHeroStatus(summary)}
-              </div>
-            `
-            : `<p>${escapeHtml(body)}</p>`
-        }
-      </div>
-      ${inlineStatus || hideStatus ? "" : renderHeroStatus(summary)}
+    <div class="section-intro screen-header">
+      <span class="section-intro__eyebrow">${escapeHtml(eyebrow)}</span>
+      <h2>${escapeHtml(title)}</h2>
+      <p>${escapeHtml(body)}</p>
+      ${hideStatus ? "" : renderHeroStatus(summary)}
     </div>
   `;
 }
@@ -3976,15 +3976,7 @@ function renderProfileView(summary) {
       )}
       ${
         state.account.auth
-          ? `
-            <section class="panel profile-callout">
-              <div>
-                <h3>Account</h3>
-                <p>Signed in as ${escapeHtml(state.account.auth.username)}. Your quiz, mock exam, solo Jeopardy, and live Jeopardy history syncs to this profile.</p>
-              </div>
-              <button type="button" class="button button--ghost" data-action="account-logout">Sign out</button>
-            </section>
-          `
+          ? ""
           : `
             <div class="split-layout">
               <section class="panel panel--form">
@@ -6705,6 +6697,11 @@ function renderLiveLobby(session) {
 }
 
 function renderLiveGame(session) {
+  if (session.status === "finished") {
+    state.live.page = "leaderboard";
+    return renderLiveLeaderboard(session);
+  }
+
   if (state.live.page === "leaderboard") {
     return renderLiveLeaderboard(session);
   }
@@ -6893,6 +6890,7 @@ function renderApp() {
   }
 
   if (!hasAccountSession() || state.account.verifying) {
+    document.body.dataset.surface = "login";
     app.innerHTML = `
       <div class="shell shell--login">
         ${renderLoginGate()}
@@ -6901,6 +6899,7 @@ function renderApp() {
     return;
   }
 
+  document.body.dataset.surface = "app";
   const viewMap = {
     quickstart: renderQuickStartView(),
     dashboard: renderDashboard(summary),

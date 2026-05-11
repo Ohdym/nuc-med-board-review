@@ -56,19 +56,23 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 18% -8%, rgba(255, 210, 79, 0.23), transparent 28rem),
-    radial-gradient(circle at 88% 8%, rgba(0, 55, 103, 0.22), transparent 30rem),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(238, 244, 250, 0.86)),
-    url("./assets/oregon-tech-campus-highres.jpg") center top / cover fixed no-repeat,
-    linear-gradient(180deg, var(--page-bg-2), var(--page-bg));
+  background: rgb(0, 55, 103);
   color: var(--ink);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-[data-theme="dark"] body {
+body[data-surface="login"] {
+  background:
+    radial-gradient(circle at 18% -8%, rgba(255, 210, 79, 0.23), transparent 28rem),
+    radial-gradient(circle at 88% 8%, rgba(0, 55, 103, 0.22), transparent 30rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(238, 244, 250, 0.86)),
+    url("./assets/oregon-tech-campus-highres.jpg") center top / cover fixed no-repeat,
+    linear-gradient(180deg, var(--page-bg-2), var(--page-bg));
+}
+
+[data-theme="dark"] body[data-surface="login"] {
   background:
     radial-gradient(circle at 16% -8%, rgba(255, 210, 79, 0.16), transparent 28rem),
     radial-gradient(circle at 88% 8%, rgba(19, 94, 157, 0.34), transparent 34rem),
@@ -77,23 +81,45 @@ body {
     linear-gradient(180deg, var(--page-bg-2), var(--page-bg));
 }
 
+body[data-surface="app"] {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 210, 79, 0.08), transparent 24rem),
+    radial-gradient(circle at 86% 10%, rgba(255, 255, 255, 0.05), transparent 26rem),
+    linear-gradient(180deg, rgb(10, 45, 82), rgb(6, 31, 58));
+}
+
+[data-theme="dark"] body[data-surface="app"] {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 210, 79, 0.06), transparent 24rem),
+    radial-gradient(circle at 86% 10%, rgba(255, 255, 255, 0.04), transparent 26rem),
+    linear-gradient(180deg, rgb(8, 34, 62), rgb(5, 23, 43));
+}
+
+body[data-surface="login"]::before {
+  background:
+    linear-gradient(90deg, rgba(0, 55, 103, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(0, 55, 103, 0.04) 1px, transparent 1px);
+}
+
 body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   content: "";
-  background:
-    linear-gradient(90deg, rgba(0, 55, 103, 0.04) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(0, 55, 103, 0.04) 1px, transparent 1px);
   background-size: 42px 42px;
   mask-image: linear-gradient(180deg, black, transparent 72%);
 }
 
-[data-theme="dark"] body::before {
+[data-theme="dark"] body[data-surface="login"]::before {
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(180deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+}
+
+body[data-surface="app"]::before {
+  background: none;
+  mask-image: none;
 }
 
 code {
@@ -273,7 +299,7 @@ a:focus-visible {
 .mode-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.7rem;
+  gap: 0.5rem;
 }
 
 .app-mode-grid {
@@ -283,15 +309,15 @@ a:focus-visible {
 .mode-card {
   display: grid;
   align-content: center;
-  gap: 0.32rem;
-  min-height: 112px;
+  gap: 0.24rem;
+  min-height: 98px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background:
     linear-gradient(135deg, rgba(255, 210, 79, 0.12), rgba(255, 210, 79, 0.04)),
     var(--surface);
   color: var(--ink);
-  padding: 0.88rem 0.72rem;
+  padding: 0.7rem 0.62rem;
   text-align: left;
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(14px);
@@ -306,7 +332,7 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.52rem;
+  gap: 0.42rem;
   min-width: 0;
 }
 
@@ -665,9 +691,9 @@ a:focus-visible {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 0.55rem;
-  margin-bottom: 0.48rem;
-  padding: 0.68rem 0.74rem;
+  gap: 0.42rem;
+  margin-bottom: 0.36rem;
+  padding: 0.54rem 0.62rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background:
@@ -762,22 +788,22 @@ a:focus-visible {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.42rem;
 }
 
 .question-card__actions {
-  margin-top: 0.82rem;
+  margin-top: 0.58rem;
 }
 
 .headline__highlights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.36rem;
   margin-top: 0.15rem;
 }
 
 .headline-highlight {
-  padding: 0.55rem 0.62rem;
+  padding: 0.42rem 0.5rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface-glass);
@@ -804,8 +830,8 @@ a:focus-visible {
 .nav-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.42rem;
-  margin-bottom: 0.75rem;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
 }
 
 .nav-tabs--topbar {
@@ -839,7 +865,7 @@ a:focus-visible {
 
 .mode-panel {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.55rem;
 }
 
 .mode-panel p {
@@ -866,7 +892,7 @@ a:focus-visible {
   border-radius: 10px;
   background: transparent;
   color: var(--blue);
-  padding: 0.58rem 0.86rem;
+  padding: 0.46rem 0.72rem;
   font-weight: 700;
 }
 
@@ -898,7 +924,7 @@ a:focus-visible {
   border-radius: 11px;
   background: rgba(255, 210, 79, 0.86);
   color: var(--blue);
-  padding: 0.62rem 0.9rem;
+  padding: 0.5rem 0.76rem;
   font-weight: 700;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
 }
@@ -939,42 +965,39 @@ a:focus-visible {
 
 .view {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.56rem;
 }
 
 .section-intro {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "eyebrow status"
+    "title status"
+    "body status";
   align-items: start;
   gap: 0.18rem;
   max-width: none;
 }
 
-.screen-header__copy {
-  min-width: 0;
+.section-intro__eyebrow {
+  grid-area: eyebrow;
+  width: fit-content;
+}
+
+.section-intro h2 {
+  grid-area: title;
   max-width: 860px;
 }
 
-.screen-header__body-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.7rem;
-}
-
-.screen-header__body-row p {
-  flex: 1 1 auto;
+.section-intro p {
+  grid-area: body;
+  max-width: 860px;
   min-width: 0;
 }
 
-.screen-header--inline-meta .app-status {
-  flex: 0 0 auto;
-  align-self: start;
-  justify-self: end;
-  padding-top: 0;
-}
-
 .screen-header .app-status {
+  grid-area: status;
   align-self: start;
   padding-top: 0.12rem;
 }
@@ -988,7 +1011,7 @@ a:focus-visible {
 
 .card-grid {
   display: grid;
-  gap: 0.72rem;
+  gap: 0.5rem;
 }
 
 .card-grid--metrics {
@@ -1009,7 +1032,7 @@ a:focus-visible {
 }
 
 .metric-card {
-  padding: 0.82rem 0.9rem;
+  padding: 0.64rem 0.72rem;
 }
 
 .metric-card--blue {
@@ -1025,7 +1048,7 @@ a:focus-visible {
 
 .metric-card__label {
   display: block;
-  margin-bottom: 0.28rem;
+  margin-bottom: 0.18rem;
   font-size: 0.68rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1039,7 +1062,7 @@ a:focus-visible {
 .split-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 0.8rem;
+  gap: 0.55rem;
 }
 
 .split-layout--live {
@@ -1049,11 +1072,11 @@ a:focus-visible {
 
 .panel,
 .question-card {
-  padding: 0.95rem;
+  padding: 0.74rem;
 }
 
 .panel__header {
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.45rem;
 }
 
 .panel__header--inline {
@@ -1061,7 +1084,7 @@ a:focus-visible {
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.7rem;
+  gap: 0.5rem;
 }
 
 .panel__header h3,
@@ -1075,14 +1098,14 @@ a:focus-visible {
 }
 
 .panel__footer--top {
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
 }
 
 .bank-save-bar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 1rem;
+  gap: 0.7rem;
 }
 
 .bank-save-bar h3,
@@ -1127,8 +1150,8 @@ a:focus-visible {
 .category-card {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.72rem 0.8rem;
+  gap: 0.5rem;
+  padding: 0.56rem 0.64rem;
 }
 
 .category-card.list-row {
@@ -1144,7 +1167,7 @@ a:focus-visible {
 .custom-quiz-preview,
 .custom-quiz-list {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.5rem;
 }
 
 .custom-quiz-question,
@@ -1152,8 +1175,8 @@ a:focus-visible {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
-  gap: 0.8rem;
-  padding: 0.65rem 0.75rem;
+  gap: 0.55rem;
+  padding: 0.5rem 0.62rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface-glass);
@@ -1195,14 +1218,14 @@ a:focus-visible {
 .online-quiz-lobby {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 1rem 0;
+  gap: 0.5rem;
+  margin: 0.7rem 0;
 }
 
 .online-quiz-lobby div {
   display: grid;
   gap: 0.25rem;
-  padding: 0.65rem;
+  padding: 0.5rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface-glass);
@@ -1222,8 +1245,8 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.72rem 0.78rem;
+  gap: 0.65rem;
+  padding: 0.54rem 0.62rem;
   border: 1px solid rgba(0, 55, 103, 0.12);
   border-radius: var(--radius-sm);
   background: var(--surface-glass);
@@ -1281,7 +1304,7 @@ a:focus-visible {
 
 .profile-stat-list {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.52rem;
 }
 
 .profile-stat-row,
@@ -1289,8 +1312,8 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.68rem 0.75rem;
+  gap: 0.65rem;
+  padding: 0.54rem 0.62rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface-glass);
@@ -1309,7 +1332,7 @@ a:focus-visible {
 .profile-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.65rem;
 }
 
 .profile-columns h4 {
@@ -1320,12 +1343,12 @@ a:focus-visible {
 .placement-podium {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.8rem;
-  margin-bottom: 1rem;
+  gap: 0.55rem;
+  margin-bottom: 0.7rem;
 }
 
 .placement-podium article {
-  padding: 1rem;
+  padding: 0.74rem;
   border: 1px solid rgba(0, 55, 103, 0.14);
   border-radius: var(--radius-sm);
   background:
@@ -1352,7 +1375,7 @@ a:focus-visible {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(190px, 0.85fr) auto minmax(220px, 1fr);
   align-items: end;
-  gap: 0.7rem;
+  gap: 0.5rem;
 }
 
 .instructor-toolbar .import-feedback {
@@ -1360,23 +1383,23 @@ a:focus-visible {
 }
 
 .panel--compact {
-  padding: 0.95rem;
+  padding: 0.74rem;
 }
 
 .panel--compact .panel__header {
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.5rem;
 }
 
 .disclosure-panel {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .disclosure-panel summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
+  gap: 0.55rem;
   list-style: none;
   cursor: pointer;
 }
@@ -1420,7 +1443,7 @@ a:focus-visible {
 
 .roster-convention {
   min-height: 44px;
-  padding: 0.65rem 0.75rem;
+  padding: 0.5rem 0.62rem;
   font-size: 0.84rem;
 }
 
@@ -1502,12 +1525,12 @@ a:focus-visible {
 }
 
 .insight-card {
-  padding: 0.72rem 0.78rem;
+  padding: 0.56rem 0.64rem;
 }
 
 .insight-card__label {
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.26rem;
   color: var(--slate);
   font-size: 0.84rem;
   text-transform: uppercase;
@@ -1517,7 +1540,7 @@ a:focus-visible {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.72rem;
+  gap: 0.5rem;
 }
 
 .form-grid--two {
@@ -1534,7 +1557,7 @@ a:focus-visible {
 
 .field {
   display: grid;
-  gap: 0.32rem;
+  gap: 0.22rem;
 }
 
 .field span {
@@ -1546,12 +1569,12 @@ a:focus-visible {
 .field input,
 .import-textarea {
   width: 100%;
-  min-height: 42px;
+  min-height: 38px;
   border: 1px solid var(--line-strong);
   border-radius: 10px;
   background: var(--surface-strong);
   color: var(--ink);
-  padding: 0.62rem 0.72rem;
+  padding: 0.5rem 0.6rem;
 }
 
 .field select {
@@ -1571,18 +1594,18 @@ a:focus-visible {
 .toggle,
 .button,
 .file-button {
-  padding: 0.62rem 0.88rem;
+  padding: 0.52rem 0.78rem;
 }
 
 .button--tiny {
   min-height: 32px;
-  padding: 0.34rem 0.58rem;
+  padding: 0.28rem 0.48rem;
   font-size: 0.78rem;
 }
 
 .button--compact {
   min-height: 34px;
-  padding: 0.42rem 0.68rem;
+  padding: 0.34rem 0.58rem;
   font-size: 0.82rem;
 }
 
