@@ -3597,15 +3597,58 @@ function renderExplanationContent(entry) {
 }
 
 function renderQuestionMedia(entry) {
-  if (!entry || !entry.image) {
+  if (!entry) {
+    return "";
+  }
+  const mediaItems = Array.isArray(entry.images) && entry.images.length
+    ? entry.images
+        .map((item) => {
+          if (typeof item === "string") {
+            return {
+              src: item,
+              alt: entry.imageAlt || "Question reference image",
+              caption: entry.imageCaption || "",
+            };
+          }
+          if (item && typeof item === "object" && item.src) {
+            return {
+              src: item.src,
+              alt: item.alt || entry.imageAlt || "Question reference image",
+              caption: item.caption || "",
+            };
+          }
+          return null;
+        })
+        .filter(Boolean)
+    : entry.image
+      ? [
+          {
+            src: entry.image,
+            alt: entry.imageAlt || "Question reference image",
+            caption: entry.imageCaption || "",
+          },
+        ]
+      : [];
+
+  if (!mediaItems.length) {
     return "";
   }
 
   return `
-    <figure class="question-media">
-      <img src="${escapeHtml(entry.image)}" alt="${escapeHtml(entry.imageAlt || "Question reference image")}" />
-      ${entry.imageCaption ? `<figcaption>${escapeHtml(entry.imageCaption)}</figcaption>` : ""}
-    </figure>
+    <div class="question-media-stack">
+      ${mediaItems
+        .map(
+          (item) => `
+            <figure class="question-media">
+              <a class="question-media__link" href="${escapeHtml(item.src)}" target="_blank" rel="noopener">
+                <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" />
+              </a>
+              ${item.caption ? `<figcaption>${escapeHtml(item.caption)}</figcaption>` : ""}
+            </figure>
+          `,
+        )
+        .join("")}
+    </div>
   `;
 }
 

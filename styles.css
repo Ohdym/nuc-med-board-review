@@ -1841,10 +1841,22 @@ a:focus-visible {
   background: var(--surface-strong);
 }
 
+.question-media-stack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.question-media__link {
+  display: block;
+  cursor: zoom-in;
+}
+
 .question-media img {
   display: block;
   width: 100%;
-  max-height: 420px;
+  max-height: 460px;
+  height: auto;
+  margin: 0 auto;
   object-fit: contain;
 }
 
@@ -2906,7 +2918,7 @@ a:focus-visible {
   }
 
   .question-media img {
-    max-height: 30svh;
+    max-height: 34svh;
   }
 
   .question-media figcaption {

@@ -146,7 +146,17 @@ export const QUESTION_BANK = [
     "explanation": "Blood that is withdrawn into the syringe and allowed to mix with [99mTc] MAA for a prolonged period may cause the MAA particles to clump together and the blood to clot. If this mixture is then injected into the patient, the clumped particles and labeled blood clots are trapped in the lung vasculature and appear on the image as multiple small hot spots.",
     "source": "Source: Early and Sodee, 1995; p. 448.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1294.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1201.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1201.jpeg",
+    "image": "assets/question-bank/retake/exam1-005/e1q5.jpg",
+    "imageAlt": "Graphic for Exam 1, Question 5.",
+    "imageCaption": "Retake source graphic for Exam 1, Question 5.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam1-005/e1q5.jpg",
+        "alt": "Graphic for Exam 1, Question 5.",
+        "caption": "Retake source graphic for Exam 1, Question 5."
+      }
+    ]
   },
   {
     "id": "exam1-006",
@@ -1158,7 +1168,17 @@ export const QUESTION_BANK = [
     "explanation": "Patient A is scheduled for thyroid uptake and imaging, Patient B for therapy for hyperthyroidism, and Patient C for a cisternogram. The appropriate radiopharmaceutical set is [123I] sodium iodide, [131I] sodium iodide, and [111In] pentetate.",
     "source": "Source: Early and Sodee, 1999; pp. 627-631.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1298.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1205.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1205.jpeg",
+    "image": "assets/question-bank/retake/exam1-051/e1q51.jpg",
+    "imageAlt": "Graphic for Exam 1, Question 51.",
+    "imageCaption": "Retake source graphic for Exam 1, Question 51.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam1-051/e1q51.jpg",
+        "alt": "Graphic for Exam 1, Question 51.",
+        "caption": "Retake source graphic for Exam 1, Question 51."
+      }
+    ]
   },
   {
     "id": "exam1-052",
@@ -1730,7 +1750,17 @@ export const QUESTION_BANK = [
     "explanation": "The measured exposure rate is the product of the number indicated by the needle on the meter and the scale. In this example, the reading on the meter is 1.7 on a scale of 0.1. Thus, 1.7 mR/hr x 0.1 = 0.17 mR/hr.",
     "source": "Source: Thompson, et al., 1994; pp. 32-33.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1301.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1208.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1208.jpeg",
+    "image": "assets/question-bank/retake/exam1-077/e1q77.jpg",
+    "imageAlt": "Graphic for Exam 1, Question 77.",
+    "imageCaption": "Retake source graphic for Exam 1, Question 77.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam1-077/e1q77.jpg",
+        "alt": "Graphic for Exam 1, Question 77.",
+        "caption": "Retake source graphic for Exam 1, Question 77."
+      }
+    ]
   },
   {
     "id": "exam1-078",
@@ -1972,7 +2002,17 @@ export const QUESTION_BANK = [
     "explanation": "Voltage may drift slightly from one day to the next, causing the gamma ray spectrum to shift to the right or left, out of the preset window. From the data, it appears that this is what may have happened. Before using the instrument for clinical studies or sending it for repair, the technologist should recalibrate the operating voltage by observing the counting rate at the most recent voltage setting and voltages settings just above and below that setting. If the counting rate increases when counts are obtained off the original operating voltage, the voltage should be adjusted until a maximum counting rate is reached. The voltage at which a maximum count- Exposure rate (mR/h) ing rate is obtained is the new operating voltage. If there is significant voltage fluctuation from day to day, the instrument should be serviced. 1.5 0.75",
     "source": "Source: Early and Sodee, 1995; pp. 158-162.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1302.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg",
+    "image": "assets/question-bank/retake/exam1-088/e1q88.jpg",
+    "imageAlt": "Graphic for Exam 1, Question 88.",
+    "imageCaption": "Retake source graphic for Exam 1, Question 88.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam1-088/e1q88.jpg",
+        "alt": "Graphic for Exam 1, Question 88.",
+        "caption": "Retake source graphic for Exam 1, Question 88."
+      }
+    ]
   },
   {
     "id": "exam1-089",
@@ -2016,7 +2056,17 @@ export const QUESTION_BANK = [
     "explanation": "The round photopenic area corresponds to failure of a single photomultiplier tube. Damage to the crystal would appear more irregular. Because this is an intrinsic flood, the collimator is not in place. However, collimator or damage would also have an irregular appearance. Failure of the x,y localization hardware or software would result in a misshapen flood image.",
     "source": "Source: Early and Sodee, 1995; p. 262.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1302.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg",
+    "image": "assets/question-bank/retake/exam1-090/e1q90.jpg",
+    "imageAlt": "Graphic for Exam 1, Question 90.",
+    "imageCaption": "Retake source graphic for Exam 1, Question 90.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam1-090/e1q90.jpg",
+        "alt": "Graphic for Exam 1, Question 90.",
+        "caption": "Retake source graphic for Exam 1, Question 90."
+      }
+    ]
   },
   {
     "id": "exam1-091",
@@ -2940,7 +2990,17 @@ export const QUESTION_BANK = [
     "explanation": "The arrow indicates tracer returning prematurely to the lungs, an indication of a left-to-right cardiac shunt. Some of the blood on the left side of the heart is being directed back to the right side of the heart, returning to the lungs rather than being ejected out of the left ventricle into the systemic circulation.",
     "source": "Source: Crawford and Husain, 2011; p. 92.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1132.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1213.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1213.jpeg",
+    "image": "assets/question-bank/retake/exam2-032/e2q32.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 32.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 32.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-032/e2q32.jpg",
+        "alt": "Graphic for Exam 2, Question 32.",
+        "caption": "Retake source graphic for Exam 2, Question 32."
+      }
+    ]
   },
   {
     "id": "exam2-033",
@@ -3182,7 +3242,17 @@ export const QUESTION_BANK = [
     "explanation": "In this instance, the capsule that is administered to the patient is first counted as the standard. The counts in the patient's thyroid are compared with the counts in the standard to determine the percent of radioiodine uptake. Because the patient's thyroid is not counted until 6 hr after the measurement of the capsule, the capsule counts collected at 0900 must be decay-corrected for 6 hr. It will be assumed that room background remains about the same over the 6-hr period. To decay-correct the capsule counts, multiply the capsule counts by the 6-hr decay factor for 23T: 216,789 cpm x 0.73 = 158,256 cpm Then, calculate the thyroid uptake using the following formula: standard cpm - bkg cpm % thyroid uptake = thyroid cpm - thigh cpm 94,954 cpm - 521 cpm 158,256 cpm - 92 cpm - x 100 = 94,433 cpm 158, 164 cpm = 60%",
     "source": "Source: Wells, 1999; pp. 256-257.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1133.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg",
+    "image": "assets/question-bank/retake/exam2-043/e2q43.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 43.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 43.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-043/e2q43.jpg",
+        "alt": "Graphic for Exam 2, Question 43.",
+        "caption": "Retake source graphic for Exam 2, Question 43."
+      }
+    ]
   },
   {
     "id": "exam2-044",
@@ -3314,7 +3384,17 @@ export const QUESTION_BANK = [
     "explanation": "The technologist does not have to order or prepare [99mTc] macroaggregated albumin, the agent used to perform perfusion lung imaging. A renal function study may be performed with [99mTc] mertiatide, bone imaging with (Pme] medronate, Meckel s diverticulum localization ith [99mTc] pertechnetate, and a hepatobiliarystudy with (?rc) mebrofenin. 99mTc activity eluted - × 100",
     "source": "Source: Schwarz, et al., 1997; pp. 167-172.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg",
+    "image": "assets/question-bank/retake/exam2-049/e2q49.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 49.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 49.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-049/e2q49.jpg",
+        "alt": "Graphic for Exam 2, Question 49.",
+        "caption": "Retake source graphic for Exam 2, Question 49."
+      }
+    ]
   },
   {
     "id": "exam2-050",
@@ -3380,7 +3460,17 @@ export const QUESTION_BANK = [
     "explanation": "The maximum activity that can be prepared from this kit is equal to: maximum reconstituting volume x 99mTc concentration maximum activity = 3 mL x 75.5 mCi/mL = 226.5 mCi To calculate the concentration of the kit, note that the reaction vial contains lyophilized reagents with no appreciable volume. Hence, the total volume in the kit is the sum of the [99mTc] pertechnetate volume and the volumes in the two syringes: total activity in preparation concentration = total vol in preparation maximum activity to be prepared = 5m TC vol + vol to be prepared in syringes 1 + II 226.5 mCi - = 36.5 mCi/mL 3 mL + 1.6 mL + 1.6 mL",
     "source": "Source: Wells, 1999; pp. 183, 192-193.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg",
+    "image": "assets/question-bank/retake/exam2-052/e2q52.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 52.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 52.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-052/e2q52.jpg",
+        "alt": "Graphic for Exam 2, Question 52.",
+        "caption": "Retake source graphic for Exam 2, Question 52."
+      }
+    ]
   },
   {
     "id": "exam2-053",
@@ -3424,7 +3514,17 @@ export const QUESTION_BANK = [
     "explanation": "Generator yield—amount of 99mTc that may be eluted from a 99Mo/99mTc generator-— is calculated by using decay equations that determine the amount of 99mTc formed from the decay of 99Mo at any given time. The sequence for calculating the generator yield is as follows:",
     "source": "Source: Chilton and Witcofski, 1986; pp. 54-61.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg",
+    "image": "assets/question-bank/retake/exam2-054/e2q54.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 54.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 54.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-054/e2q54.jpg",
+        "alt": "Graphic for Exam 2, Question 54.",
+        "caption": "Retake source graphic for Exam 2, Question 54."
+      }
+    ]
   },
   {
     "id": "exam2-055",
@@ -3446,7 +3546,17 @@ export const QUESTION_BANK = [
     "explanation": "The R, value is the distance traveled by a given radiochemical component compared with the solvent front: distance from origin to radiochemical component distance from origin to to solvent front R, = - In this instance, the R, value for the hydrolyzed-reduced 99mTc is: 1.2 cm R, = 2.5 cm = 0.20",
     "source": "Source: Saha, 2004; p. 155.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg",
+    "image": "assets/question-bank/retake/exam2-055/e2q55.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 55.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 55.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-055/e2q55.jpg",
+        "alt": "Graphic for Exam 2, Question 55.",
+        "caption": "Retake source graphic for Exam 2, Question 55."
+      }
+    ]
   },
   {
     "id": "exam2-056",
@@ -3578,7 +3688,17 @@ export const QUESTION_BANK = [
     "explanation": "Because the total activity to be prepared is known, it is easiest to calculated the volume of [99mTc] pertechnetate. The volume of [99mTc] pertechnetate is equal to activity desired 20 mCi = 20 mCi/ml = 1.0 mG concentratin of 99mTc Then, determine the volume of succimer reagent needed. If 1.0 mL = 2 parts, then 1 part must equal half of that, or 0.5 mL.",
     "source": "Source: Wells, 1999; pp. 192-193.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1135.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg",
+    "image": "assets/question-bank/retake/exam2-061/e2q61.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 61.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 61.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-061/e2q61.jpg",
+        "alt": "Graphic for Exam 2, Question 61.",
+        "caption": "Retake source graphic for Exam 2, Question 61."
+      }
+    ]
   },
   {
     "id": "exam2-062",
@@ -3732,7 +3852,17 @@ export const QUESTION_BANK = [
     "explanation": "The volume of a solution in a syringe is measured at the edge of the plunger's stopper, where the calibration mark aligns with the edge of the stopper.",
     "source": "Source: Lile, et al., 2003; p. 273.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1136.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg",
+    "image": "assets/question-bank/retake/exam2-068/e2q68.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 68.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 68.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-068/e2q68.jpg",
+        "alt": "Graphic for Exam 2, Question 68.",
+        "caption": "Retake source graphic for Exam 2, Question 68."
+      }
+    ]
   },
   {
     "id": "exam2-069",
@@ -3776,7 +3906,17 @@ export const QUESTION_BANK = [
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (49 CFR 172.403 and 172.436-440). The label types and exposure rate limits for packages containing radioactive materials are: Exposure rate (mR/h Label category At surface At 1 mete Category I (white) ≤0.5 No detectable radiation Category Il (yellow) ≤50 ≤1.0 Category III (yellow) ≤200 ≤10",
     "source": "Source photo: Answers/Exam 2/IMG_1216.jpeg.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1313.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg",
+    "image": "assets/question-bank/retake/exam2-070/e2q70.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 70.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 70.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-070/e2q70.jpg",
+        "alt": "Graphic for Exam 2, Question 70.",
+        "caption": "Retake source graphic for Exam 2, Question 70."
+      }
+    ]
   },
   {
     "id": "exam2-071",
@@ -3930,7 +4070,17 @@ export const QUESTION_BANK = [
     "explanation": "The needle will register 5 for a full-scale deflection on this meter. The maximum scale is 10. The maximum exposure rate that could be measured is the product of the number at full deflection and the maximum scale. Thus, 5 mR/hr x 10 = 50 mR/hr",
     "source": "Source: Thompson, et al., 1994; pp. 32-33.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1137.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1217.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1217.jpeg",
+    "image": "assets/question-bank/retake/exam2-077/e2q77.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 77.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 77.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-077/e2q77.jpg",
+        "alt": "Graphic for Exam 2, Question 77.",
+        "caption": "Retake source graphic for Exam 2, Question 77."
+      }
+    ]
   },
   {
     "id": "exam2-078",
@@ -4150,7 +4300,17 @@ export const QUESTION_BANK = [
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.60); Siegel, 2004; pp. 50-52; and Saha, 2004; p. 70. The NRC requires that dose calibrators be tested for proper functioning according to nationally recognized standards. The standard of practice requires the measured value to be within +10% of the calculated value. In this example, the measured values for Co, 99mTc, and 231 are within that limit. The measured value for 201Tl, however, varies by more than 10% of the calculated value. 0.10 (53.5 uCi) = 5.35 uCi The measured value at the 2'T1 setting could vary from 48.15 uCi to 58.85 uCi and be within the prescribed limit. However, the measured value is outside this range.",
     "source": "Source photo: Answers/Exam 2/IMG_1218.jpeg.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1314.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
+    "image": "assets/question-bank/retake/exam2-087/e2q87.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 87.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 87.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-087/e2q87.jpg",
+        "alt": "Graphic for Exam 2, Question 87.",
+        "caption": "Retake source graphic for Exam 2, Question 87."
+      }
+    ]
   },
   {
     "id": "exam2-088",
@@ -4173,9 +4333,16 @@ export const QUESTION_BANK = [
     "source": "Source: Wells, 1999; pp. 129-130.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1315.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
-    "image": "assets/question-bank/exam2-q88-fwhm.jpeg",
+    "image": "assets/question-bank/retake/exam2-088/e2q88.jpg",
     "imageAlt": "Graphic for Exam 2, Question 88.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 2, Question 88.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-088/e2q88.jpg",
+        "alt": "Graphic for Exam 2, Question 88.",
+        "caption": "Retake source graphic for Exam 2, Question 88."
+      }
+    ]
   },
   {
     "id": "exam2-089",
@@ -4220,9 +4387,16 @@ export const QUESTION_BANK = [
     "source": "Source: Bernier, et al., 1994; p. 813.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1138.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
-    "image": "assets/question-bank/exam2-q90-phantom.jpeg",
+    "image": "assets/question-bank/retake/exam2-090/e2q90.jpg",
     "imageAlt": "Graphic for Exam 2, Question 90.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 2, Question 90.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-090/e2q90.jpg",
+        "alt": "Graphic for Exam 2, Question 90.",
+        "caption": "Retake source graphic for Exam 2, Question 90."
+      }
+    ]
   },
   {
     "id": "exam2-091",
@@ -4244,7 +4418,17 @@ export const QUESTION_BANK = [
     "explanation": "The standard of practice for performing a dose calibrator accuracy test calls for the use of at least two long-lived reference sources. The measured value should be within 10% of the calculated value. If the instrument fails to meet this standard, it should be repaired or replaced.",
     "source": "Source: Bernier, et al., 1994; p. 80.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1138.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
+    "image": "assets/question-bank/retake/exam2-091/e2q91.jpg",
+    "imageAlt": "Graphic for Exam 2, Question 91.",
+    "imageCaption": "Retake source graphic for Exam 2, Question 91.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam2-091/e2q91.jpg",
+        "alt": "Graphic for Exam 2, Question 91.",
+        "caption": "Retake source graphic for Exam 2, Question 91."
+      }
+    ]
   },
   {
     "id": "exam2-092",
@@ -4688,9 +4872,16 @@ export const QUESTION_BANK = [
     "source": "Source: Crawford and Husain, 2011; p. 40.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1141.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1221.jpeg",
-    "image": "assets/question-bank/exam3-q11-heart-slices.jpeg",
+    "image": "assets/question-bank/retake/exam3-011/e3q11.jpg",
     "imageAlt": "Graphic for Exam 3, Question 11.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 3, Question 11.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-011/e3q11.jpg",
+        "alt": "Graphic for Exam 3, Question 11.",
+        "caption": "Retake source graphic for Exam 3, Question 11."
+      }
+    ]
   },
   {
     "id": "exam3-012",
@@ -5285,9 +5476,16 @@ export const QUESTION_BANK = [
     "source": "Source: Crawford and Husain, 2011; p. 40.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1144.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1222.jpeg",
-    "image": "assets/question-bank/exam3-q38-ventricle-slice.jpeg",
+    "image": "assets/question-bank/retake/exam3-038/e3q38.jpg",
     "imageAlt": "Graphic for Exam 3, Question 38.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 3, Question 38.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-038/e3q38.jpg",
+        "alt": "Graphic for Exam 3, Question 38.",
+        "caption": "Retake source graphic for Exam 3, Question 38."
+      }
+    ]
   },
   {
     "id": "exam3-039",
@@ -5595,7 +5793,17 @@ export const QUESTION_BANK = [
     "explanation": "The concentration of the [99mTc] sulfur colloid is equal to the amount of radioactivity added to the kit divided by the total volume of all liquid reagents. The volume of 99mTc required is 125 mCi / 26.7 mCi/mL = 4.7 mL. Total kit volume = 4.7 mL + 0.5 mL + 1.1 mL + 2.1 mL = 8.4 mL. Final kit concentration = 125 mCi / 8.4 mL = 14.9 mCi/mL.",
     "source": "Source: Wells, 1999; pp. 183, 192-193.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1145.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1223.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1223.jpeg",
+    "image": "assets/question-bank/retake/exam3-052/e3q52.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 52.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 52.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-052/e3q52.jpg",
+        "alt": "Graphic for Exam 3, Question 52.",
+        "caption": "Retake source graphic for Exam 3, Question 52."
+      }
+    ]
   },
   {
     "id": "exam3-053",
@@ -5683,7 +5891,17 @@ export const QUESTION_BANK = [
     "explanation": "Three-phase bone imaging is performed with a bone-seeking agent. According to the label on vial D, the vial contains a bone-imaging agent that has not expired. Vial B contains the previous day's bone agent that has expired. Vials C and E contain radiopharmaceuticals that are not appropriate for performing three-phase bone imaging.",
     "source": "Source: Saha, 2004; p. 92.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1146.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg",
+    "image": "assets/question-bank/retake/exam3-056/e3q56.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 56.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 56.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-056/e3q56.jpg",
+        "alt": "Graphic for Exam 3, Question 56.",
+        "caption": "Retake source graphic for Exam 3, Question 56."
+      }
+    ]
   },
   {
     "id": "exam3-057",
@@ -5793,7 +6011,17 @@ export const QUESTION_BANK = [
     "explanation": "The maximum activity that can be made from one pentetate kit is - × 100 = 78.4% 160 mCi. However, based on the amount of [99mTc] pertechnetate available, only 125 mCi (25.0 mCi/mL. x 5.0 mL) can be prepared; 5.0 ml. is also within the reconstituting volume limits (1-8ml) of the kit.",
     "source": "Source: Wells, 1999; p. 189.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1146.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg",
+    "image": "assets/question-bank/retake/exam3-061/e3q61.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 61.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 61.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-061/e3q61.jpg",
+        "alt": "Graphic for Exam 3, Question 61.",
+        "caption": "Retake source graphic for Exam 3, Question 61."
+      }
+    ]
   },
   {
     "id": "exam3-062",
@@ -5881,7 +6109,17 @@ export const QUESTION_BANK = [
     "explanation": "The hydrolyzed-reduced 99mTc impurity is separated using system 1, and the free pertechnetate impurity is separated using system 2. The hydrolyzed-reduced impurity is 3 uCi / (3 uCi + 177 uCi) x 100 = 1.7%. The free pertechnetate impurity is 15 uCi / (15 uCi + 275 uCi) x 100 = 5.2%. Total radiochemical impurity is 1.7% + 5.2% = 6.9%.",
     "source": "Source: Wells, 1999; pp. 230-231, and Saha, 2004; pp. 153-161.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1320.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg",
+    "image": "assets/question-bank/retake/exam3-065/e3q65.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 65.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 65.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-065/e3q65.jpg",
+        "alt": "Graphic for Exam 3, Question 65.",
+        "caption": "Retake source graphic for Exam 3, Question 65."
+      }
+    ]
   },
   {
     "id": "exam3-066",
@@ -5925,7 +6163,17 @@ export const QUESTION_BANK = [
     "explanation": "American Pharmaceutical Association, 1999; p. 145. Larger-gauge needles are more likely to damage the rubber closure, especially after multiple withdrawals, causing pieces to fall into the solution in the vial. This is referred to as \"coring.\" Needle gauges of 20-27 are less likely to cause coring with repeated withdrawals.",
     "source": "Source photo: Answers/Exam 3/IMG_1226.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1147.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg",
+    "image": "assets/question-bank/retake/exam3-067/e3q67.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 67.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 67.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-067/e3q67.jpg",
+        "alt": "Graphic for Exam 3, Question 67.",
+        "caption": "Retake source graphic for Exam 3, Question 67."
+      }
+    ]
   },
   {
     "id": "exam3-068",
@@ -6123,7 +6371,17 @@ export const QUESTION_BANK = [
     "explanation": "Before any measurements are taken with a survey meter, the meter should be set on the lowest scale. If the needle of the meter reaches the endpoint at the higher end of the scale, the scale should be adjusted upward until the needle registers a value between zero and the high endpoint of the scale.",
     "source": "Source: Thompson, et al., 1994; pp. 32-33.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1148.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg",
+    "image": "assets/question-bank/retake/exam3-076/e3q76.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 76.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 76.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-076/e3q76.jpg",
+        "alt": "Graphic for Exam 3, Question 76.",
+        "caption": "Retake source graphic for Exam 3, Question 76."
+      }
+    ]
   },
   {
     "id": "exam3-077",
@@ -6343,7 +6601,17 @@ export const QUESTION_BANK = [
     "explanation": "The results of this linearity test demonstrate that the measured readings are always higher than the calculated activity (the measured readings line is above the calculated activities line). The difference between measured and calculated activities increases in the lower range of activities. To determine if the instrument is operating within limits according to the standard of practice, the technologist next should determine whether the measured values are within +10% of the calculated values.",
     "source": "Source: Saha, 2004; pp. 70-71.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1149.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg",
+    "image": "assets/question-bank/retake/exam3-086/e3q86.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 86.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 86.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-086/e3q86.jpg",
+        "alt": "Graphic for Exam 3, Question 86.",
+        "caption": "Retake source graphic for Exam 3, Question 86."
+      }
+    ]
   },
   {
     "id": "exam3-087",
@@ -6365,7 +6633,17 @@ export const QUESTION_BANK = [
     "explanation": "Calibrating a scintillation spectrometer involves the determination of the operating voltage applied to the dynodes of the photomultiplier tube. A reference standard, such as 137Cs, is counted at various voltage settings, and the counts are recorded. The voltage at which the maximum number of counts is obtained is the operating voltage for the instrument. Calibration results are valid only for the gain setting used during the determination of the operating voltage.",
     "source": "Source: Early and Sodee, 1995; pp. 158-162.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1149.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg",
+    "image": "assets/question-bank/retake/exam3-087/e3q87.jpg",
+    "imageAlt": "Graphic for Exam 3, Question 87.",
+    "imageCaption": "Retake source graphic for Exam 3, Question 87.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam3-087/e3q87.jpg",
+        "alt": "Graphic for Exam 3, Question 87.",
+        "caption": "Retake source graphic for Exam 3, Question 87."
+      }
+    ]
   },
   {
     "id": "exam3-088",
@@ -6673,7 +6951,17 @@ export const QUESTION_BANK = [
     "explanation": "The diagram depicts a posterior view of the lower lumbar spine, the pelvis, and the proximal femurs. The iliac crests would be demonstrated on an anterior view of the pelvis. The distal femurs and the tenth through twelfth thoracic vertebrae are inferior and superior, respectively, to the structures shown in the diagram.",
     "source": "Source: Christian, et al., 2004; pp. 497-498.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1151.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1230.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1230.jpeg",
+    "image": "assets/question-bank/retake/exam4-001/e4q1.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 1.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 1.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-001/e4q1.jpg",
+        "alt": "Graphic for Exam 4, Question 1.",
+        "caption": "Retake source graphic for Exam 4, Question 1."
+      }
+    ]
   },
   {
     "id": "exam4-002",
@@ -7355,7 +7643,17 @@ export const QUESTION_BANK = [
     "explanation": "The normal ranges of vital signs for adults are: Vital sign Pulse 60-100 beats per minute Blood pressure Diastolic 60-90 mm Hg Systolic 95-140 mm Hg 12-20 breaths/min Respirations 97.7-99.5°F (36.5-37.5°C) Temperature",
     "source": "Source: Adler and Carlton, 2003; p. 161.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1154.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1232.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1232.jpeg",
+    "image": "assets/question-bank/retake/exam4-032/e4q32.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 32.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 32.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-032/e4q32.jpg",
+        "alt": "Graphic for Exam 4, Question 32.",
+        "caption": "Retake source graphic for Exam 4, Question 32."
+      }
+    ]
   },
   {
     "id": "exam4-033",
@@ -7773,7 +8071,17 @@ export const QUESTION_BANK = [
     "explanation": "350 mCi of [99mTc] pertechnetate are available (35.0 mCi/mL x 10 ml = 350 mCi), but this amount exceeds the activity (250 mCi) and volume (5 ml) limits of the kit. Based on the maximum reconstituting volume (5.0 mL) of the kit, 175 mCi can be prepared: x 5 mL = 175 mCi 35 mCi This activity (175 mCi) and volume (5 mL) are within the activity and volume limits for the kit.",
     "source": "Source: Wells, 1999; pp. 192-193.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1155.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg",
+    "image": "assets/question-bank/retake/exam4-051/e4q51.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 51.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 51.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-051/e4q51.jpg",
+        "alt": "Graphic for Exam 4, Question 51.",
+        "caption": "Retake source graphic for Exam 4, Question 51."
+      }
+    ]
   },
   {
     "id": "exam4-052",
@@ -7861,7 +8169,17 @@ export const QUESTION_BANK = [
     "explanation": "Based on the Rf values, free pertechnetate is separated using system 1 and hydrolyzed-reduced 99mTc is separated using system 2. Free pertechnetate is 1,716 cpm / (1,716 cpm + 23,706 cpm) x 100 = 6.7%. Hydrolyzed-reduced 99mTc is 1,200 cpm / (21,001 cpm + 1,200 cpm) x 100 = 5.4%. Tagging efficiency is 100% - (6.7% + 5.4%) = 87.9%.",
     "source": "Source: Saha, 2004; pp. 154-160.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1327.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg",
+    "image": "assets/question-bank/retake/exam4-055/e4q55.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 55.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 55.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-055/e4q55.jpg",
+        "alt": "Graphic for Exam 4, Question 55.",
+        "caption": "Retake source graphic for Exam 4, Question 55."
+      }
+    ]
   },
   {
     "id": "exam4-056",
@@ -8081,7 +8399,17 @@ export const QUESTION_BANK = [
     "explanation": "The free pertechnetate impurity is separated using system 1, and the hydrolyzed-reduced 99mTc impurity is separated using system 2. Free pertechnetate = 9.2 uCi / (107.5 uCi + 9.2 uCi) x 100 = 7.9%. Hydrolyzed-reduced 99mTc = 8.4 uCi / (132.6 uCi + 8.4 uCi) x 100 = 6.0%. Radiochemical purity = 100% - (7.9% + 6.0%) = 86.1%.",
     "source": "Source: Wells, 1999; pp. 230-231, and Saha, 2004; pp. 153-161.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1157.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1235.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1235.jpeg",
+    "image": "assets/question-bank/retake/exam4-065/e4q65.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 65.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 65.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-065/e4q65.jpg",
+        "alt": "Graphic for Exam 4, Question 65.",
+        "caption": "Retake source graphic for Exam 4, Question 65."
+      }
+    ]
   },
   {
     "id": "exam4-066",
@@ -8324,9 +8652,16 @@ export const QUESTION_BANK = [
     "source": "Source: Thompson, et al., 1994; p. 34.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1328.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1236.jpeg",
-    "image": "assets/question-bank/exam4-q76-gm-probe.jpeg",
+    "image": "assets/question-bank/retake/exam4-076/e4q76.jpg",
     "imageAlt": "Graphic for Exam 4, Question 76.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 4, Question 76.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-076/e4q76.jpg",
+        "alt": "Graphic for Exam 4, Question 76.",
+        "caption": "Retake source graphic for Exam 4, Question 76."
+      }
+    ]
   },
   {
     "id": "exam4-077",
@@ -8569,9 +8904,16 @@ export const QUESTION_BANK = [
     "source": "Source: Early and Sodee, 1995; p. 159.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1159.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg",
-    "image": "assets/question-bank/exam4-q87-spectrum-shift.jpeg",
+    "image": "assets/question-bank/retake/exam4-087/e4q87.jpg",
     "imageAlt": "Graphic for Exam 4, Question 87.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 4, Question 87.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-087/e4q87.jpg",
+        "alt": "Graphic for Exam 4, Question 87.",
+        "caption": "Retake source graphic for Exam 4, Question 87."
+      }
+    ]
   },
   {
     "id": "exam4-088",
@@ -8593,7 +8935,17 @@ export const QUESTION_BANK = [
     "explanation": "As the percent energy resolution increases (the value becomes larger), the energy resolution worsens. This means that the FWHM is becoming larger because the photopeak is broadening and, hence, degrading the energy resolution of the instrument. The energy resolution of any counting system decreases with age as a result of deterioration of both the crystal and the electronics. Sudden changes in energy resolution may indicate a cracked crystal.",
     "source": "Source: Early and Sodee, 1995; pp. 165-167, and Wells, 1999; pp. 129-130.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1159.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg",
+    "image": "assets/question-bank/retake/exam4-088/e4q88.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 88.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 88.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-088/e4q88.jpg",
+        "alt": "Graphic for Exam 4, Question 88.",
+        "caption": "Retake source graphic for Exam 4, Question 88."
+      }
+    ]
   },
   {
     "id": "exam4-089",
@@ -8637,7 +8989,17 @@ export const QUESTION_BANK = [
     "explanation": "This flood demonstrates significant non-uniformity. Therefore, the technologist should first confirm that the image was acquired on the correct radionuclide and window settings. A repeat image should be acquired if the settings were incorrect. If the repeat image also shows the non-uniformity, service should be requested. Patient studies must not be acquired on this instrument until the problem is corrected.",
     "source": "Source: Bernier, et al., 1994; pp. 87-89.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1159.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg",
+    "image": "assets/question-bank/retake/exam4-090/e4q90.jpg",
+    "imageAlt": "Graphic for Exam 4, Question 90.",
+    "imageCaption": "Retake source graphic for Exam 4, Question 90.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam4-090/e4q90.jpg",
+        "alt": "Graphic for Exam 4, Question 90.",
+        "caption": "Retake source graphic for Exam 4, Question 90."
+      }
+    ]
   },
   {
     "id": "exam4-091",
@@ -8879,7 +9241,17 @@ export const QUESTION_BANK = [
     "explanation": "The diagram depicts an anterior view of the rib cage and proximal upper extremities. The acromion processes would be demonstrated on a posterior view of the upper thorax that includes the scapulae.",
     "source": "Source: Christian, et al., 2004; pp. 497-498.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1161.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1239.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1239.jpeg",
+    "image": "assets/question-bank/retake/exam5-001/e5q1.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 1.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 1.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-001/e5q1.jpg",
+        "alt": "Graphic for Exam 5, Question 1.",
+        "caption": "Retake source graphic for Exam 5, Question 1."
+      }
+    ]
   },
   {
     "id": "exam5-002",
@@ -9583,7 +9955,17 @@ export const QUESTION_BANK = [
     "explanation": "The red cell and whole blood volumes can be calculated from the measured plasma volume (PV) using the following formulas: PV (mL) × 100 total blood volume (TBV) = 1 - HCT 3900 ml TBV = = 6500 mL 1 - 0.40 red cell volume = TBV - PV = 6500 mL - 3900 mL =2600 mL",
     "source": "Source: Early and Sodee, 1995; p. 728.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1164.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1242.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1242.jpeg",
+    "image": "assets/question-bank/retake/exam5-033/e5q33.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 33.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 33.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-033/e5q33.jpg",
+        "alt": "Graphic for Exam 5, Question 33.",
+        "caption": "Retake source graphic for Exam 5, Question 33."
+      }
+    ]
   },
   {
     "id": "exam5-034",
@@ -9781,7 +10163,17 @@ export const QUESTION_BANK = [
     "explanation": "Net counts are determined using a background (bkg) region of interest (ROI) drawn near the area of interest. The average counts per pixel in the bkg ROI are subtracted from the cardiac ROI, adjusted for the size of the region. net cardiac ROI counts = cardiac ROI counts bkg ROI counts x cardiac ROI pixels bkg ROI pixels, 28,503 cts - (1859 cts / 88 pixels) x 417 pixels 28,503 cts - (21 cts/pixel x 417 pixels) 28,503 cts - 8809 cts = 19,694 cts",
     "source": "Source: Wells, 1999; p. 235.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1166.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1243.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1243.jpeg",
+    "image": "assets/question-bank/retake/exam5-042/e5q42.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 42.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 42.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-042/e5q42.jpg",
+        "alt": "Graphic for Exam 5, Question 42.",
+        "caption": "Retake source graphic for Exam 5, Question 42."
+      }
+    ]
   },
   {
     "id": "exam5-043",
@@ -9979,7 +10371,17 @@ export const QUESTION_BANK = [
     "explanation": "Based on the activity and volume limits for the kit, up to 100 mCi may be prepared using a volume of 0.5-3.0 mL [99mTc] pertechnetate. Using the maximum reconstituting volume, 75 mCi of [99mTc] disofenin can be prepared, an amount within both the volume and activity limits of the kit: 3.0 mL x 25.0 mCi/mL = 75.0 mCi.",
     "source": "Source: Wells, 1999; pp. 192-193.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1166.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1244.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1244.jpeg",
+    "image": "assets/question-bank/retake/exam5-051/e5q51.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 51.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 51.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-051/e5q51.jpg",
+        "alt": "Graphic for Exam 5, Question 51.",
+        "caption": "Retake source graphic for Exam 5, Question 51."
+      }
+    ]
   },
   {
     "id": "exam5-052",
@@ -10221,7 +10623,17 @@ export const QUESTION_BANK = [
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.63). The NRC states that the administered dosage must fall within the prescribed dosage range or may not differ from the prescribed dosage by more than 20%. If the prescribed dosage is 10 mCi, the measured dosage must be between 8 and 12 mCi (+20% of 10 mCi). The measured dosages in choices c and d fall outside the prescribed dosage ranges. Choice b is the correct answer because 12.5 mCi falls within +20% of 15 mCi.",
     "source": "Source photo: Answers/Exam 5/IMG_1245.jpeg.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1333.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1245.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1245.jpeg",
+    "image": "assets/question-bank/retake/exam5-062/e5q62.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 62.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 62.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-062/e5q62.jpg",
+        "alt": "Graphic for Exam 5, Question 62.",
+        "caption": "Retake source graphic for Exam 5, Question 62."
+      }
+    ]
   },
   {
     "id": "exam5-063",
@@ -10530,9 +10942,16 @@ export const QUESTION_BANK = [
     "source": "Source: Thompson, et al., 1994; pp. 32-33.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1169.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1246.jpeg",
-    "image": "assets/question-bank/exam5-q76-survey-meter.jpeg",
+    "image": "assets/question-bank/retake/exam5-076/e5q76.jpg",
     "imageAlt": "Graphic for Exam 5, Question 76.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 5, Question 76.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-076/e5q76.jpg",
+        "alt": "Graphic for Exam 5, Question 76.",
+        "caption": "Retake source graphic for Exam 5, Question 76."
+      }
+    ]
   },
   {
     "id": "exam5-077",
@@ -10730,7 +11149,17 @@ export const QUESTION_BANK = [
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.60), and Siegel, 2004; pp. 50-52. The NRC requires that dose calibrators be tested for proper functioning according to nationally recognized standards. The standard of practice dictates that the measured activity should be within +10% of the expected activity when the instrument is tested for linearity. All 9 measured activities are approximately 5% of the calculated values. Therefore, the results of this test are within acceptable linearity limits.",
     "source": "Source photo: Answers/Exam 5/IMG_1247.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1170.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
+    "image": "assets/question-bank/retake/exam5-085/e5q85.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 85.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 85.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-085/e5q85.jpg",
+        "alt": "Graphic for Exam 5, Question 85.",
+        "caption": "Retake source graphic for Exam 5, Question 85."
+      }
+    ]
   },
   {
     "id": "exam5-086",
@@ -10775,9 +11204,16 @@ export const QUESTION_BANK = [
     "source": "Source: Early and Sodee, 1995; pp. 158-162.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1334.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
-    "image": "assets/question-bank/exam5-q87-voltage-curve.jpeg",
+    "image": "assets/question-bank/retake/exam5-087/e5q87.jpg",
     "imageAlt": "Graphic for Exam 5, Question 87.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 5, Question 87.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-087/e5q87.jpg",
+        "alt": "Graphic for Exam 5, Question 87.",
+        "caption": "Retake source graphic for Exam 5, Question 87."
+      }
+    ]
   },
   {
     "id": "exam5-088",
@@ -10799,7 +11235,17 @@ export const QUESTION_BANK = [
     "explanation": "the next. If the window is not set correctly over the photopeak, it will take longer to acquire the specified number of counts. Likewise, using a collimator that has less sensitivity than a low-energy, all-purpose collimator (such as a high-resolution or medium-energy collimator) will require additional time to collect the counts. With a cracked crystal, the photopeak is broadened, thus decreasing the system's energy resolution and causing decreased counts in a given period of time. If an acquisition is set to terminate after a preset number of counts, the matrix size will not affect the length of the acquisition.",
     "source": "Source: Early and Sodee, 1995; pp. 165-167, 272-273. Sensitivity is expressed as counts per minute per microcurie. From the data presented, there is a sudden change in sensitivity from one day to",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1170.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
+    "image": "assets/question-bank/retake/exam5-088/e5q88.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 88.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 88.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-088/e5q88.jpg",
+        "alt": "Graphic for Exam 5, Question 88.",
+        "caption": "Retake source graphic for Exam 5, Question 88."
+      }
+    ]
   },
   {
     "id": "exam5-089",
@@ -10822,9 +11268,16 @@ export const QUESTION_BANK = [
     "source": "Source: Bernier, et al., 1994; pp. 88-89, and",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1170.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
-    "image": "assets/question-bank/exam5-q89-uniformity.jpeg",
+    "image": "assets/question-bank/retake/exam5-089/e5q89.jpg",
     "imageAlt": "Graphic for Exam 5, Question 89.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 5, Question 89.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-089/e5q89.jpg",
+        "alt": "Graphic for Exam 5, Question 89.",
+        "caption": "Retake source graphic for Exam 5, Question 89."
+      }
+    ]
   },
   {
     "id": "exam5-090",
@@ -10868,7 +11321,17 @@ export const QUESTION_BANK = [
     "explanation": "COR values should vary by no more than ½ pixel. Deviations greater than ½ pixel may degrade resolution in reconstructed images. The values presented are within the ½-pixel limit. Therefore, the technologist can use the camera for SPECT studies using the most recent value.",
     "source": "Source: English, 1995; p. 44.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1171.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
+    "image": "assets/question-bank/retake/exam5-091/e5q91.jpg",
+    "imageAlt": "Graphic for Exam 5, Question 91.",
+    "imageCaption": "Retake source graphic for Exam 5, Question 91.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam5-091/e5q91.jpg",
+        "alt": "Graphic for Exam 5, Question 91.",
+        "caption": "Retake source graphic for Exam 5, Question 91."
+      }
+    ]
   },
   {
     "id": "exam5-092",
@@ -11902,7 +12365,17 @@ export const QUESTION_BANK = [
     "explanation": "Ventilation study usually presents as normal (uniform and symmetrical uptake and wash-out in all three phases) in cases of pulmonary embolism (PE). Mismatching areas of activity (usually two or more segmental defects) in the perfusion study are indicators for PE.",
     "source": "Source: Shackett, 2009; p. 162.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1175.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 6/IMG_1252.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 6/IMG_1252.jpeg",
+    "image": "assets/question-bank/retake/exam6-038/e6q38.jpg",
+    "imageAlt": "Graphic for Exam 6, Question 38.",
+    "imageCaption": "Retake source graphic for Exam 6, Question 38.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam6-038/e6q38.jpg",
+        "alt": "Graphic for Exam 6, Question 38.",
+        "caption": "Retake source graphic for Exam 6, Question 38."
+      }
+    ]
   },
   {
     "id": "exam6-039",
@@ -12958,7 +13431,17 @@ export const QUESTION_BANK = [
     "explanation": "300 mCi volume = 28,7 mCi/ml. volume = 6.3 mL",
     "source": "Source: Shackett, 2009; p. 373.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1179.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 6/IMG_1255.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 6/IMG_1255.jpeg",
+    "image": "assets/question-bank/retake/exam6-086/e6q86.jpg",
+    "imageAlt": "Graphic for Exam 6, Question 86.",
+    "imageCaption": "Retake source graphic for Exam 6, Question 86.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam6-086/e6q86.jpg",
+        "alt": "Graphic for Exam 6, Question 86.",
+        "caption": "Retake source graphic for Exam 6, Question 86."
+      }
+    ]
   },
   {
     "id": "exam6-087",
@@ -13927,9 +14410,16 @@ export const QUESTION_BANK = [
     "source": "Source: Prekeges, 2011; p. 235.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1184.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1259.jpeg",
-    "image": "assets/question-bank/exam7-q30-pet-sinogram.jpeg",
+    "image": "assets/question-bank/retake/exam7-030/e7q30.jpg",
     "imageAlt": "Graphic for Exam 7, Question 30.",
-    "imageCaption": "High-resolution source graphic used for this visual question."
+    "imageCaption": "Retake source graphic for Exam 7, Question 30.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam7-030/e7q30.jpg",
+        "alt": "Graphic for Exam 7, Question 30.",
+        "caption": "Retake source graphic for Exam 7, Question 30."
+      }
+    ]
   },
   {
     "id": "exam7-031",
@@ -13973,7 +14463,17 @@ export const QUESTION_BANK = [
     "explanation": "This is the only equation given that accurately represents the true total net value of counts from the gallbladder by using the percent difference equation. This equation can also be represented as: pre-CCK cts - lowest post - CCK cts - x 100 pre-CCK cts",
     "source": "Source: Shackett, 2009; p. 130.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1184.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 7/IMG_1259.jpeg"
+    "answerPhoto": "Question photos/Answers/Exam 7/IMG_1259.jpeg",
+    "image": "assets/question-bank/retake/exam7-032/e7q32.jpg",
+    "imageAlt": "Graphic for Exam 7, Question 32.",
+    "imageCaption": "Retake source graphic for Exam 7, Question 32.",
+    "images": [
+      {
+        "src": "assets/question-bank/retake/exam7-032/e7q32.jpg",
+        "alt": "Graphic for Exam 7, Question 32.",
+        "caption": "Retake source graphic for Exam 7, Question 32."
+      }
+    ]
   },
   {
     "id": "exam7-033",
