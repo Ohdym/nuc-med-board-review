@@ -311,14 +311,49 @@ function renderIsotope(openBracket, massNumber, symbol, closeBracket) {
   return `${openBracket || ""}<sup>${massNumber}</sup>${symbol}${closeBracket || ""}`;
 }
 
+const AGENT_LABEL_RULES = [
+  { pattern: /\bMedronate\b(?!\s*\(MDP\))/gi, abbreviation: "MDP" },
+  { pattern: /\bPentatate\b(?!\s*\(DTPA\))/gi, abbreviation: "DTPA" },
+  { pattern: /\bDisofenin\b(?!\s*\(DISIDA\))/gi, abbreviation: "DISIDA" },
+  { pattern: /\bMertiatide\b(?!\s*\(MAG3\))/gi, abbreviation: "MAG3" },
+  { pattern: /\bExametazime\b(?!\s*\(HMPAO\))/gi, abbreviation: "HMPAO" },
+  { pattern: /((?:\[\s*99mTc\]|\b99mTc\b)\s*albumin)(?!\s*\(MAA\))/gi, abbreviation: "MAA" },
+  { pattern: /((?:\[\s*153Sm\]|\b153Sm\b)\s*lexidronam)(?!\s*\(Quadramet\))/gi, abbreviation: "Quadramet" },
+  { pattern: /((?:\[\s*111In\]|\b111In\b)\s*oxine)(?!\s*\(WBC\))/gi, abbreviation: "WBC" },
+  { pattern: /\bOxidronate\b(?!\s*\(HDP\))/gi, abbreviation: "HDP" },
+  { pattern: /((?:\[\s*99mTc\]|\b99mTc\b)\s*pyrophosphate)(?!\s*\(PYP\))/gi, abbreviation: "PYP" },
+  { pattern: /\bMebrofenin\b(?!\s*\(HIDA\))/gi, abbreviation: "HIDA" },
+  { pattern: /((?:\[\s*111In\]|\b111In\b)\s*oxyquinoline)(?!\s*\(WBC\))/gi, abbreviation: "WBC" },
+  { pattern: /((?:\[\s*131I\]|\b131I\b)\s*iobenguane)(?!\s*\(MIBG\))/gi, abbreviation: "MIBG" },
+  { pattern: /((?:\[\s*99mTc\]|\b99mTc\b)\s*arcitumomab)(?!\s*\(CEA\))/gi, abbreviation: "CEA" },
+  { pattern: /\bTetrofosmin\b(?!\s*\(MPI\))/gi, abbreviation: "MPI" },
+  { pattern: /\bSuccimer\b(?!\s*\(DMSA\))/gi, abbreviation: "DMSA" },
+  { pattern: /(?<!\()\bDisida\b(?!\s*\(HIDA\))/gi, abbreviation: "HIDA" },
+  { pattern: /((?:\[\s*14C\]|\b14C\b)\s*urea)(?!\s*\(H Pylori\))/gi, abbreviation: "H Pylori" },
+  { pattern: /\bBicisate\b(?!\s*\(ECD\))/gi, abbreviation: "ECD" },
+  { pattern: /\bTeboroxime\b(?!\s*\(MPI\))/gi, abbreviation: "MPI" },
+  { pattern: /\bLidofenin\b(?!\s*\(HIDA\))/gi, abbreviation: "HIDA" },
+  { pattern: /((?:\[\s*51Cr\]|\b51Cr\b)\s*red cell sequestration)(?!\s*\(RBC\))/gi, abbreviation: "RBC" },
+];
+
+function annotateAgentLabels(text) {
+  return AGENT_LABEL_RULES.reduce((output, rule) => {
+    return output.replace(rule.pattern, (match) => `${match} (${rule.abbreviation})`);
+  }, String(text || ""));
+}
+
 function formatCaretExponents(text) {
   return String(text || "").replace(/\^(\([^)]+\)|\[[^\]]+\]|\{[^}]+\}|[A-Za-z0-9.+\-/%]+)/g, (match, exponent) => {
     return `<sup>${exponent}</sup>`;
   });
 }
 
+function preserveRenderedLineBreaks(text) {
+  return String(text || "").replace(/\r\n?/g, "\n").replace(/\n/g, "<br>");
+}
+
 function formatScientificText(value) {
-  const escaped = escapeHtml(normalizeIsotopeText(value));
+  const escaped = escapeHtml(annotateAgentLabels(normalizeIsotopeText(value)));
   const massFirstPattern = new RegExp(
     `(\\[?)(\\d{1,3}m?)\\s*[- ]?\\s*(${ISOTOPE_SYMBOL_PATTERN})(\\]?)(?![a-z])`,
     "g"
@@ -328,7 +363,7 @@ function formatScientificText(value) {
     "g"
   );
 
-  return formatCaretExponents(
+  return preserveRenderedLineBreaks(formatCaretExponents(
     escaped
     .replace(symbolFirstPattern, (match, openBracket, symbol, massNumber, closeBracket) => {
       if (!isKnownIsotope(symbol, massNumber)) {
@@ -345,8 +380,9 @@ function formatScientificText(value) {
         return match;
       }
       return renderIsotope(openBracket, massNumber, symbol, closeBracket);
-    }),
-  );
+    })
+    .replace(/\bRf\b/g, "R<sub>f</sub>"),
+  ));
 }
 
 const SOURCE_PDF_BOOKS = [
