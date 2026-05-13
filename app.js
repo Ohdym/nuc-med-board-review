@@ -314,6 +314,7 @@ function renderIsotope(openBracket, massNumber, symbol, closeBracket) {
 const AGENT_LABEL_RULES = [
   { pattern: /\bMedronate\b(?!\s*\(MDP\))/gi, abbreviation: "MDP" },
   { pattern: /\bPentatate\b(?!\s*\(DTPA\))/gi, abbreviation: "DTPA" },
+  { pattern: /\bpentetate\b(?!\s*\(DTPA\))/gi, abbreviation: "DTPA" },
   { pattern: /\bDisofenin\b(?!\s*\(DISIDA\))/gi, abbreviation: "DISIDA" },
   { pattern: /\bMertiatide\b(?!\s*\(MAG3\))/gi, abbreviation: "MAG3" },
   { pattern: /\bExametazime\b(?!\s*\(HMPAO\))/gi, abbreviation: "HMPAO" },
