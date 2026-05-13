@@ -184,6 +184,12 @@ const state = {
       message: "Edit question text directly in the bank, then press Save Changes to keep your updates on this device.",
     },
   },
+  storageStatus: {
+    storageBackend: "unknown",
+    databaseConfigured: false,
+    databaseReady: false,
+    postgresDriverAvailable: false,
+  },
   live: {
     username: loadJSON(STORAGE_KEYS.liveProfile, { username: "" }).username || "",
     joinCode: "",
@@ -584,6 +590,51 @@ function hasSharedLiveBank() {
 
 function getQuestionOrigin(question) {
   return SEEDED_QUESTION_IDS.has(question.id) ? "shared" : "imported";
+}
+
+function applyStorageStatus(status) {
+  if (!status || typeof status !== "object") {
+    return;
+  }
+
+  state.storageStatus = {
+    storageBackend: status.storageBackend || "unknown",
+    databaseConfigured: Boolean(status.databaseConfigured),
+    databaseReady: Boolean(status.databaseReady),
+    postgresDriverAvailable: Boolean(status.postgresDriverAvailable),
+  };
+}
+
+function getQuestionBankStorageSummary() {
+  if (!isInstructor()) {
+    return "Only the instructor login can edit question text, answers, explanations, and source details.";
+  }
+
+  if (state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady) {
+    return "Changes are staged as you type. Save Changes stores them in the shared Postgres database so they appear on other signed-in devices.";
+  }
+
+  if (state.storageStatus.storageBackend === "local-json") {
+    return "Changes are staged as you type. Save Changes is using the server's local JSON fallback instead of shared Postgres, so edits are not reliably shared across devices and can be lost after restart or redeploy.";
+  }
+
+  return "Changes are staged as you type. Save Changes needs the instructor backend to store edits beyond this browser.";
+}
+
+function renderQuestionBankStoragePill() {
+  if (!isInstructor()) {
+    return "";
+  }
+
+  if (state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady) {
+    return '<span class="pill">Storage: Shared Postgres</span>';
+  }
+
+  if (state.storageStatus.storageBackend === "local-json") {
+    return '<span class="pill">Storage: Local JSON fallback</span>';
+  }
+
+  return '<span class="pill">Storage: Unknown</span>';
 }
 
 function getQuestionExamInfo(question) {
@@ -2345,12 +2396,16 @@ async function saveQuestionBankEdits() {
     const data = await apiRequest("/api/question-edits", "PUT", {
       questionEdits: state.questionEdits,
     });
+    applyStorageStatus(data.storageStatus);
     state.questionEdits = data.questionEdits || {};
     saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
     state.questionBank.hasUnsavedChanges = false;
     state.questionBank.feedback = {
       tone: "success",
-      message: "Question bank changes saved to the persistent database.",
+      message:
+        state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady
+          ? "Question bank changes saved to the shared Postgres database."
+          : "Question bank changes saved to the server's local JSON fallback.",
     };
   } catch (error) {
     saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
@@ -2912,6 +2967,7 @@ function applyAccountSession(data) {
     saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
     state.questionBank.hasUnsavedChanges = false;
   }
+  applyStorageStatus(data.storageStatus);
   state.account.placements = Array.isArray(data.placements) ? data.placements : [];
   if (isInstructor() && Array.isArray(data.customQuizzes)) {
     state.customQuizBuilder.saved = mergeCustomQuizLibraries(data.customQuizzes, state.customQuizBuilder.saved);
@@ -3014,6 +3070,12 @@ async function logoutAccount() {
   state.instructor.rosterResult = null;
   state.instructor.message = "Instructor metrics load after an instructor signs in.";
   state.instructor.tone = "info";
+  state.storageStatus = {
+    storageBackend: "unknown",
+    databaseConfigured: false,
+    databaseReady: false,
+    postgresDriverAvailable: false,
+  };
   persistAccountAuth();
   setAccountMessage("info", "Signed out. This browser will keep local history, but new attempts will not sync to an account.");
   renderApp();
@@ -3667,6 +3729,7 @@ function renderQuestionBankEditor(question) {
       <div class="bank-readonly">
         ${renderFlagControl(question)}
         <h3>${formatScientificText(question.question)}</h3>
+        ${renderQuestionMedia(question)}
         <div class="option-list option-list--bank">
           ${[0, 1, 2, 3, 4]
             .map(
@@ -3698,6 +3761,7 @@ function renderQuestionBankEditor(question) {
           getQuestionBankEditValue(question, "question"),
         )}</textarea>
       </label>
+      ${renderQuestionMedia(question)}
       <div class="bank-edit-grid">
         <label class="bank-edit-field">
           <span>Category</span>
@@ -3895,17 +3959,14 @@ function renderQuestionBankView() {
       <section class="panel bank-save-bar">
         <div>
           <h3>${isInstructor() ? "Editable Question Bank" : "Question Bank Review"}</h3>
-          <p>${
-            isInstructor()
-              ? "Changes are staged as you type. Press Save Changes to keep them locally on this device."
-              : "Only the instructor login can edit question text, answers, explanations, and source details."
-          }</p>
+          <p>${getQuestionBankStorageSummary()}</p>
         </div>
         ${
           isInstructor()
             ? `
               <div class="bank-save-bar__actions">
                 <span class="pill">${state.questionBank.hasUnsavedChanges ? "Unsaved edits" : "No unsaved edits"}</span>
+                ${renderQuestionBankStoragePill()}
                 <button type="button" class="button button--primary" data-action="save-question-bank-edits">Save Changes</button>
               </div>
               <div class="${bankFeedbackClass}">
@@ -4019,7 +4080,6 @@ function renderQuestionBankView() {
 	                        <span class="pill">${escapeHtml(question.topic)}</span>
 	                        <span class="pill">${escapeHtml(question.type)}</span>
 	                      </div>
-                      ${renderQuestionMedia(question)}
                       ${renderQuestionBankEditor(question)}
                     </article>
                   `;

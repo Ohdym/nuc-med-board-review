@@ -148,15 +148,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1294.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1201.jpeg",
     "image": "assets/question-bank/retake/exam1-005/e1q5.jpg",
-    "imageAlt": "Graphic for Exam 1, Question 5.",
-    "imageCaption": "Retake source graphic for Exam 1, Question 5.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam1-005/e1q5.jpg",
-        "alt": "Graphic for Exam 1, Question 5.",
-        "caption": "Retake source graphic for Exam 1, Question 5."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 1, Question 5."
   },
   {
     "id": "exam1-006",
@@ -1170,15 +1162,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1298.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1205.jpeg",
     "image": "assets/question-bank/retake/exam1-051/e1q51.jpg",
-    "imageAlt": "Graphic for Exam 1, Question 51.",
-    "imageCaption": "Retake source graphic for Exam 1, Question 51.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam1-051/e1q51.jpg",
-        "alt": "Graphic for Exam 1, Question 51.",
-        "caption": "Retake source graphic for Exam 1, Question 51."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 1, Question 51."
   },
   {
     "id": "exam1-052",
@@ -1752,15 +1736,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1301.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1208.jpeg",
     "image": "assets/question-bank/retake/exam1-077/e1q77.jpg",
-    "imageAlt": "Graphic for Exam 1, Question 77.",
-    "imageCaption": "Retake source graphic for Exam 1, Question 77.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam1-077/e1q77.jpg",
-        "alt": "Graphic for Exam 1, Question 77.",
-        "caption": "Retake source graphic for Exam 1, Question 77."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 1, Question 77."
   },
   {
     "id": "exam1-078",
@@ -2004,15 +1980,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1302.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg",
     "image": "assets/question-bank/retake/exam1-088/e1q88.jpg",
-    "imageAlt": "Graphic for Exam 1, Question 88.",
-    "imageCaption": "Retake source graphic for Exam 1, Question 88.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam1-088/e1q88.jpg",
-        "alt": "Graphic for Exam 1, Question 88.",
-        "caption": "Retake source graphic for Exam 1, Question 88."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 1, Question 88."
   },
   {
     "id": "exam1-089",
@@ -2058,15 +2026,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1302.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg",
     "image": "assets/question-bank/retake/exam1-090/e1q90.jpg",
-    "imageAlt": "Graphic for Exam 1, Question 90.",
-    "imageCaption": "Retake source graphic for Exam 1, Question 90.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam1-090/e1q90.jpg",
-        "alt": "Graphic for Exam 1, Question 90.",
-        "caption": "Retake source graphic for Exam 1, Question 90."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 1, Question 90."
   },
   {
     "id": "exam1-091",
@@ -2992,15 +2952,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1132.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1213.jpeg",
     "image": "assets/question-bank/retake/exam2-032/e2q32.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 32.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 32.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-032/e2q32.jpg",
-        "alt": "Graphic for Exam 2, Question 32.",
-        "caption": "Retake source graphic for Exam 2, Question 32."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 32."
   },
   {
     "id": "exam2-033",
@@ -3244,15 +3196,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1133.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg",
     "image": "assets/question-bank/retake/exam2-043/e2q43.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 43.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 43.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-043/e2q43.jpg",
-        "alt": "Graphic for Exam 2, Question 43.",
-        "caption": "Retake source graphic for Exam 2, Question 43."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 43."
   },
   {
     "id": "exam2-044",
@@ -3386,15 +3330,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg",
     "image": "assets/question-bank/retake/exam2-049/e2q49.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 49.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 49.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-049/e2q49.jpg",
-        "alt": "Graphic for Exam 2, Question 49.",
-        "caption": "Retake source graphic for Exam 2, Question 49."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 49."
   },
   {
     "id": "exam2-050",
@@ -3462,15 +3398,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg",
     "image": "assets/question-bank/retake/exam2-052/e2q52.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 52.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 52.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-052/e2q52.jpg",
-        "alt": "Graphic for Exam 2, Question 52.",
-        "caption": "Retake source graphic for Exam 2, Question 52."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 52."
   },
   {
     "id": "exam2-053",
@@ -3516,15 +3444,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg",
     "image": "assets/question-bank/retake/exam2-054/e2q54.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 54.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 54.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-054/e2q54.jpg",
-        "alt": "Graphic for Exam 2, Question 54.",
-        "caption": "Retake source graphic for Exam 2, Question 54."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 54."
   },
   {
     "id": "exam2-055",
@@ -3548,15 +3468,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1215.jpeg",
     "image": "assets/question-bank/retake/exam2-055/e2q55.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 55.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 55.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-055/e2q55.jpg",
-        "alt": "Graphic for Exam 2, Question 55.",
-        "caption": "Retake source graphic for Exam 2, Question 55."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 55."
   },
   {
     "id": "exam2-056",
@@ -3690,15 +3602,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1135.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg",
     "image": "assets/question-bank/retake/exam2-061/e2q61.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 61.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 61.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-061/e2q61.jpg",
-        "alt": "Graphic for Exam 2, Question 61.",
-        "caption": "Retake source graphic for Exam 2, Question 61."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 61."
   },
   {
     "id": "exam2-062",
@@ -3854,15 +3758,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1136.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg",
     "image": "assets/question-bank/retake/exam2-068/e2q68.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 68.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 68.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-068/e2q68.jpg",
-        "alt": "Graphic for Exam 2, Question 68.",
-        "caption": "Retake source graphic for Exam 2, Question 68."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 68."
   },
   {
     "id": "exam2-069",
@@ -3908,15 +3804,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1313.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg",
     "image": "assets/question-bank/retake/exam2-070/e2q70.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 70.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 70.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-070/e2q70.jpg",
-        "alt": "Graphic for Exam 2, Question 70.",
-        "caption": "Retake source graphic for Exam 2, Question 70."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 70."
   },
   {
     "id": "exam2-071",
@@ -4072,15 +3960,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1137.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1217.jpeg",
     "image": "assets/question-bank/retake/exam2-077/e2q77.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 77.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 77.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-077/e2q77.jpg",
-        "alt": "Graphic for Exam 2, Question 77.",
-        "caption": "Retake source graphic for Exam 2, Question 77."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 77."
   },
   {
     "id": "exam2-078",
@@ -4302,15 +4182,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1314.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
     "image": "assets/question-bank/retake/exam2-087/e2q87.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 87.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 87.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-087/e2q87.jpg",
-        "alt": "Graphic for Exam 2, Question 87.",
-        "caption": "Retake source graphic for Exam 2, Question 87."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 87."
   },
   {
     "id": "exam2-088",
@@ -4334,15 +4206,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1315.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
     "image": "assets/question-bank/retake/exam2-088/e2q88.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 88.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 88.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-088/e2q88.jpg",
-        "alt": "Graphic for Exam 2, Question 88.",
-        "caption": "Retake source graphic for Exam 2, Question 88."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 88."
   },
   {
     "id": "exam2-089",
@@ -4388,15 +4252,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1138.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
     "image": "assets/question-bank/retake/exam2-090/e2q90.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 90.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 90.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-090/e2q90.jpg",
-        "alt": "Graphic for Exam 2, Question 90.",
-        "caption": "Retake source graphic for Exam 2, Question 90."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 90."
   },
   {
     "id": "exam2-091",
@@ -4420,15 +4276,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1138.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg",
     "image": "assets/question-bank/retake/exam2-091/e2q91.jpg",
-    "imageAlt": "Graphic for Exam 2, Question 91.",
-    "imageCaption": "Retake source graphic for Exam 2, Question 91.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam2-091/e2q91.jpg",
-        "alt": "Graphic for Exam 2, Question 91.",
-        "caption": "Retake source graphic for Exam 2, Question 91."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 2, Question 91."
   },
   {
     "id": "exam2-092",
@@ -4603,9 +4451,6 @@ export const QUESTION_BANK = [
     "answerIndex": 2,
     "explanation": "The 35-day decay factor can be determined by multiplying the 30-day factor by the 5-day factor: 0.926 x 0.987 = 0.914. The expected activity is 325.8 uCi x 0.914 = 297.8 uCi. Dose calibrator constancy readings should be within +/-10% of the calculated value, so the acceptable range is 268.0-327.6 uCi.",
     "source": "Source: provided retake photo IMG_1316; answer/explanation page not available in the supplied answer-photo set.",
-    "image": "assets/question-bank/exam2-q99-decay-factor-table.jpg",
-    "imageAlt": "57Co decay factor table for Exam 2 Question 99",
-    "imageCaption": "57Co decay factors used to calculate the 35-day expected activity.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1316.jpeg",
     "answerPhoto": ""
   },
@@ -4873,15 +4718,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1141.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1221.jpeg",
     "image": "assets/question-bank/retake/exam3-011/e3q11.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 11.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 11.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-011/e3q11.jpg",
-        "alt": "Graphic for Exam 3, Question 11.",
-        "caption": "Retake source graphic for Exam 3, Question 11."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 11."
   },
   {
     "id": "exam3-012",
@@ -5477,15 +5314,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1144.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1222.jpeg",
     "image": "assets/question-bank/retake/exam3-038/e3q38.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 38.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 38.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-038/e3q38.jpg",
-        "alt": "Graphic for Exam 3, Question 38.",
-        "caption": "Retake source graphic for Exam 3, Question 38."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 38."
   },
   {
     "id": "exam3-039",
@@ -5795,15 +5624,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1145.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1223.jpeg",
     "image": "assets/question-bank/retake/exam3-052/e3q52.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 52.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 52.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-052/e3q52.jpg",
-        "alt": "Graphic for Exam 3, Question 52.",
-        "caption": "Retake source graphic for Exam 3, Question 52."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 52."
   },
   {
     "id": "exam3-053",
@@ -5893,15 +5714,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1146.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg",
     "image": "assets/question-bank/retake/exam3-056/e3q56.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 56.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 56.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-056/e3q56.jpg",
-        "alt": "Graphic for Exam 3, Question 56.",
-        "caption": "Retake source graphic for Exam 3, Question 56."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 56."
   },
   {
     "id": "exam3-057",
@@ -6013,15 +5826,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1146.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg",
     "image": "assets/question-bank/retake/exam3-061/e3q61.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 61.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 61.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-061/e3q61.jpg",
-        "alt": "Graphic for Exam 3, Question 61.",
-        "caption": "Retake source graphic for Exam 3, Question 61."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 61."
   },
   {
     "id": "exam3-062",
@@ -6111,15 +5916,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1320.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg",
     "image": "assets/question-bank/retake/exam3-065/e3q65.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 65.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 65.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-065/e3q65.jpg",
-        "alt": "Graphic for Exam 3, Question 65.",
-        "caption": "Retake source graphic for Exam 3, Question 65."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 65."
   },
   {
     "id": "exam3-066",
@@ -6165,15 +5962,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1147.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg",
     "image": "assets/question-bank/retake/exam3-067/e3q67.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 67.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 67.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-067/e3q67.jpg",
-        "alt": "Graphic for Exam 3, Question 67.",
-        "caption": "Retake source graphic for Exam 3, Question 67."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 67."
   },
   {
     "id": "exam3-068",
@@ -6373,15 +6162,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1148.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg",
     "image": "assets/question-bank/retake/exam3-076/e3q76.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 76.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 76.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-076/e3q76.jpg",
-        "alt": "Graphic for Exam 3, Question 76.",
-        "caption": "Retake source graphic for Exam 3, Question 76."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 76."
   },
   {
     "id": "exam3-077",
@@ -6603,15 +6384,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1149.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg",
     "image": "assets/question-bank/retake/exam3-086/e3q86.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 86.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 86.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-086/e3q86.jpg",
-        "alt": "Graphic for Exam 3, Question 86.",
-        "caption": "Retake source graphic for Exam 3, Question 86."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 86."
   },
   {
     "id": "exam3-087",
@@ -6635,15 +6408,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1149.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1227.jpeg",
     "image": "assets/question-bank/retake/exam3-087/e3q87.jpg",
-    "imageAlt": "Graphic for Exam 3, Question 87.",
-    "imageCaption": "Retake source graphic for Exam 3, Question 87.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam3-087/e3q87.jpg",
-        "alt": "Graphic for Exam 3, Question 87.",
-        "caption": "Retake source graphic for Exam 3, Question 87."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 3, Question 87."
   },
   {
     "id": "exam3-088",
@@ -6953,15 +6718,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1151.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1230.jpeg",
     "image": "assets/question-bank/retake/exam4-001/e4q1.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 1.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 1.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-001/e4q1.jpg",
-        "alt": "Graphic for Exam 4, Question 1.",
-        "caption": "Retake source graphic for Exam 4, Question 1."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 1."
   },
   {
     "id": "exam4-002",
@@ -7645,15 +7402,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1154.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1232.jpeg",
     "image": "assets/question-bank/retake/exam4-032/e4q32.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 32.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 32.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-032/e4q32.jpg",
-        "alt": "Graphic for Exam 4, Question 32.",
-        "caption": "Retake source graphic for Exam 4, Question 32."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 32."
   },
   {
     "id": "exam4-033",
@@ -8073,15 +7822,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1155.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg",
     "image": "assets/question-bank/retake/exam4-051/e4q51.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 51.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 51.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-051/e4q51.jpg",
-        "alt": "Graphic for Exam 4, Question 51.",
-        "caption": "Retake source graphic for Exam 4, Question 51."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 51."
   },
   {
     "id": "exam4-052",
@@ -8171,15 +7912,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1327.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg",
     "image": "assets/question-bank/retake/exam4-055/e4q55.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 55.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 55.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-055/e4q55.jpg",
-        "alt": "Graphic for Exam 4, Question 55.",
-        "caption": "Retake source graphic for Exam 4, Question 55."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 55."
   },
   {
     "id": "exam4-056",
@@ -8401,15 +8134,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1157.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1235.jpeg",
     "image": "assets/question-bank/retake/exam4-065/e4q65.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 65.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 65.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-065/e4q65.jpg",
-        "alt": "Graphic for Exam 4, Question 65.",
-        "caption": "Retake source graphic for Exam 4, Question 65."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 65."
   },
   {
     "id": "exam4-066",
@@ -8653,15 +8378,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1328.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1236.jpeg",
     "image": "assets/question-bank/retake/exam4-076/e4q76.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 76.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 76.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-076/e4q76.jpg",
-        "alt": "Graphic for Exam 4, Question 76.",
-        "caption": "Retake source graphic for Exam 4, Question 76."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 76."
   },
   {
     "id": "exam4-077",
@@ -8905,15 +8622,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1159.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg",
     "image": "assets/question-bank/retake/exam4-087/e4q87.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 87.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 87.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-087/e4q87.jpg",
-        "alt": "Graphic for Exam 4, Question 87.",
-        "caption": "Retake source graphic for Exam 4, Question 87."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 87."
   },
   {
     "id": "exam4-088",
@@ -8937,15 +8646,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1159.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg",
     "image": "assets/question-bank/retake/exam4-088/e4q88.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 88.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 88.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-088/e4q88.jpg",
-        "alt": "Graphic for Exam 4, Question 88.",
-        "caption": "Retake source graphic for Exam 4, Question 88."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 88."
   },
   {
     "id": "exam4-089",
@@ -8991,15 +8692,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1159.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg",
     "image": "assets/question-bank/retake/exam4-090/e4q90.jpg",
-    "imageAlt": "Graphic for Exam 4, Question 90.",
-    "imageCaption": "Retake source graphic for Exam 4, Question 90.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam4-090/e4q90.jpg",
-        "alt": "Graphic for Exam 4, Question 90.",
-        "caption": "Retake source graphic for Exam 4, Question 90."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 4, Question 90."
   },
   {
     "id": "exam4-091",
@@ -9243,15 +8936,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1161.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1239.jpeg",
     "image": "assets/question-bank/retake/exam5-001/e5q1.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 1.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 1.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-001/e5q1.jpg",
-        "alt": "Graphic for Exam 5, Question 1.",
-        "caption": "Retake source graphic for Exam 5, Question 1."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 1."
   },
   {
     "id": "exam5-002",
@@ -9957,15 +9642,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1164.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1242.jpeg",
     "image": "assets/question-bank/retake/exam5-033/e5q33.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 33.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 33.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-033/e5q33.jpg",
-        "alt": "Graphic for Exam 5, Question 33.",
-        "caption": "Retake source graphic for Exam 5, Question 33."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 33."
   },
   {
     "id": "exam5-034",
@@ -10165,15 +9842,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1166.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1243.jpeg",
     "image": "assets/question-bank/retake/exam5-042/e5q42.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 42.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 42.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-042/e5q42.jpg",
-        "alt": "Graphic for Exam 5, Question 42.",
-        "caption": "Retake source graphic for Exam 5, Question 42."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 42."
   },
   {
     "id": "exam5-043",
@@ -10373,15 +10042,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1166.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1244.jpeg",
     "image": "assets/question-bank/retake/exam5-051/e5q51.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 51.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 51.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-051/e5q51.jpg",
-        "alt": "Graphic for Exam 5, Question 51.",
-        "caption": "Retake source graphic for Exam 5, Question 51."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 51."
   },
   {
     "id": "exam5-052",
@@ -10625,15 +10286,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1333.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1245.jpeg",
     "image": "assets/question-bank/retake/exam5-062/e5q62.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 62.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 62.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-062/e5q62.jpg",
-        "alt": "Graphic for Exam 5, Question 62.",
-        "caption": "Retake source graphic for Exam 5, Question 62."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 62."
   },
   {
     "id": "exam5-063",
@@ -10943,15 +10596,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1169.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1246.jpeg",
     "image": "assets/question-bank/retake/exam5-076/e5q76.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 76.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 76.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-076/e5q76.jpg",
-        "alt": "Graphic for Exam 5, Question 76.",
-        "caption": "Retake source graphic for Exam 5, Question 76."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 76."
   },
   {
     "id": "exam5-077",
@@ -11151,15 +10796,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1170.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
     "image": "assets/question-bank/retake/exam5-085/e5q85.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 85.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 85.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-085/e5q85.jpg",
-        "alt": "Graphic for Exam 5, Question 85.",
-        "caption": "Retake source graphic for Exam 5, Question 85."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 85."
   },
   {
     "id": "exam5-086",
@@ -11205,15 +10842,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Retake Photos/IMG_1334.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
     "image": "assets/question-bank/retake/exam5-087/e5q87.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 87.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 87.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-087/e5q87.jpg",
-        "alt": "Graphic for Exam 5, Question 87.",
-        "caption": "Retake source graphic for Exam 5, Question 87."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 87."
   },
   {
     "id": "exam5-088",
@@ -11237,15 +10866,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1170.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
     "image": "assets/question-bank/retake/exam5-088/e5q88.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 88.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 88.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-088/e5q88.jpg",
-        "alt": "Graphic for Exam 5, Question 88.",
-        "caption": "Retake source graphic for Exam 5, Question 88."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 88."
   },
   {
     "id": "exam5-089",
@@ -11269,15 +10890,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1170.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
     "image": "assets/question-bank/retake/exam5-089/e5q89.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 89.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 89.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-089/e5q89.jpg",
-        "alt": "Graphic for Exam 5, Question 89.",
-        "caption": "Retake source graphic for Exam 5, Question 89."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 89."
   },
   {
     "id": "exam5-090",
@@ -11323,15 +10936,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1171.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg",
     "image": "assets/question-bank/retake/exam5-091/e5q91.jpg",
-    "imageAlt": "Graphic for Exam 5, Question 91.",
-    "imageCaption": "Retake source graphic for Exam 5, Question 91.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam5-091/e5q91.jpg",
-        "alt": "Graphic for Exam 5, Question 91.",
-        "caption": "Retake source graphic for Exam 5, Question 91."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 5, Question 91."
   },
   {
     "id": "exam5-092",
@@ -12367,15 +11972,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1175.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1252.jpeg",
     "image": "assets/question-bank/retake/exam6-038/e6q38.jpg",
-    "imageAlt": "Graphic for Exam 6, Question 38.",
-    "imageCaption": "Retake source graphic for Exam 6, Question 38.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam6-038/e6q38.jpg",
-        "alt": "Graphic for Exam 6, Question 38.",
-        "caption": "Retake source graphic for Exam 6, Question 38."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 6, Question 38."
   },
   {
     "id": "exam6-039",
@@ -13433,15 +13030,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1179.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1255.jpeg",
     "image": "assets/question-bank/retake/exam6-086/e6q86.jpg",
-    "imageAlt": "Graphic for Exam 6, Question 86.",
-    "imageCaption": "Retake source graphic for Exam 6, Question 86.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam6-086/e6q86.jpg",
-        "alt": "Graphic for Exam 6, Question 86.",
-        "caption": "Retake source graphic for Exam 6, Question 86."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 6, Question 86."
   },
   {
     "id": "exam6-087",
@@ -14411,15 +14000,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1184.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1259.jpeg",
     "image": "assets/question-bank/retake/exam7-030/e7q30.jpg",
-    "imageAlt": "Graphic for Exam 7, Question 30.",
-    "imageCaption": "Retake source graphic for Exam 7, Question 30.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam7-030/e7q30.jpg",
-        "alt": "Graphic for Exam 7, Question 30.",
-        "caption": "Retake source graphic for Exam 7, Question 30."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 7, Question 30."
   },
   {
     "id": "exam7-031",
@@ -14465,15 +14046,7 @@ export const QUESTION_BANK = [
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1184.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1259.jpeg",
     "image": "assets/question-bank/retake/exam7-032/e7q32.jpg",
-    "imageAlt": "Graphic for Exam 7, Question 32.",
-    "imageCaption": "Retake source graphic for Exam 7, Question 32.",
-    "images": [
-      {
-        "src": "assets/question-bank/retake/exam7-032/e7q32.jpg",
-        "alt": "Graphic for Exam 7, Question 32.",
-        "caption": "Retake source graphic for Exam 7, Question 32."
-      }
-    ]
+    "imageAlt": "Graphic for Exam 7, Question 32."
   },
   {
     "id": "exam7-033",
