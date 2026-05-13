@@ -3728,7 +3728,7 @@ function renderQuestionBankEditor(question) {
     return `
       <div class="bank-readonly">
         ${renderFlagControl(question)}
-        <h3>${formatScientificText(question.question)}</h3>
+        <h3 class="question-text">${formatScientificText(question.question)}</h3>
         ${renderQuestionMedia(question)}
         <div class="option-list option-list--bank">
           ${[0, 1, 2, 3, 4]
@@ -4309,7 +4309,7 @@ function renderProfileView(summary) {
                     return `
                       <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
                         <div>
-                          <strong>${formatScientificText(question ? question.question : attempt.questionId)}</strong>
+                          <strong class="question-text">${formatScientificText(question ? question.question : attempt.questionId)}</strong>
                           <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${new Date(attempt.timestamp).toLocaleDateString()}</span>
                         </div>
                         <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
@@ -4402,7 +4402,7 @@ function renderInstructorUserDetail(user) {
                     (attempt) => `
                       <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
                         <div>
-                          <strong>${formatScientificText(attempt.question || attempt.questionId)}</strong>
+                          <strong class="question-text">${formatScientificText(attempt.question || attempt.questionId)}</strong>
                           <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${attempt.timestamp ? new Date(attempt.timestamp).toLocaleDateString() : "No date"}</span>
                         </div>
                         <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
@@ -4519,7 +4519,7 @@ function renderInstructorFlaggedReview() {
                     <div>
                       <strong>${escapeHtml(item.label)}</strong>
                       <span>${escapeHtml(item.category)} • ${escapeHtml(item.topic)} • ${escapeHtml(targets || "Question")}</span>
-                      <small>${formatScientificText(item.question)}</small>
+                      <small class="question-text">${formatScientificText(item.question)}</small>
                     </div>
                     <div class="flag-review-row__meta">
                       <strong>${item.flags.length} flag${item.flags.length === 1 ? "" : "s"}</strong>
@@ -4585,7 +4585,7 @@ function renderInstructorOnlineQuizAnalysis(session) {
                                   <div>
                                     <strong>${escapeHtml(result.label || result.questionId)}</strong>
                                     <span>${escapeHtml(result.category)} • ${escapeHtml(result.topic)}</span>
-                                    <small>${formatScientificText(result.question || result.questionId)}</small>
+                                    <small class="question-text">${formatScientificText(result.question || result.questionId)}</small>
                                   </div>
                                   <strong>${result.correct ? "Correct" : result.selectedIndex === null ? "No answer" : "Missed"}</strong>
                                 </article>
@@ -4937,7 +4937,7 @@ function renderCustomQuizCreationView() {
                         <span>
                           <strong>${escapeHtml(formatQuestionBankLabel(question))} • ${escapeHtml(question.category)}</strong>
                           <em>${escapeHtml(question.topic)}</em>
-                          <small>${formatScientificText(question.question)}</small>
+                          <small class="question-text">${formatScientificText(question.question)}</small>
                         </span>
                       </label>
                     `,
@@ -5085,7 +5085,7 @@ function renderOnlineQuizPanel() {
                       <span class="pill">${escapeHtml(active.category || "Category")}</span>
                       <span class="pill">${progress ? `${progress.answeredCount}/${progress.total} answered` : "Waiting"}</span>
                     </div>
-                    <h3>${formatScientificText(active.question)}</h3>
+                    <h3 class="question-text">${formatScientificText(active.question)}</h3>
                     ${renderQuestionMedia(active)}
                     <div class="option-list">
                       ${active.options
@@ -5308,7 +5308,7 @@ function renderAccountView() {
                       return `
                         <article class="history-row ${attempt.correct ? "is-correct" : "is-wrong"}">
                           <div>
-                            <strong>${formatScientificText(question ? question.question : attempt.questionId)}</strong>
+                            <strong class="question-text">${formatScientificText(question ? question.question : attempt.questionId)}</strong>
                             <span>${escapeHtml(attempt.mode)} • ${escapeHtml(attempt.category)} • ${new Date(attempt.timestamp).toLocaleDateString()}</span>
                           </div>
                           <strong>${attempt.correct ? "Correct" : "Missed"}</strong>
@@ -5870,7 +5870,7 @@ function renderQuizView(summary) {
           <span class="pill">${escapeHtml(question.type)}</span>
           <span class="pill">${escapeHtml(question.topic)}</span>
         </div>
-        <h3>${formatScientificText(question.question)}</h3>
+        <h3 class="question-text">${formatScientificText(question.question)}</h3>
         ${renderQuestionMedia(question)}
         <div class="option-list">
           ${question.options
@@ -5954,7 +5954,7 @@ function renderQuickStartView() {
           <span class="pill">${escapeHtml(question.type)}</span>
           <span class="pill">${escapeHtml(question.topic)}</span>
         </div>
-        <h3>${formatScientificText(question.question)}</h3>
+        <h3 class="question-text">${formatScientificText(question.question)}</h3>
         ${renderQuestionMedia(question)}
         <div class="option-list">
           ${question.options
@@ -6080,7 +6080,7 @@ function renderMockView() {
                     <span>${escapeHtml(question.category)}</span>
                     <strong>${correct ? "Correct" : "Missed"}</strong>
                   </div>
-                  <h4>${formatScientificText(question.question)}</h4>
+                  <h4 class="question-text">${formatScientificText(question.question)}</h4>
                   <p><strong>Your answer:</strong> ${
                     selectedIndex !== undefined
                       ? formatScientificText(question.options[selectedIndex] || "No answer")
@@ -6118,7 +6118,7 @@ function renderMockView() {
       </div>
       <article class="question-card question-card--practice">
         ${renderFlagControl(currentQuestion)}
-        <h3>${formatScientificText(currentQuestion.question)}</h3>
+        <h3 class="question-text">${formatScientificText(currentQuestion.question)}</h3>
         ${renderQuestionMedia(currentQuestion)}
         <div class="option-list">
           ${currentQuestion.options
@@ -6290,7 +6290,7 @@ function renderJeopardyModal() {
           </div>
           <button type="button" class="icon-button" data-action="close-jeopardy">&times;</button>
         </div>
-        <h3>${formatScientificText(question.question)}</h3>
+        <h3 class="question-text">${formatScientificText(question.question)}</h3>
         ${renderQuestionMedia(question)}
         <div class="option-list">
           ${question.options
@@ -6674,7 +6674,7 @@ function renderLiveQuestionPanel(session) {
             <div class="question-card__meta">
               <span class="pill">${escapeHtml(formatOnlineCategoryLabel(active.category))}</span>
             </div>
-            <h3>${formatScientificText(active.question)}</h3>
+            <h3 class="question-text">${formatScientificText(active.question)}</h3>
             ${renderQuestionMedia(active)}
             <div class="option-list">
               ${active.options
