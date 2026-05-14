@@ -94,9 +94,9 @@ export const QUESTION_BANK = [
     "options": [
       "patient was imaged too soon after tracer administration",
       "patient's renal function is compromised",
-      "radiopharmaceutical contained excess free [99mTc] pertechnetate",
+      "radiopharmaceutical contained excess free 99mTc pertechnetate",
       "incorrect radiopharmaceutical was administered",
-      "radiopharmaceutical contained excess free [*F]sodium"
+      "radiopharmaceutical contained excess free 18F sodium"
     ],
     "answerIndex": 2,
     "explanation": "99mTc-labeled bone agents are prepared by combining medronate or oxidronate with 99mTc-pertechnetate. Typically about 3%-10% of the pertechnetate does not bind to the medronate or oxidronate, so there is always some unbound or \"free\" pertechnetate in any bone tracer preparation. However, this percentage is small compared with the amount of 99mTc-medronate or -oxidronate in the preparation and is not visualized on the bone image. If the radiopharmaceutical was not properly compounded or the 99mTc-label detached from the chemical compound, the excess 99mTc-pertechnetate taken up by the thyroid, salivary glands, and stomach is visualized on the bone image.",
@@ -230,7 +230,7 @@ export const QUESTION_BANK = [
       "visualize substernal thyroid tissue",
       "visualize ectopic parathyroid tissue",
       "diagnose hyperparathyroidism",
-      "to localize the parathyroid POS"
+      "to localize the parathyroid"
     ],
     "answerIndex": 2,
     "explanation": "The upper mediastinum between the heart and the thyroid is imaged to visualize ectopic parathyroid tissue.",
@@ -358,7 +358,7 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "Localization of a Meckel's diverticulum can be accomplished with which of the following radiopharmaceuticals?",
     "options": [
-      "('Ga] citrate",
+      "[67Ga] citrate",
       "[99mTc] pentetate",
       "[99mTc] MAA",
       "[99mTc] sulfur colloid",
@@ -470,7 +470,7 @@ export const QUESTION_BANK = [
     "options": [
       "These precautions are applied when a patient is known to be infected with a communicable disease.",
       "These precautions replace \"standard precautions.\"",
-      "These precautions include guidelines for airborneand droplet-borne diseases.",
+      "These precautions include guidelines for airborne and droplet-borne diseases.",
       "These precautions include guidelines for contact transmitted diseases.",
       "These precautions must be implemented in the case of diseases such as varicella, tuberculosis, and mumps."
     ],
@@ -578,11 +578,11 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "Supersaturated potassium iodide solution may be administered to the patient for therapy with which of the following radiopharmaceuticals?",
     "options": [
-      "(53Sm]lexidronam",
+      "[153Sm] lexidronam",
       "[89Sr] chloride",
       "[131I] sodium iodide",
       "[131I] tositumomab",
-      "[90Y]chloride"
+      "[90Y] chloride"
     ],
     "answerIndex": 3,
     "explanation": "To minimize thyroid uptake of unbound iodine that may be present in the radiopharmaceutical, supersaturated potassium iodide is administered to a patient receiving 131I tositumomab for treatment of non-Hodgkin's lymphoma. The blocking agent is administered 1 day before and for the next 14 days during therapy.",
@@ -666,7 +666,7 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "Proper placement of a urine collection bag includes:",
     "options": [
-      "placing it across the patien's lower legs to keep it near the leve! of the bladder",
+      "placing it across the patien's lower legs to keep it near the level of the bladder",
       "placing it on the stretcher near the patient's feet so it is out of the field of view of the camera",
       "discharging the urine collection bag must be done before the exam begins",
       "hanging it from an IV pole and raising it above the level of the bladder",
@@ -708,7 +708,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 1,
-    "question": "If 0.02 g/kg of cholecystokinin is needed for a hepatibiliary study, what volume needs to be drawn for a 175 lb patient with a solution of 10 pg/ml available to draw from?",
+    "question": "If 0.02 ug/kg of cholecystokinin is needed for a hepatibiliary study, what volume needs to be drawn for a 175 lb patient with a solution of 10 ug/ml available to draw from?",
     "options": [
       "0.115 mL",
       "0.129 mL",
@@ -972,9 +972,9 @@ export const QUESTION_BANK = [
     "topic": "Lung Imaging",
     "type": "concept",
     "difficulty": 3,
-    "question": "Based on the net counts data shown here: 175,362 Right lung: 325,672 Left lung:",
+    "question": "Based on the net counts data shown here; what is the percentage perfusion to the right lung? \nRight lung: 175,362 \nLeft lung: 325,672",
     "options": [
-      "what is the percentage perfusion to the right lung? 30%",
+      "30%",
       "35%",
       "54%",
       "65%",
@@ -1082,7 +1082,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "protocol",
     "difficulty": 3,
-    "question": "If these results were obtained when 99mTc eluate was assayed for 99Mo breakthrough at 0600, immediately after elution: 99Mo: 10 uCi; 99mTc: 416 mCi. Which of the following statements about this elution at 1700 is true?",
+    "question": "If these results were obtained when 99mTc eluate was assayed for 99Mo breakthrough at 0600, immediately after elution; Which of the following statements about this elution at 1700 is true?\n99Mo: 10 uCi\n99mTc: 416 mCi",
     "options": [
       "The eluate should not be used to label compounds with 99mTc.",
       "The eluate does not contain sufficient 99mTc activity.",
@@ -1126,7 +1126,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "protocol",
     "difficulty": 5,
-    "question": "Al of the following procedures may be performed with [99mTc/sulfur colloid except:",
+    "question": "All of the following procedures may be performed with [99mTc sulfur colloid except:",
     "options": [
       "gastric-emptying study",
       "gastroesophageal reflux study",
@@ -1194,7 +1194,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 3,
-    "question": "Reconstituted \"cold\" pyrophosphate is administered to the patient in which red blood cell labeling method (s)?",
+    "question": "Reconstituted \"cold\" pyrophosphate is administered to the patient in which red blood cell labeling method(s)?",
     "options": [
       "in vitro method",
       "both the in vivo method and the modified in vivo method",
@@ -1282,7 +1282,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "protocol",
     "difficulty": 2,
-    "question": "A technologist must administer 8 mCi [99mTc] mebrofenin to a patient at 1100. On the basis of this vial label information: calibration 0700, August 4; total activity 100 mCi; total volume 8.5 mL; concentration 11.8 mCi/mL; expiration 1500, August 4. What volume of [99mTc] mebrofenin should be administered to the patient?",
+    "question": "A technologist must administer 8 mCi [99mTc] mebrofenin to a patient at 1100. On the basis of this vial label information: \nCalibration 0700, August 4\nTotal activity 100 mCi\nTotal volume 8.5 mL\nConcentration 11.8 mCi/mL\nExpiration 1500, August 4\n\nWhat volume of [99mTc] mebrofenin should be administered to the patient?",
     "options": [
       "1.1 mL",
       "0.92 mL",
@@ -1300,17 +1300,17 @@ export const QUESTION_BANK = [
     "id": "exam1-058",
     "examNumber": 1,
     "questionNumber": 58,
-    "category": "Patient Care",
-    "topic": "Patient Care",
+    "category": "Radiopharmaceuticals",
+    "topic": "Radiopharmaceuticals",
     "type": "protocol",
     "difficulty": 3,
-    "question": "A technologist must administer 37 MBq [201Tl] thallous chloride at 1000 on February 16. On the basis of this vial label information:",
+    "question": "A technologist must administer 37 MBq [201Tl] thallous chloride at 1000 on February 16. On the basis of this vial label information:\nCalibration: 1200, February 14\nTotal activity: 222 MBq\nTotal volume: 4.0 mL\nConcentration: 55.5 MBq/mL\nExpiration: 1200, February 17 \n\nwhat volume should be administered to the patient? ",
     "options": [
-      "Calibration: 1200, February 14 1.0 mL",
-      "Total activity: 222 MBq 0.96 mL 0.84 mL",
-      "Total volume: 4.0 mL",
-      "Concentration: 55.5 MBq/mL 0.44 mL",
-      "Expiration: 1200, February 17 what volume should be administered to the patient? 0.23 mL"
+      " 1.0 mL",
+      "0.96 mL",
+      "0.84 mL",
+      "0.44 mL",
+      "0.23 mL"
     ],
     "answerIndex": 0,
     "explanation": "The elapsed time between calibration and unit dosage administration is 46 hours (1200 on February 14-1000 on February 16). From a decay factor table for 201Tl, the decay factor for 46 hours is approximately 0.646. The initial concentration is decay-corrected for 46 hours to determine the concentration at 1000 on February 16: C(t) = C(0) x DF = 55.5 MBq/mL x 0.646 = 35.8 MBq/mL at 1000 on 2/16. The volume to be administered is calculated based on the prescribed patient dosage and concentration at the time of administration: 37 MBq / 35.8 MBq/mL = 1.0 mL.",
@@ -1326,7 +1326,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 4,
-    "question": "A technologist needs 4 mCi [201Tl] thallous chloride at 0800 on June 29. The label on the radiopharmaceutical vial contains this information: total activity 10.0 mCi; total volume 5.5 mL; assay 1200, July 1. What volume is required to obtain the necessary activity on June 29?",
+    "question": "A technologist needs 4 mCi [201Tl] thallous chloride at 0800 on June 29. The label on the radiopharmaceutical vial contains this information: \nTotal activity 10.0 mCi\nTotal volume 5.5 mL\nAssay 1200, July 1. \n\nWhat volume is required to obtain the necessary activity on June 29?",
     "options": [
       "3.6 mL",
       "1.35 mL",
@@ -1414,16 +1414,16 @@ export const QUESTION_BANK = [
     "topic": "Dose Calibrator QC",
     "type": "concept",
     "difficulty": 3,
-    "question": "If 4 millicuries of [20'T] thallous chloride is the prescribed unit dosage, which of the following dose calibrator measurements, acconting to the NRC, verifies that a dosage within acceptable limits has been dispensed into the syringe?",
+    "question": "If 4 millicuries of [201Tl] thallous chloride is the prescribed unit dosage, which of the following dose calibrator measurements, according to the NRC, verifies that a dosage within acceptable limits has been dispensed into the syringe?\na. 3.5 mCi\nb. 4.0 mCi\nc. 4.3 mCi\nd. 4.5 mCi",
     "options": [
-      "A. 35 mCi A only",
-      "B. 4.0 mCi B only B or C only",
-      "C. 4.3 mCi",
-      "D. 4.5 mCi A, B, or C only",
+      "A Only",
+      "B Only",
+      "B or C only",
+      "A, B, or C only",
       "A, B, C, or D"
     ],
     "answerIndex": 4,
-    "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10CFR 35.63). The NRC states that the administered dosage must fall within the prescribed dosage range or may not differ from the prescribed dosage by more than 20%. If the prescribed dosage is 4 mCi, the measured dosage must be between 3.2 and 4/8 mCi (#20% of 4 mCi).",
+    "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10CFR 35.63). The NRC states that the administered dosage must fall within the prescribed dosage range or may not differ from the prescribed dosage by more than 20%. If the prescribed dosage is 4 mCi, the measured dosage must be between 3.2 and 4.8 mCi (20% of 4 mCi).",
     "source": "Source photo: Answers/Exam 1/IMG_1207.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1299.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1207.jpeg"
@@ -1528,7 +1528,7 @@ export const QUESTION_BANK = [
     "options": [
       "2 min",
       "2.5 min",
-      "75 min",
+      "7.5 min",
       "10 min",
       "12.5 min"
     ],
@@ -1570,11 +1570,11 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "Which of the following exposure rates indicate that a package containing radioactive material must have a category III DOT label?",
     "options": [
-      "At package surface 76 mR/hr 5.5 mR/hr",
-      "At 1 m 56 mR/hr 3.5 mR/hr",
-      "22 mR/hr 0.9 mR/hr",
-      "1.5 mR/hr 1.0 mR/hr",
-      "0.5 mR/hr No detectable radiation"
+      "At package surface 76 mR/hr & At 1 meter 5.5 mR/hr",
+      "At package surface 56 mR/hr & At 1 meter 3.5 mR/hr",
+      "At package surface 22 mR/hr & At 1 meter 0.9 mR/hr",
+      "At package surface 1.5 mR/hr & At 1 meter 1.0 mR/hr",
+      "At package surface 0.5 mR/hr & At 1 meter No detectable radiation"
     ],
     "answerIndex": 1,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (49 CFR 172.403 and 172.436-440). The label types and exposure rate limits for packages containing radioactive materials are: Exposure rate (mR/h) At surface Label category No detectable radiation ≤0.5 Category I (white) ≤50 Category Il (yellow) Category III (yellow) ≤200",
@@ -1612,7 +1612,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 2,
-    "question": "If the half-value layer (HVL) for 13'T in lead is 0.3 cm, what is the minimum thickness of lead that is required to reduce the exposure rate of an 131I source from 12 mR/hr to less than 2 mR/hr?",
+    "question": "If the half-value layer (HVL) for 131I in lead is 0.3 cm, what is the minimum thickness of lead that is required to reduce the exposure rate of an 131I source from 12 mR/hr to less than 2 mR/hr?",
     "options": [
       "0.3 cm",
       "0.6 cm",
@@ -1678,7 +1678,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 5,
-    "question": "A vial of 13Xe has been decayed in storage for 2 months. When the vial is monitored with a survey meter, the reading is twice the background radiation level. What should the technologist do next?",
+    "question": "A vial of 133Xe has been decayed in storage for 2 months. When the vial is monitored with a survey meter, the reading is twice the background radiation level. What should the technologist do next?",
     "options": [
       "Remove any radiation symbols from the vial, then dispose of it.",
       "Perform a wipe check.",
@@ -1812,7 +1812,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 1,
-    "question": "A patient can be released after receiving a therapeutic radiopharmaceutical if no other individual is likely to receive an exposure dose, 1.5 from being exposed to the patient, exceeding how many Rems?",
+    "question": "A patient can be released after receiving a therapeutic radiopharmaceutical if no other individual is likely to receive an exposure dose, from being exposed to the patient, exceeding how many Rems?",
     "options": [
       "0.5 Rem",
       "0.7 Rem",
@@ -1856,7 +1856,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 3,
-    "question": "According to the NRC, records of surveys mut be etained for how many years?",
+    "question": "According to the NRC, records of surveys must be retained for how many years?",
     "options": [
       "as long as the facility's license is in effect",
       "7 years",
@@ -1931,7 +1931,7 @@ export const QUESTION_BANK = [
       "Have the instrument repaired."
     ],
     "answerIndex": 1,
-    "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.60); Siegel, 2004; pp. 50-52; and Saha, 2004; pp. 70-71. The NRC requires that dose calibrators be tested for proper function according to nationally recognized standards. The standard of practice dictates that the measured activity should be within # 10% of the expected activity when the instrument is tested for linearity. If the instrument exceeds this level of error, a correction factor should be calculated and applied to all measurements in the affected activity range.",
+    "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.60); Siegel, 2004; pp. 50-52; and Saha, 2004; pp. 70-71. The NRC requires that dose calibrators be tested for proper function according to nationally recognized standards. The standard of practice dictates that the measured activity should be within 10% of the expected activity when the instrument is tested for linearity. If the instrument exceeds this level of error, a correction factor should be calculated and applied to all measurements in the affected activity range.",
     "source": "Source photo: Answers/Exam 1/IMG_1209.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1302.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1209.jpeg"
@@ -2040,8 +2040,8 @@ export const QUESTION_BANK = [
     "options": [
       "137Cs",
       "57CO",
-      "125]",
-      "131]",
+      "125I",
+      "131I",
       "99mTc"
     ],
     "answerIndex": 0,
@@ -2171,7 +2171,7 @@ export const QUESTION_BANK = [
     "question": "Which of the following matrix sizes and acquisition modes would be most appropriate for a blood flow study of the feet?",
     "options": [
       "64 x 64 word",
-      ":64 x 64 byte",
+      "64 x 64 byte",
       "256 x 256 byte",
       "256 x 256 word",
       "512 x 512 byte"
@@ -2215,7 +2215,7 @@ export const QUESTION_BANK = [
     "question": "As a pinhole collimator is moved farther away from the thyroid, how will it affect the image?",
     "options": [
       "The gland will appear larger.",
-      "The image will be flipped",
+      "The image will be flipped.",
       "The gland will appear smaller.",
       "There is no change in size or orientation.",
       "Right and left are reversed."
@@ -2501,7 +2501,7 @@ export const QUESTION_BANK = [
     "question": "A cardiac stress test requires the placement of how many electrodes on the patient's body?",
     "options": [
       "3",
-      "5",
+      "6",
       "10",
       "12",
       "15"
@@ -2740,12 +2740,12 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "protocol",
     "difficulty": 3,
-    "question": "On Wednesday, a patient had a \"I thyroid study performed, a 8) plasma volume is ordered to be performed on Thursday. Which of the following statements about the situation is correct?",
+    "question": "On Wednesday, a patient had a 123I thyroid study performed, a 123I plasma volume is ordered to be performed on Thursday. Which of the following statements about the situation is correct?",
     "options": [
-      "The 2'1 will not interfere with the plasma volume determination.",
+      "The 123I will not interfere with the plasma volume determination.",
       "The blood volume determination should be postponed until the 123I is decayed.",
       "A baseline plasma sample should be collected before performing the plasma volume.",
-      "131I instead of 251-human serum albumin should be used for the plasma volume determination.",
+      "131I instead of 125I-human serum albumin should be used for the plasma volume determination.",
       "123I instead of 125I-human serum albumin should be used for the plasma volume determination."
     ],
     "answerIndex": 2,
@@ -2828,7 +2828,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "protocol",
     "difficulty": 2,
-    "question": "After administration of 111Inlpentetreotide, which areas of the body should be imaged?",
+    "question": "After administration of 111In pentetreotide, which areas of the body should be imaged?",
     "options": [
       "anterior and posterior whole body",
       "anterior and posterior abdomen",
@@ -3028,7 +3028,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "image-interpretation",
     "difficulty": 5,
-    "question": "In performing a plasma volume with I-albumin, three blood samples are collected at varying times after tracer administration and counted. These counts vs. time are plotted as a semilog graph. The purpose of this graph is to:",
+    "question": "In performing a plasma volume with 125I-albumin, three blood samples are collected at varying times after tracer administration and counted. These counts vs. time are plotted as a semilog graph. The purpose of this graph is to:",
     "options": [
       "give a visual representation of the data",
       "obtain the half-time clearance value used in the calculations",
@@ -3160,7 +3160,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 2,
-    "question": "The ['*C]urea breath test is used to:",
+    "question": "The [14C] urea breath test is used to:",
     "options": [
       "detect the presence of peptic ulcers",
       "detect delayed gastric emptying",
@@ -3169,7 +3169,7 @@ export const QUESTION_BANK = [
       "identify gastric cancers"
     ],
     "answerIndex": 2,
-    "explanation": "Committee, 2011. The ['*C]urea breath test is used to detect the presence of Helicobacter pylori bacteria. All patients with duodenal ulcers and 80% of patients with non-drug-induced gastric ulcers are infected with H. pylori. The test may be used to initially diagnose the presence of infection, as well as for follow-up after treatment.",
+    "explanation": "Committee, 2011. The [14C]urea breath test is used to detect the presence of Helicobacter pylori bacteria. All patients with duodenal ulcers and 80% of patients with non-drug-induced gastric ulcers are infected with H. pylori. The test may be used to initially diagnose the presence of infection, as well as for follow-up after treatment.",
     "source": "Source photo: Answers/Exam 2/IMG_1214.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1133.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg"
@@ -3228,11 +3228,11 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 5,
-    "question": "A dry column generator is eluted with 5 ml. of saline, and the eluate containing 863 mCi is collected into a 10 mL evacuated vial. What is the concentration of the eluate?",
+    "question": "A dry column generator is eluted with 5 mL of saline, and the eluate containing 863 mCi is collected into a 10 mL evacuated vial. What is the concentration of the eluate?",
     "options": [
       "172.6 mCi/mL",
       "86.3 mCi/mL",
-      "575 mCi/mL",
+      "57.5 mCi/mL",
       "5.79 mCi/mL",
       "3.58 mCi/mL"
     ],
@@ -3294,13 +3294,13 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 3,
-    "question": "According to the NRC, the concentration of what radionuclidic Counts/min impurity must be determined after the first elution of a 99Mo/99mTc Time generator? 216,789 0900",
+    "question": "According to the NRC, the concentration of what radionuclidic Counts/min impurity must be determined after the first elution of a 99Mo/99mTc Time generator? ",
     "options": [
-      "Al+ 0900",
-      "99Mo 94,954 1500",
-      "free pertechnetate 1500",
+      "Al3+",
+      "99Mo",
+      "free pertechnetate",
       "99mTc-NaCl",
-      "99mTc"
+      "99Tc"
     ],
     "answerIndex": 1,
     "explanation": "Commission, 2003 (10 CFR 35.204). Aluminum is a chemical impurity and not subject to regulation by the NRC. Free pertechnetate is [99mTc] pertechnetate that is not bound to - × 100 another compound. 99mTc is eluted from a generator as [99mTc] pertechnetate. 99Mo is a radionuclidic impurity, a radionuclide other than the × 100 desired one, in 99mTc eluate. According to NRC regulations, its concentration must be determined in the first elution of a 99Mo/99mTc generator. - x 100",
@@ -3410,7 +3410,7 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "Heating is required during the preparation of all of the following 99mTc-labeled radiopharmaceuticals except:",
     "options": [
-      "Procedure filtered sulfur colloid",
+      "filtered sulfur colloid",
       "bicisate",
       "sestamibi",
       "sulfur colloid",
@@ -3500,7 +3500,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "A technologist needs 1 mCi [111In] chloride at 0900 on May 18. The label on the radiopharmaceutical vial contains the following information: total activity 3.0 mCi; total volume 3.0 mL; assay 1200, May 21. What volume is required to obtain the necessary activity on May 18?",
+    "question": "A technologist needs 1 mCi [111In] chloride at 0900 on May 18. The label on the radiopharmaceutical vial contains the following information:\nTotal activity 3.0 mCi\nTotal volume 3.0 mL\nAssay 1200, May 21. \n\nWhat volume is required to obtain the necessary activity on May 18?",
     "options": [
       "0.48 mL",
       "0.69 mL",
@@ -3544,7 +3544,7 @@ export const QUESTION_BANK = [
     "topic": "Dose Calibrator QC",
     "type": "concept",
     "difficulty": 4,
-    "question": "For labeling red blood cells, the prescribed adult dosage of [99mTc] pertechnetate is 925 MBq =10%.Which of the following dose calibrator readings obtained from the syringe containing the patient dosage would verify that the prescribed activity was dispensed?",
+    "question": "For labeling red blood cells, the prescribed adult dosage of [99mTc] pertechnetate is 925 MBq +/- 10%. Which of the following dose calibrator readings obtained from the syringe containing the patient dosage would verify that the prescribed activity was dispensed?",
     "options": [
       "21 mCi",
       "28 mCi",
@@ -3612,12 +3612,12 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "Venipuncture materials labeled with which of the following expiration dates may be used safely on August 10, 2017?",
+    "question": "Venipuncture materials labeled with which of the following expiration dates may be used safely on August 10, 2017?\n\nA. July 31, 2017\nB. August 31, 2017 \nC. September 30, 2017\nD. October 1, 2018 ",
     "options": [
-      "A. July 31, 2017 D only",
-      "B. August 31, 2017 C or D only",
-      "C. September 30, 2017 B or C only",
-      "D. October 1, 2018 B, C, or D only",
+      "D only",
+      "C or D only",
+      "B or C only",
+      "B, C, or D only",
       "A, B, C, or D"
     ],
     "answerIndex": 3,
@@ -3687,8 +3687,8 @@ export const QUESTION_BANK = [
       "sterile water"
     ],
     "answerIndex": 1,
-    "explanation": "Witcofski, 1986; p. 62. If 99mTc eluate needs to be diluted to prepare other 99mTc-labeled products, the correct diluent is preservative-free isotonic saline. Preservatives may act as oxidizing agents that reverse the effect of reducing agents in kits. The reducing agents are necessary to make 99mTc more chemically active so it will bind to the compound being labeled.",
-    "source": "Source: Saha, 2004; p. 182; Chilton and",
+    "explanation": "If 99mTc eluate needs to be diluted to prepare other 99mTc-labeled products, the correct diluent is preservative-free isotonic saline. Preservatives may act as oxidizing agents that reverse the effect of reducing agents in kits. The reducing agents are necessary to make 99mTc more chemically active so it will bind to the compound being labeled.",
+    "source": "Source: Saha, 2004; p. 182; Chilton and Witcofski, 1986; p. 62. ",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1136.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1216.jpeg"
   },
@@ -3704,7 +3704,7 @@ export const QUESTION_BANK = [
     "options": [
       "2.7 mL",
       "1.9 mL",
-      "15 mL",
+      "1.5 mL",
       "1.3 mL",
       "1.1 mL"
     ],
@@ -3722,7 +3722,7 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 2,
-    "question": "If a 2,5-Ci 99Mo/99mTc generator is estimated to contain 268 mCi of [99mTc] pertechnetate, but 198 mCi are eluted, what is the approximate elution efficiency of the generator?",
+    "question": "If a 2.5Ci 99Mo/99mTc generator is estimated to contain 268 mCi of [99mTc] pertechnetate, but 198 mCi are eluted, what is the approximate elution efficiency of the generator?",
     "options": [
       "94%",
       "85%",
@@ -3864,7 +3864,7 @@ export const QUESTION_BANK = [
       "15 mCi [32P] sodium chromate",
       "15 mCi [32P] sodium phosphate",
       "10 mCi [89Sr] chloride",
-      "20 mCi [18F]FDG"
+      "20 mCi [18F] FDG"
     ],
     "answerIndex": 4,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.40). The NRC requires a written directive before administration of 131I in quantities greater than 30 mCi and any other unsealed byproduct material that is used for therapy. [32P] sodium phosphate and [89Sr] chloride are used for therapy, whereas [18F]FDG is used for diagnostic purposes.",
@@ -3924,7 +3924,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 1,
-    "question": "In performing a room survey with a G-M counter, the technologist should furst:",
+    "question": "In performing a room survey with a G-M counter, the technologist should first:",
     "options": [
       "perform a battery check on the counter",
       "calibrate the unit",
@@ -4042,7 +4042,7 @@ export const QUESTION_BANK = [
       "Remain at home at least 30 days.",
       "Use separate personal utensils for first week after therapy.",
       "Drink plenty of liquids.",
-      "Wash hands after using the toilet. x10"
+      "Wash hands after using the toilet."
     ],
     "answerIndex": 1,
     "explanation": "Patients should be given instructions to follow for 3-7 days that will minimize spread of contamination and radiation exposure to others.",
@@ -4080,7 +4080,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "concept",
     "difficulty": 3,
-    "question": "If a patient must be hospitalized in isolation after receiving a high activity of 13'], which of the following signs must be placed on the door of the isolation room?",
+    "question": "If a patient must be hospitalized in isolation after receiving a high activity of 131I, which of the following signs must be placed on the door of the isolation room?",
     "options": [
       "\"Authorized Personnel Only\"",
       "\"Caution: Airborne Radioactivity\"",
@@ -4218,10 +4218,10 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "To perform a constancy test on a dose calibrator that is being used in a general nuclear medicine imaging department, the best choice of radionuclide settings on which to count the reference standard would include which of the following?",
     "options": [
-      "123, 125I, 131I",
-      "125I, 5 Co, 13 Cs",
+      "123I, 125I, 131I",
+      "125I, 57Co, 137Cs",
       "99mTc, 201Tl, 137Cs",
-      "d 5TCo, 137CS, 131I",
+      "57Co, 137Cs, 131I",
       "99mTc, 201Tl, 123I"
     ],
     "answerIndex": 4,
@@ -4528,7 +4528,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "concept",
     "difficulty": 3,
-    "question": "Threeor four-phase bone imaging is particularly useful when which of the following conditions is suspected?",
+    "question": "Three or four-phase bone imaging is particularly useful when which of the following conditions is suspected?",
     "options": [
       "osteomyelitis",
       "osteoporosis",
@@ -4597,8 +4597,8 @@ export const QUESTION_BANK = [
     "question": "All of the following statements about performing a lung ventilation study with [99mTc] pentetate aerosol are true, except:",
     "options": [
       "Multiple projections may be obtained with one dose of tracer.",
-      "The patient is disconnected from the nebulizer after inhalation",
-      "of the aerosol. The patient is imaged while inhaling particles from the nebulizer.",
+      "The patient is disconnected from the nebulizer after inhalation of the aerosol. ",
+      "The patient is imaged while inhaling particles from the nebulizer.",
       "The face mask, tubing, and nebulizer must be disposed of as radioactive waste.",
       "Some residual tracer may be present in the esophagus."
     ],
@@ -4818,11 +4818,11 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "Which of the following is the correct patient/camera positioning for imaging a transplanted kidney?",
     "options": [
-      "Patient position Posterior",
-      "Camera placement Upright lateral wall septum Anterior",
-      "apex Upright Posterior",
-      "Anterior Supine Oblique",
-      "Supine Supine D superior wall base"
+      "Patient position Supine, Camera Placement Anterior",
+      "Patient position Upright, Camera Placement Posterior",
+      "Patient position Upright, Camera Placement Anterior",
+      "Patient position Supine, Camera Placement Posterior",
+      "Patient position Supine, Camera Placement Oblique"
     ],
     "answerIndex": 0,
     "explanation": "A transplanted kidney is placed in the iliac fossa. Therefore, a transplanted kidney should be imaged with the patient supine and the camera placed anteriorly over the pelvis.",
@@ -4840,7 +4840,7 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "In performing an effective renal plasma flow determination, the injection site should be imaged to:",
     "options": [
-      "apex quantitate the amount of tracer deposited at the injection site inferior wall",
+      "quantitate the amount of tracer deposited at the injection site",
       "calculate the amount of injected activity",
       "rule out tracer infiltration",
       "correct the kidney transit time of the tracer",
@@ -4860,7 +4860,7 @@ export const QUESTION_BANK = [
     "topic": "Renal Imaging",
     "type": "image-interpretation",
     "difficulty": 5,
-    "question": "Radionuclide cystography performed by the diret method requires which of the following?",
+    "question": "Radionuclide cystography performed by the direct method requires which of the following?",
     "options": [
       "intravenous injection of the tracer",
       "use of a renal agent",
@@ -5124,7 +5124,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 5,
-    "question": "Patient preparation for a 3'T therapy includes:",
+    "question": "Patient preparation for a 131I therapy includes:",
     "options": [
       "a low-iodine diet for 1 week before the therapy",
       "a high-iodine diet for 1 week before the therapy",
@@ -5194,8 +5194,8 @@ export const QUESTION_BANK = [
     "options": [
       "90 degrees",
       "45 degrees",
+      "5 degrees",
       "15 degrees",
-      "30 degrees",
       "1 degree"
     ],
     "answerIndex": 3,
@@ -5212,7 +5212,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "protocol",
     "difficulty": 4,
-    "question": "When counting SCr red blood cell samples in a scintillation well counter, the window should be set around the photopeak at:",
+    "question": "When counting 51Cr red blood cell samples in a scintillation well counter, the window should be set around the photopeak at:",
     "options": [
       "320 keV",
       "159 keV",
@@ -5346,7 +5346,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "protocol",
     "difficulty": 5,
-    "question": "A 1:25 dilution of a solution with a concentration of 10 uCi/mL.is prepared. What is the tracer concentration in the dilution?",
+    "question": "A 1:25 dilution of a solution with a concentration of 10 uCi/mL is prepared. What is the tracer concentration in the dilution?",
     "options": [
       "0.04 uCi/mL",
       "0.25 uCi/mL",
@@ -5412,13 +5412,13 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 3,
-    "question": "The size of a molybdenum-99/technetium-99m generator is expressed as the total activity of:",
+    "question": "The size of a 99Mo/99mTc generator is expressed as the total activity of:",
     "options": [
-      "technetium-99m on the column",
-      "molybdenum-99 on the column",
-      "technetium-99m eluted from the column",
-      "decay-corrected technetium-99m available at time of elution",
-      "decay-corrected molybdenum-99 available at time of elution"
+      "99mTc on the column",
+      "99Mo on the column",
+      "99mTc eluted from the column",
+      "decay-corrected 99mTc available at time of elution",
+      "decay-corrected 99Mo available at time of elution"
     ],
     "answerIndex": 1,
     "explanation": "The size of a 99Mo/99mTc generator is expressed as the total 99Mo activity on the column at the time of initial assay (calibration).",
@@ -5439,8 +5439,8 @@ export const QUESTION_BANK = [
       "210 mCi/mL",
       "475 mCi/mL",
       "32.4 MBq/mL",
-      "5.7 GBq/ml",
-      "7,5 GBq/mL"
+      "5.7 GBq/mL",
+      "7.5 GBq/mL"
     ],
     "answerIndex": 0,
     "explanation": "Concentration is expressed as activity per unit volume. It is obtained by dividing the total volume into the total activity. In this case: 1.2 Ci = 0.210 Ci/mL 5.7 ml 0.210 Ci x 1000 mCi = 210 mCi 1 Ci",
@@ -5500,7 +5500,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 2,
-    "question": "If the following measurements were obtained from an assay of 99mTc eluate: 99Mo, 8 uCi; 99mTc, 652 mCi; then the 99Mo concentration in 1 mCi of 99mTc is:",
+    "question": "If the following measurements were obtained from an assay of 99mTc eluate: \n99Mo, 8 uCi\n99mTc, 652 mCi\n\nthen the 99Mo concentration in 1 mCi of 99mTc is:",
     "options": [
       "81.5 uCi/mCi",
       "8.0 uCi/mCi",
@@ -5678,10 +5678,10 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "image-interpretation",
     "difficulty": 3,
-    "question": "The radiochemical purity of a radiopharmaceutical is determined using a solvent/support media combination with these R, values:",
+    "question": "The radiochemical purity of a radiopharmaceutical is determined using a solvent/support media combination with these Rf values:\nRadiopharmaceutical: 0\nRadiochemical impurity: 1.0\n\nAfter the radiochromatography strip is developed and cut in half, the solvent front half of the strip counted 15,345 cpm and the origin half of the strip counted 55,632 cpm. What is the radiochemical purity of the sample?",
     "options": [
-      "Radiopharmaceutical: Radiochemical impurity: 1.0 78.4%",
-      "After the radiochromatography strip is developed and cut in half, the solvent front half of the strip counted 15,345 cpm and the origin half of the strip counted 55,632 cpm. What is the radiochemical purity of the sample? 27.6%",
+      "78.4%",
+      "27.6%",
       "72.4%",
       "21.6%",
       "89.9%"
@@ -5724,11 +5724,11 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "protocol",
     "difficulty": 2,
-    "question": "The standard adult dosage of [123I] sodium iodide is 400 uCi +10%. On the basis of the vial label information shown here: 1 mCi Total activity:",
+    "question": "The standard adult dosage of [123I] sodium iodide is 400 uCi +/-10%. On the basis of the vial label information shown here:\nTotal activity: 1 mCi\nNumber of capsules: 10\nActivity/capsule: 100uCi/capsule\nCalibration: 1200, October 5.\n\nHow many [123I] sodium iodide capsules should be administered to the patient at 0800 on October 5?\n",
     "options": [
-      "Number of capsules: 100 uCi/capsule four",
-      "Activity/capsule: 1200, October 5 The capsules may not be administered until 1200. tWO",
-      "Calibration: how many [123I] sodium iodide capsules should be administered to the patient at 0800 on October 5?",
+      "four",
+      "The capsules may not be administered until 1200.",
+      "two",
       "three",
       "five"
     ],
@@ -5746,11 +5746,11 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 3,
-    "question": "A technologist needs 185 MBq [131I] sodium iodide solution on November 3. The label on the radiopharmaceutical vial contains the following information: 740 MBq Total activity: 10 ml Total volume: 1200, October 28 Assay:",
+    "question": "A technologist needs 185 MBq [131I] sodium iodide solution on November 3. The label on the radiopharmaceutical vial contains the following information: \nTotal activity: 740 MBq\nTotal volume: 10 ml\nAssay: 1200, October 28\n\nWhat volume is required to obtain the necessary activity on November 3?",
     "options": [
-      "What volume is required to obtain the necessary activity on November 3? 0.42 mL",
+      "0.42 mL",
       "4.2 mL",
-      "15 mL",
+      "1.5 mL",
       "4.6 mL",
       "5.2 mL"
     ],
@@ -5795,8 +5795,8 @@ export const QUESTION_BANK = [
       "doxorubicin",
       "heparin",
       "penicillin",
-      "adenosine Expiration Assay",
-      "dobutamine time/date time/date 1900/July 9 0700/July 9 1400/July 8"
+      "adenosine",
+      "dobutamine"
     ],
     "answerIndex": 1,
     "explanation": "Certain drugs interfere with 99mTc red blood cell labeling because they inhibit the transport of the stannous ion through the red cell membrane and, hence, entry of [99mTc] pertechnetate into the red cell.",
@@ -5926,10 +5926,10 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "concept",
     "difficulty": 1,
-    "question": "Which of the following is considered a Quality Control daily test",
+    "question": "Which of the following is considered a Quality Control daily test for a CT scanner?",
     "options": [
-      "linearity of CT' numbers",
-      "lowand high-contrast resolution",
+      "linearity of CT numbers",
+      "low- and high-contrast resolution",
       "image slice thickness",
       "CT number accuracy",
       "spatial resolution"
@@ -6021,7 +6021,7 @@ export const QUESTION_BANK = [
       "for 3 years",
       "indefinitely",
       "for 5 years",
-      "for 5 years",
+      "for 6 years",
       "for 7 years"
     ],
     "answerIndex": 1,
@@ -6047,7 +6047,7 @@ export const QUESTION_BANK = [
       "50 ft"
     ],
     "answerIndex": 1,
-    "explanation": "Use the inverse square law: (1) (D,)' = (1) (D2)2 where / is the intensity at original distance (D,) and I, is the intensity at new distance (D2). In this example: (50 mR/hr) (1ft)' = (2 mR/hr) (D,)2 Isolate the unknown and solve: (D,)2 = (50 mR/r) (1 ft)3 2 mR/hr (D2) ' = 25 fi? Take the square root of each side: D2 = 5 ft",
+    "explanation": "Use the inverse square law: (1) (D1)' = (1) (D2)2 where / is the intensity at original distance (D1) and I, is the intensity at new distance (D2). In this example: (50 mR/hr) (1ft)' = (2 mR/hr) (D,)2 Isolate the unknown and solve: (D1)2 = (50 mR/r) (1 ft)3 2 mR/hr (D2) ' = 25 fi? Take the square root of each side: D2 = 5 ft",
     "source": "Source: Wells, 1999, pp. 101-102.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1147.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1226.jpeg"
@@ -6082,7 +6082,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "concept",
     "difficulty": 3,
-    "question": "According to the NRC, a written directive for the administration of 15 mCi of [131I sodium iodide must include the following information:",
+    "question": "According to the NRC, a written directive for the administration of 15 mCi of [131I] sodium iodide must include the following information:",
     "options": [
       "patient's thyroid uptake value",
       "dosage",
@@ -6240,11 +6240,11 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "According to NRC regulations, a technologist cannot use a diagnostic dosage that exceeds 20% of the dosage prescribed by the authorized user unless:",
     "options": [
-      "There is no other radiopharmaceutical available. 1.0 1.5",
-      "The patient weighs more than 20% over the standard reference weight. ThKno",
+      "There is no other radiopharmaceutical available.",
+      "The patient weighs more than 20% over the standard reference weight.",
       "The authorized user approves the individual dosage.",
       "The patient's physician approves the individual dosage.",
-      "The radiologist or nuclear medicine physician approves the individual dosage. X10"
+      "The radiologist or nuclear medicine physician approves the individual dosage."
     ],
     "answerIndex": 2,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 35.63); Siegel, 2004; pp. 50-51. According to NRC regulations, a dosage cannot be administered if the activity falls outside the range established by the authorized user or differs from the prescribed dosage by 20% or more, unless the authorized user directs the dosage to be administered.",
@@ -6260,7 +6260,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "protocol",
     "difficulty": 1,
-    "question": "If a woman who is breast-feeding needs 131I therapy for treatment -100 of thyroid cancer, how long must she suspend breast-feeding?",
+    "question": "If a woman who is breast-feeding needs 131I therapy for treatment of thyroid cancer, how long must she suspend breast-feeding?",
     "options": [
       "48 hr",
       "1 week",
@@ -6348,11 +6348,11 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 5,
-    "question": "On the basis of these data:",
+    "question": "On the basis of this data:\nWipe test count: 375 cpm\nBackground count: 120 cpm\n\nand a well counter efficiency of 45%, the results of the wipe test in dpm are:",
     "options": [
-      "Wipe test count: 375 cpm 49 dpm",
-      "Background count: 120 cpm 115 dpm 255 dpm",
-      "and a well counter efficiency of 45%, the results of the wipe test in dpm are:",
+      " 49 dpm",
+      " 115 dpm",
+      "255 dpm",
       "423 dpm",
       "567 dpm"
     ],
@@ -6550,7 +6550,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "concept",
     "difficulty": 4,
-    "question": "Which of the following statements about an image acquired with z0om is true?",
+    "question": "Which of the following statements about an image acquired with zoom is true?",
     "options": [
       "Image resolution is increased.",
       "Background counts are increased.",
@@ -6572,7 +6572,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "calculation",
     "difficulty": 4,
-    "question": "If a [99mTc] medronate bone image and \"in-tagged white blood cell image are acquired simultaneously with a 128 x 128-word mode matrix, how much computer memory is required to store the images?",
+    "question": "If a [99mTc] medronate bone image and 111In-tagged white blood cell image are acquired simultaneously with a 128 x 128-word mode matrix, how much computer memory is required to store the images?",
     "options": [
       "32 kB",
       "16 kB",
@@ -7000,7 +7000,7 @@ export const QUESTION_BANK = [
       "morphine and [99mTc] mertiatide",
       "sincalide and [99mTc] medronate"
     ],
-    "answerIndex": 0,
+    "answerIndex": 2,
     "explanation": "gallbladder ejection fraction is useful in assessing gallbladder dysfunction. In cases of delayed gallbladder visualization, sincalide is administered when the gallbladder is full. Preand postcontraction images are used to calculate an ejection fraction.",
     "source": "Source photo: Answers/Exam 4/IMG_1230.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1152.jpeg",
@@ -7124,7 +7124,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 5,
-    "question": "A patient with diabetes who becomes hypoglycemic may exhibi all of the following signs and symptoms except:",
+    "question": "A patient with diabetes who becomes hypoglycemic may exhibit all of the following signs and symptoms except:",
     "options": [
       "weakness and shakiness",
       "confusion",
@@ -7151,7 +7151,7 @@ export const QUESTION_BANK = [
       "[99mTc] oxidronate",
       "[99mTc] exametazime",
       "[99mTc] mertiatide",
-      "• [201Tl] thallous chloride",
+      "[201Tl] thallous chloride",
       "[99mTc] medronate"
     ],
     "answerIndex": 1,
@@ -7212,7 +7212,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 4,
-    "question": "Which of the following radiation safety measures should be used when performing Sr therapy?",
+    "question": "Which of the following radiation safety measures should be used when performing 89Sr therapy?",
     "options": [
       "use of lead vial and syringe shields",
       "monitoring patient radiation levels daily",
@@ -7281,7 +7281,7 @@ export const QUESTION_BANK = [
     "question": "The patency of a LeVeen shunt may be demonstrated with which of the following radiopharmaceuticals?",
     "options": [
       "[99mTc] disofenin or [99mTc] sulfur colloid",
-      "[99mTc] albumin or 99mTc-labeled red blood cells",
+      "[99mTc] albumin or [99mTc] labeled red blood cells",
       "[99mTc] pentetate or [99mTc] pertechnetate",
       "[99mTc] MAA or [99mTc] sulfur colloid",
       "[99mTc] medronate or [99mTc] sulfur colloid"
@@ -7322,7 +7322,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "protocol",
     "difficulty": 4,
-    "question": "The following studies are ordered for a patient: A. ERPF determination; B. total-body bone imaging; C. [111In] pentetreotide imaging. In which order should the studies be performed so they do not interfere with one another and they can be accomplished in the shortest amount of time?",
+    "question": "The following studies are ordered for a patient: \nA. ERPF determination\nB. total-body bone imaging\nC. [111In] pentetreotide imaging. \n\nIn which order should the studies be performed so they do not interfere with one another and they can be accomplished in the shortest amount of time?",
     "options": [
       "A, B, C",
       "A, C, B",
@@ -7478,10 +7478,10 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "concept",
     "difficulty": 1,
-    "question": "On the basis of these counts per minute obtained from a thyroid uptake test: 2876 Thyroid:",
+    "question": "On the basis of these counts per minute obtained from a thyroid uptake test:\nThyroid: 2876\nPatient background: 563\nStandard: 10,111\nRoom background: 124\n\nthe percentage radioiodine uptake is:",
     "options": [
-      "Patient background: 10,111 3.5%",
-      "Standard: Room background: the percentage radioiodine uptake is: 4.3%",
+      "3.5%",
+      "4.3%",
       "28%",
       "23%",
       "50%"
@@ -7544,11 +7544,11 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "calculation",
     "difficulty": 5,
-    "question": "The following data were collected for a plasma volume determination:",
+    "question": "The following data was collected for a plasma volume determination:\nNet standard counts: 839,621\nStandard dilution factor: 15\nNet plasma counts: 2,528 cpm/mL\n\nThe calculated plasma volume in milliliters is:",
     "options": [
-      "Net standard counts: 839,621 cpm 2,214",
-      "Standard dilution factor: Net plasma counts: 2,528 cpm/mL 3,321",
-      "The calculated plasma volume in milliliters is: 4,516",
+      "2,214",
+      "3,321",
+      "4,516",
       "4,982",
       "5,280"
     ],
@@ -7570,7 +7570,7 @@ export const QUESTION_BANK = [
     "options": [
       "0.00025 uCi/mL",
       "10 uCi/mL",
-      "25 uCi/ml",
+      "25 uCi/mL",
       "100 uCi/mL",
       "125 uCi/mL"
     ],
@@ -7610,7 +7610,7 @@ export const QUESTION_BANK = [
     "topic": "Hepatobiliary Imaging",
     "type": "concept",
     "difficulty": 2,
-    "question": "Based on the net counts shown here, what is the percentage gallbladder ejection fraction? 185,632 Maximum gallbladder counts: 77, 203 Minimum gallbladder counts:",
+    "question": "Based on the net counts shown here, what is the percentage gallbladder ejection fraction? \nMaximum gallbladder counts: 185,632\nMinimum gallbladder counts: 77, 203",
     "options": [
       "71%",
       "41%",
@@ -7676,7 +7676,7 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 5,
-    "question": "A wet column generator is equipped with all of the following parts except a (n):",
+    "question": "A wet column generator is equipped with all of the following parts except a(n):",
     "options": [
       "alumina column",
       "lead shield",
@@ -7700,11 +7700,11 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "According to the USP, the maximum allowable aluminum concentration in 99mTc eluate is not to exceed:",
     "options": [
-      "0 pg/mL",
-      "15 pg/ml",
-      "20 pg/ml",
+      "0.1 ug/mL",
+      "15 ug/ml",
+      "20 ug/ml",
       "15 mg/ml",
-      "10pg/ml"
+      "10 ug/ml"
     ],
     "answerIndex": 4,
     "explanation": "According to the USP, a 99mTc eluate should contain no more than 10 pg/mL of Al3+ in 1 ml. of eluate.",
@@ -7742,13 +7742,13 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 3,
-    "question": "The test kit used to measure aluminum ion concentration in 99mTc eluate contains specially treated indicator paper and an aluminum solution with a concentration of approximately: 185,632",
+    "question": "The test kit used to measure aluminum ion concentration in 99mTc eluate contains specially treated indicator paper and an aluminum solution with a concentration of approximately: ",
     "options": [
-      "2 pg/mL",
-      "10 pg/ml 77, 203",
-      "5 pg/ml",
-      "20 pg/mL",
-      "15 pg/mL"
+      "2 ug/mL",
+      "10 ug/mL",
+      "5 ug/mL",
+      "20 ug/mL",
+      "15 ug/mL"
     ],
     "answerIndex": 1,
     "explanation": "The test kit contains an aluminum solution with a concentration of approximately 10 ug/mL, the maximum aluminum ion concentration allowed in 99mTc eluate as established by the USP.",
@@ -7786,7 +7786,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 5,
-    "question": "An eluate of [99mTc] pertechnetate is assayed for 99Mo contamination at 0600 with the following results: 99Mo = 15.5 uCi; 99mTc = 250 mCi. At 1000, the eluate is used to prepare a 99mTc-labeled compound with a shelf-life of 8 hr. What is the latest time that the 99mTc compound may be administered to patients?",
+    "question": "An eluate of [99mTc] pertechnetate is assayed for 99Mo contamination at 0600 with the following results:\n99Mo = 15.5 uCi\n99mTc = 250 mCi\n\nAt 1000, the eluate is used to prepare a 99mTc-labeled compound with a shelf-life of 8 hr. What is the latest time that the 99mTc compound may be administered to patients?",
     "options": [
       "1400",
       "1500",
@@ -7863,7 +7863,7 @@ export const QUESTION_BANK = [
       "Withdraw the unit dose."
     ],
     "answerIndex": 4,
-    "explanation": "L'PIchromic phosphate is a blue-green color. Because this is the radiopharmaceutical's normal appearance, the technologist should continue preparing the unit dose.",
+    "explanation": "32PIchromic phosphate is a blue-green color. Because this is the radiopharmaceutical's normal appearance, the technologist should continue preparing the unit dose.",
     "source": "Source: Chilton and Witcofski, 1986; p. 149.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1156.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1234.jpeg"
@@ -7972,7 +7972,7 @@ export const QUESTION_BANK = [
       "-500",
       "-100",
       "-50",
-      "zero"
+      "0"
     ],
     "answerIndex": 1,
     "explanation": "The average CT number value for lung tissue is about -500 HU. This value may vary with the beam quality of the CT scanner.",
@@ -7990,11 +7990,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "In labeling red blood cells with [51Cr]sodium chromate, which of the following components is first added to the ACD solution?",
     "options": [
-      "blood sample R, values",
-      "[51Cr]sodium chromate Free",
-      "ascorbic acid Hydrolyzed-",
+      "blood sample",
+      "[51Cr]sodium chromate",
+      "ascorbic acid",
       "heparin",
-      "sodium chloride 0.0 0.9 0.0 1.0"
+      "sodium chloride"
     ],
     "answerIndex": 0,
     "explanation": "1716 cpm - × 100 = 6.7% The patient's blood should be added to the ACD solution before 51Cr is introduced into the vial. Dextrose contained in the ACD solution chemically reduces the hexavalent 51Cr to a trivalent state, which prevents red cell tagging. In a trivalent state, 51Cr cannot penetrate the red cell membrane.",
@@ -8013,8 +8013,8 @@ export const QUESTION_BANK = [
     "question": "All of the following are advantages of the in vitro method of labeling red blood cells with [99mTc] pertechnetate except:",
     "options": [
       "The red blood cells can be washed to remove substances from the plasma that may interfere with labeling.",
-      "A commercially manufactured kit that requires no cell separation by centrifugation is available. Origin half",
-      "Higher labeling efficiencies than with the in vivo method are 23,706 cpm possible. 1,200 cpm",
+      "A commercially manufactured kit that requires no cell separation by centrifugation is available.",
+      "Higher labeling efficiencies than with the in vivo method are possible. ",
       "In vitro labeling has the lowest risk of red cell hemolysis.",
       "In vitro labeling allows clear separation from white blood cells."
     ],
@@ -8076,7 +8076,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "concept",
     "difficulty": 3,
-    "question": "During red blood cell labeling with 51Cr, the purpose of adding ascorbic acid to the ACD (acid-citrate-dextrose) -whole blood solution is to:",
+    "question": "During red blood cell labeling with 51Cr, the purpose of adding ascorbic acid to the ACD (acid-citrate-dextrose)-whole blood solution is to:",
     "options": [
       "Reduce the chromate ion to a lower valence state.",
       "Maintain the pH of the mixture.",
@@ -8190,7 +8190,7 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "The NRC defines an unrestricted area as one in which an individual will receive less than how many milliRems in an hour?",
     "options": [
-      "2 mkem",
+      "2 mRem",
       "5 mRem",
       "50 mRem",
       "100 mRem",
@@ -8234,7 +8234,7 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "The NRC requires that all of the following information be included in unit dosage measurement records except the:",
     "options": [
-      "date of measurement Solvent front",
+      "date of measurement ",
       "time of measurement",
       "patient's name",
       "radiopharmaceutical name",
@@ -8281,7 +8281,7 @@ export const QUESTION_BANK = [
       "A patient receives 18 mCi of [99mTc] pertechnetate when 20-25 mCi was prescribed.",
       "A patient scheduled for bone imaging receives 20 mCi of [99mTc] pertechnetate instead of [99mTc] medronate.",
       "Patient A receives a hepatobiliary scan dosage intended for patient B.",
-      "A patient receives a whole-body scan dosage of 13' instead of 123I for a thyroid uptake and scan.",
+      "A patient receives a whole-body scan dosage of 131I instead of 123I for a thyroid uptake and scan.",
       "Patient A receives a bone scan dosage intended for patient B."
     ],
     "answerIndex": 3,
@@ -8500,7 +8500,7 @@ export const QUESTION_BANK = [
     "difficulty": 2,
     "question": "A wipe test gives a reading of 1240 cpm with a background count of 410 cpm. If the efficiency of the instrument is 35%, what is the wipe test reading in dpm?",
     "options": [
-      "35 dpm 1 1/2\"",
+      "35 dpm",
       "290 dpm",
       "3,542 dpm",
       "2,371 dpm",
@@ -8733,7 +8733,7 @@ export const QUESTION_BANK = [
       "hourly"
     ],
     "answerIndex": 1,
-    "explanation": "T'he standard of practice calls for acquisition of a uniformity flood every day the camera is used, prior to performing patient studies.",
+    "explanation": "The standard of practice calls for acquisition of a uniformity flood every day the camera is used, prior to performing patient studies.",
     "source": "Source: Bernier, et al., 1994; pp. 88-89.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1160.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg"
@@ -8843,7 +8843,7 @@ export const QUESTION_BANK = [
       "0.12 cycles/pixel"
     ],
     "answerIndex": 3,
-    "explanation": "quency of 05 cycles/pixel results in an image with the most detail and the most high-frequency noise. At the other extreme, a cutoff frequency of 0.15 cycles/pixel removes many of the high frequencies, resulting in a very smooth image without much detail.",
+    "explanation": "frequency of 0.5 cycles/pixel results in an image with the most detail and the most high-frequency noise. At the other extreme, a cutoff frequency of 0.15 cycles/pixel removes many of the high frequencies, resulting in a very smooth image without much detail.",
     "source": "Source: Christian, et al., 2004; pp. 118-119, 258-259. The lower the cutoff frequency, the more high frequencies (which provide image detail) are removed from an image. Therefore, a cutoff fre-",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1160.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg"
@@ -8903,7 +8903,7 @@ export const QUESTION_BANK = [
     "question": "A technologist changes the collimator on a gamma camera from a low-energy all-purpose collimator to a high-resolution collimator. If the same number of counts is acquired, how will the acquisition time change when the high-resolution collimator is used?",
     "options": [
       "The acquisition time will be the same with both collimators.",
-      "' The acquisition time will increase.",
+      "The acquisition time will increase.",
       "The acquisition time will decrease.",
       "The effect on acquisition time is unpredictable.",
       "The effect on the acquisition time is determined by the sensitivity of the instrument."
@@ -8968,10 +8968,10 @@ export const QUESTION_BANK = [
     "topic": "Lung Imaging",
     "type": "concept",
     "difficulty": 3,
-    "question": "If a patient is injected with [99mTc] MAA while in an upright position, images?",
+    "question": "If a patient is injected with [99mTc] MAA while in an upright position, which of the following is most likely to be seen on the perfusion lung images?",
     "options": [
-      "which of the following is most likely to be seen on the perfusion lung",
-      "increased tracer activity in the lung apices decreased tracer activity in the lung bases",
+      "increased tracer activity in the lung apices",
+      "decreased tracer activity in the lung bases",
       "decreased tracer activity in the lung apices",
       "decreased tracer activity throughout both lungs",
       "the heart"
@@ -8990,9 +8990,9 @@ export const QUESTION_BANK = [
     "topic": "MAA / Pulmonary Perfusion",
     "type": "protocol",
     "difficulty": 4,
-    "question": "If the usual adult dosage of [99mTc] MAA is 4 mCi, a patient who has",
+    "question": "If the usual adult dosage of [99mTc] MAA is 4 mCi, a patient who has had a right pneumonectomy should receive what dosage?",
     "options": [
-      "1 mCi had a right pneumonectomy should receive what dosage?",
+      "1 mCi ",
       "3 mCi",
       "2 mCi",
       "5 mCi",
@@ -9078,7 +9078,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "calculation",
     "difficulty": 4,
-    "question": "In performing a thyroid uptake, a technologist collects the thyroid counts 5 cm from the surface of the patient's neck and the standard counts 20 cm from the surface of the neck phantom. What is the eftect on the thyroid uptake value calculated from this data?",
+    "question": "In performing a thyroid uptake, a technologist collects the thyroid counts 5 cm from the surface of the patient's neck and the standard counts 20 cm from the surface of the neck phantom. What is the effect on the thyroid uptake value calculated from this data?",
     "options": [
       "The uptake value will be falsely increased.",
       "The uptake value will be falsely decreased.",
@@ -9100,7 +9100,7 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "calculation",
     "difficulty": 5,
-    "question": "The percentage left ventricular ejection fraction calculated from the net counts per minute shown here, end diastole 2875 and end systole 2162, is approximately:",
+    "question": "The percentage left ventricular ejection fraction calculated from the net counts per minute shown here, is approximately:\nend diastole 2875\nend systole 2162",
     "options": [
       "25%",
       "13%",
@@ -9144,11 +9144,11 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 1,
-    "question": "Normal sinus rhythm is characterized by which of the following?",
+    "question": "Normal sinus rhythm is characterized by which of the following?\nA. 60-100 beats/min\nB. R wave occurs at constant intervals\nC. PR interval 0.12-0.20 sec long",
     "options": [
-      "A. 60-100 beats/min A and B only",
-      "B. R wave occurs at constant intervals A and C only",
-      "C. PR interval 0.12-0.20 sec long B and C only",
+      "A and B only",
+      "A and C only",
+      "B and C only",
       "A, B, and C",
       "C only"
     ],
@@ -9166,7 +9166,7 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "image-interpretation",
     "difficulty": 5,
-    "question": "After stress myocardial imaging with [201Tl] thallous chloride, 1-15 mCi of [201Tl] thallous chloride may be administered before rest myocardial imaging to:",
+    "question": "After stress myocardial imaging with [201Tl] thallous chloride, 1-1.5 mCi of [201Tl] thallous chloride may be administered before rest myocardial imaging to:",
     "options": [
       "improve patient throughput",
       "demonstrate reversible ischemia more readily",
@@ -9215,7 +9215,7 @@ export const QUESTION_BANK = [
       "administration of laxatives",
       "oral or intravenous hydration",
       "an enema immediately before imaging",
-      "fasting for at least 2 hr before imaging.",
+      "fasting for at least 2 hr before imaging",
       "an enema immediately after imaging"
     ],
     "answerIndex": 3,
@@ -9232,10 +9232,10 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 5,
-    "question": "Which of the following \"Tic-labeled agents is the preferred tracen for demonstrating intermittent gastrointestinal bleeding?",
+    "question": "Which of the following 99mTc-labeled agents is the preferred tracer for demonstrating intermittent gastrointestinal bleeding?",
     "options": [
       "human serum albumin",
-      "lidotenin",
+      "lidofenin",
       "red blood cells",
       "sulfur colloid",
       "macro aggregated albumin"
@@ -9278,10 +9278,10 @@ export const QUESTION_BANK = [
     "difficulty": 2,
     "question": "Which of the following events is a normal response when furosemide is administered near the end of a renal function study?",
     "options": [
-      "The peak transit time of the radiopharmaceutica. is elongated.",
+      "The peak transit time of the radiopharmaceutical is elongated.",
       "Radioactivity is taken up into the renal cortex.",
-      "Mechanical blockages in the renal collecting system are",
-      "cleared. The peak transit time of the radiopharmaceutical is shortened.",
+      "Mechanical blockages in the renal collecting system are cleared.",
+      "The peak transit time of the radiopharmaceutical is shortened.",
       "Radioactivity is cleared from the renal pelvis into the bladder."
     ],
     "answerIndex": 4,
@@ -9298,7 +9298,7 @@ export const QUESTION_BANK = [
     "topic": "SPECT",
     "type": "protocol",
     "difficulty": 3,
-    "question": "Early (6 hr after injection) \"Ga imaging should be performed if which of the following conditions is suspected?",
+    "question": "Early (6 hr after injection) 67Ga imaging should be performed if which of the following conditions is suspected?",
     "options": [
       "sarcoma",
       "osteomyelitis",
@@ -9307,7 +9307,7 @@ export const QUESTION_BANK = [
       "chrondrosarcoma"
     ],
     "answerIndex": 1,
-    "explanation": "\"Ga imaging can be performed from 6 hr to 3 days or longer after tracer administration. When the examination is being performed for evalua- Defects visualized on stress images are interpreted as myocardial tion of an inflammatory process, early imaging (6 hr after injection) is indicated. ischemia if the defects fill in on the resting images. However, the rate of redistribution varies, and ischemic areas may not appear to have re-perfused by 4 hr. Administering a second, smaller dose of 201Tl before",
+    "explanation": "67Ga imaging can be performed from 6 hr to 3 days or longer after tracer administration. When the examination is being performed for evalua- Defects visualized on stress images are interpreted as myocardial tion of an inflammatory process, early imaging (6 hr after injection) is indicated. ischemia if the defects fill in on the resting images. However, the rate of redistribution varies, and ischemic areas may not appear to have re-perfused by 4 hr. Administering a second, smaller dose of 201Tl before",
     "source": "Source: Early and Sodee, 1995; p. 703.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1162.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1240.jpeg"
@@ -9413,11 +9413,11 @@ export const QUESTION_BANK = [
       "surgical placement of a LeVeen shunt to remove excess peritoneal fluid",
       "fasting for 8-12 hr before radiopharmaceutical administration",
       "instructing the patient about isolation requirements",
-      "introducing [99mTc] sulfur colloid into the cavity to confirm that the \"P will disperse evenly",
+      "introducing [99mTc] sulfur colloid into the cavity to confirm that the 32P will disperse evenly",
       "administering an antacid 2-4 hours before the procedure"
     ],
     "answerIndex": 3,
-    "explanation": "Before instilling 32p into the peritoneal space, [99mTc] sulfur colloid is introduced to demonstrate that the agent will disperse throughout the cavity, thereby uniformly irradiating the peritoneal space.",
+    "explanation": "Before instilling 32P into the peritoneal space, [99mTc] sulfur colloid is introduced to demonstrate that the agent will disperse throughout the cavity, thereby uniformly irradiating the peritoneal space.",
     "source": "Source: Early and Sodee, 1995; p. 755.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1163.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1242.jpeg"
@@ -9436,7 +9436,7 @@ export const QUESTION_BANK = [
       "administration of exogenous TSH",
       "discontinuation of replacement thyroid hormone",
       "following a low-iodine diet for 1-2 weeks before imaging",
-      "no IV CT contrast 6 weeks before of the following?"
+      "no IV CT contrast 6 weeks before"
     ],
     "answerIndex": 0,
     "explanation": "After a thyroidectomy, the purpose of 131I whole-body imaging is to detect the presence of residual thyroid tissue and/or distant metastases. To enhance the visualization of any metastases, the patient may be instructed to limit dietary iodine. The patient may also discontinue replacement thyroid hormone therapy to permit the metastases to function as thyroid tissue. Exogenous TSH may also be prescribed to stimulate the metastases to concentrate iodine.",
@@ -9501,8 +9501,8 @@ export const QUESTION_BANK = [
       "15 min after meal consumption, then every 15 min for 1 hr",
       "immediately after meal consumption, then every 15 min for at least 2 hr",
       "immediately after meal consumption, then every 5 min for at least 1 hr",
-      "1 hr after meal consumption, then every 15 min for the next",
-      "2 hr after meal consumption, then every 15 min for at least"
+      "1 hr after meal consumption, then every 15 min for the next hour",
+      "2 hr after meal consumption, then every 15 min for at least 2 hrs"
     ],
     "answerIndex": 1,
     "explanation": "With the patient upright, imaging should begin immediately after meal consumption for 1 min, then every 15 min for at least 2 hr. Imaging may need to be extended beyond 2 hr if it appears that the stomach is not emptying.",
@@ -9521,10 +9521,10 @@ export const QUESTION_BANK = [
     "question": "A patient with a chest tube arrives in the nuclear medicine department for an imaging study. The technologist should:",
     "options": [
       "Place the chest tube's external apparatus on a level lower than the patient's chest.",
-      "Cancel the procedure because chest tube apparatus will inter-",
-      "fere with the study. Place the chest tube's external apparatus on the imaging table",
-      "next to the patient. Hang the chest tube's external apparatus from an IV pole and",
-      "raise it above the patient's chest. Drain the chest tube while holding in place during the imaging procedure."
+      "Cancel the procedure because chest tube apparatus will interfere with the study.",
+      "Place the chest tube's external apparatus on the imaging table next to the patient.",
+      "Hang the chest tube's external apparatus from an IV pole and raise it above the patient's chest.",
+      "Drain the chest tube while holding in place during the imaging procedure."
     ],
     "answerIndex": 0,
     "explanation": "For proper drainage, the chest tube apparatus must always remain lower than the patient's chest. Waterstram-Rich & Gilmore, 2017;",
@@ -9584,7 +9584,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 1,
-    "question": "A contraindication for performing a myocardial perfusion resting",
+    "question": "A contraindication for performing a myocardial perfusion resting study is:",
     "options": [
       "fasting for 4-12 hr before the study",
       "drinking cold water before the study",
@@ -9745,8 +9745,8 @@ export const QUESTION_BANK = [
       "semilog",
       "linear",
       "log-log",
-      "logit-10g",
-      "logit-logit Whole blood volume (mL)"
+      "logit-log",
+      "logit-logit"
     ],
     "answerIndex": 0,
     "explanation": "Red cell survival half-time is obtained from a graph of the net counts per minute of each blood sample plotted on the log scale and time plotted on the linear scale of semi-log paper.",
@@ -9762,12 +9762,12 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 4,
-    "question": "Which of the following is not recommended during HMPAO/ECD administration? 2,340",
+    "question": "Which of the following is not recommended during HMPAO/ECD administration?",
     "options": [
-      "Dim the lights. 6,240",
-      "Inject using an IV line. 9,750 6,500",
+      "Dim the lights. ",
+      "Inject using an IV line.",
       "Talk calmingly to the patient while injecting.",
-      "Ask the patient to keep eyes and ears open. 2,340",
+      "Ask the patient to keep eyes and ears open.",
       "Let the patient rest for 10 minutes before injection."
     ],
     "answerIndex": 2,
@@ -9812,7 +9812,7 @@ export const QUESTION_BANK = [
       "mammogram results",
       "last menstrual cycle",
       "pregnancy status",
-      "PSA level to a"
+      "PSA level"
     ],
     "answerIndex": 4,
     "explanation": "[111In] capromab pendetide is used in patients who have been newly diagnosed with prostate cancer to more accurately stage the disease before surgery. After surgery or radiation therapy, it is also used to detect recurrence or residual cancer in patients with rising PSA levels but no other evidence of disease.",
@@ -9854,7 +9854,7 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "If a 99Mo/99mTc generator is eluted at 0700 and again at 1300, the next day's 99mTc yield at 0700:",
     "options": [
-      "will be unaffected lotted on",
+      "will be unaffected",
       "will be decreased",
       "will be increased",
       "cannot be predicted",
@@ -9878,7 +9878,7 @@ export const QUESTION_BANK = [
     "options": [
       "0.003 GBq",
       "4699 GBq",
-      "3430 GBq MPAO/ECD",
+      "3430 GBq",
       "4.70 GBq",
       "4925 GBq"
     ],
@@ -9905,7 +9905,7 @@ export const QUESTION_BANK = [
       "the saline volume used for elution"
     ],
     "answerIndex": 4,
-    "explanation": "umn, the time elapsed since the last elution, and the elution efficiency of the generator all influence the amount of 99mTc activity eluted.",
+    "explanation": "column, the time elapsed since the last elution, and the elution efficiency of the generator all influence the amount of 99mTc activity eluted.",
     "source": "Source: Chilton and Witcofski, 1986; pp. 54, 57-58. The amount of 99mTc activity removed will be the same regardless of the saline volume used for elution. However, the amount of 99Mo on the col-",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1166.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1243.jpeg"
@@ -9940,7 +9940,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 2,
-    "question": "An eluate of [99mTc] pertechnetate is assayed for 99Mo contamination with the following results: 99Mo: 45 uCi; 99mTc: 275 mCi. On the basis of this assay, the technologist should:",
+    "question": "An eluate of [99mTc] pertechnetate is assayed for 99Mo contamination with the following results: \n99Mo: 45 uCi\n99mTc: 275 mCi\n\nOn the basis of this assay, the technologist should:",
     "options": [
       "Wait for the 99Mo to decay to an acceptable level.",
       "Use the eluate only for studies requiring other 99mTc-labeled agents.",
@@ -10184,7 +10184,7 @@ export const QUESTION_BANK = [
     "topic": "Cardiac Imaging",
     "type": "protocol",
     "difficulty": 3,
-    "question": "For cardiac first-pass studies, the prescribed adult dosage of [99mTc] pentetate is 925 MBq +10%. On the basis of the vial label information shown here for [99mTc] pentetate, what is the maximum volume that should be administered to the patient at 0800 on january 5? 3.7 GBq Total activity: 2.0 mL Total volume: 1.85 GBq/mL Concentration: 0600, January 5 Calibration:",
+    "question": "For cardiac first-pass studies, the prescribed adult dosage of [99mTc] pentetate is 925 MBq +-10%. On the basis of the vial label information shown here for [99mTc] pentetate, what is the maximum volume that should be administered to the patient at 0800 on January 5?\nTotal activity:   3.7 GBq\nTotal volume:   2.0 mL \nConcentration:   1.85 GBq/mL\nCalibration:   0600, January 5",
     "options": [
       "0.57 mL",
       "0.63 mL",
@@ -10209,7 +10209,7 @@ export const QUESTION_BANK = [
     "question": "In labeling red blood cells with 51Cr, the final step before re-injecting the labeled red blood cells into the patient is to:",
     "options": [
       "Add ascorbic acid to the tagged blood.",
-      "Wash the labeled red cells to remove excess \"Gr.",
+      "Wash the labeled red cells to remove excess 51Cr",
       "Separate the red blood cells from the plasma.",
       "Add 51Cr to the patient's blood sample.",
       "Separate the white blood cells from the plasma."
@@ -10231,7 +10231,7 @@ export const QUESTION_BANK = [
     "question": "In what way does the modified in vivo method of labeling red blood cells with [99mTc] pertechnetate differ from the in vivo method?",
     "options": [
       "The modified method requires a smaller amount of stannous pyrophosphate.",
-      "The modified method \"pretins\" only a small volume of the patient's blood.",
+      "The modified method \"pre-tins\" only a small volume of the patient's blood.",
       "The modified method uses a smaller activity of [99mTc] pertechnetate.",
       "The modified method mixes [99mTc] pertechnetate with only a small volume of the patient's blood.",
       "The modified method requires a larger amount of stannous pyrophosphate."
@@ -10254,7 +10254,7 @@ export const QUESTION_BANK = [
     "options": [
       "Only a sample of the patient's blood is incubated with the reconstituted stannous pyrophosphate.",
       "Red cell labeling takes place only within the patient's circulatory system.",
-      "A sample of the patient's \"pretinned\" blood is incubated with [99mTc] pertechnetate outside of the patient.",
+      "A sample of the patient's \"pre-tinned\" blood is incubated with [99mTc] pertechnetate outside of the patient.",
       "Excess [99mTc] pertechnetate is removed from the blood sample before the sample is re-injected into the patient.",
       "A larger amount of stannous pyrophosphate is used."
     ],
@@ -10318,7 +10318,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 4,
-    "question": "If a vial of 99mTc-labeled radiopharmaceutical contains 4.65 MBq in 35 mL at 0800, what is the concentration at 0930?",
+    "question": "If a vial of 99mTc-labeled radiopharmaceutical contains 4.65 MBq in 3.5 mL at 0800, what is the concentration at 0930?",
     "options": [
       "1.12 MBq/mL",
       "1.33 MBq/mL",
@@ -10340,13 +10340,13 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 5,
-    "question": "If a unit dosage of [99mTc] pertechnetate is calibrated to contain 25 mCi in 0,8 mL at 1400, what volume should be removed from the syringe to retain 15 mCi in the syringe at 1200?",
+    "question": "If a unit dosage of [99mTc] pertechnetate is calibrated to contain 25 mCi in 0.8 mL at 1400, what volume should be removed from the syringe to retain 15 mCi in the syringe at 1200?",
     "options": [
-      "0.20 ml",
+      "0.20 mL",
       "0.32 mL",
       "0.52 mL",
       "0.48 mL",
-      "0.42 ml"
+      "0.42 mL"
     ],
     "answerIndex": 4,
     "explanation": "First, determine the total activity in the syringe at 1200 by back- = 2 hr) for mTc: decay-correcting the activity using the 2-hr decay factor (1200-1400 25 mCi 0.794 = 31.5 mCi Then, determine the concentration at 1200: concentration = total activity = 31.5 mci total volume 0.8 ml. Determine the volume that will contain 15 mCi at 1200: 15 mCi activity required -= 0.38 mL volume = - = 39.4 mCi/ml. concentration Determine the volume that will have to be removed from the syringe: total volume - volume required = volume to be removed 0.8 mL - 0.38 mL = 0.42 mL",
@@ -10387,9 +10387,9 @@ export const QUESTION_BANK = [
     "question": "Of the following syringes, which size would be best for withdrawing 1 mL of radiopharmaceutical from a multi-dose vial?",
     "options": [
       "3 mL",
-      "1 ml",
+      "1 mL",
       "5 mL",
-      "20 ml",
+      "20 mL",
       "10 mL"
     ],
     "answerIndex": 0,
@@ -10408,11 +10408,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "According to NRC regulations, which of the following signs should be posted in unrestricted areas?",
     "options": [
-      "\"Caution: Radioactive Materials\" Measured dosage (mCi)",
-      "\"Authorized Personnel Only\" 13.5",
+      "\"Caution: Radioactive Materials\"",
+      "\"Authorized Personnel Only\" ",
       "No posting is required.",
-      "\"Caution: Radiation Area\" 12.5",
-      "\"Caution: High Radiation Area\" 10.9 18.7"
+      "\"Caution: Radiation Area\" ",
+      "\"Caution: High Radiation Area\""
     ],
     "answerIndex": 2,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 20.1003 and 20.1301). According to the NRC, an unrestricted area is one in which access is not 3.5 ml 3.91 MBQ = 1.12 MBq/ml. limited by or under control of a license. Unrestricted areas are not posted.",
@@ -10428,7 +10428,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 4,
-    "question": "A package containing radioactive material is monitored and found to produce 12 mR/hr at the surface and 0.9 mR/hr at 1 m from the surface. Which DOT label must be affixed to the outside of the package?",
+    "question": "A package containing radioactive material is monitored and found to produce 12 mR/hr at the surface and 0.9 mR/hr at 1 meter from the surface. Which DOT label must be affixed to the outside of the package?",
     "options": [
       "\"Category II\"",
       "\"Category I\"",
@@ -10540,10 +10540,10 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "A \"sharps\" container reads 50 mR/hr when it is placed in storage. It contains only 99mTc waste. According to NRC regulations, when can the container be disposed of as nonradioactive biohazardous waste?",
     "options": [
-      "when the exposure rate drops to 1o of the original exposure rate",
-      "when the container gives only a background reading with a",
-      "survey meter when the exposure rate drops to /o of the original",
-      "exposure rate when the container gives only a background reading with a wipe test",
+      "when the exposure rate drops to 1/10 of the original exposure rate",
+      "when the container gives only a background reading with a survey meter",
+      "when the exposure rate drops to 1/10 of the original exposure rate",
+      "when the container gives only a background reading with a wipe test",
       "when the container gives a reading less than 5 mR/hr"
     ],
     "answerIndex": 1,
@@ -10812,7 +10812,7 @@ export const QUESTION_BANK = [
       "75 uCi 137Cs",
       "60 uCi 99mTc",
       "25 uCi 137Cs",
-      "75pCi 99mTc"
+      "75 uCi 99mTc"
     ],
     "answerIndex": 1,
     "explanation": "Various long-lived sources can be used to test accuracy. At least 50 uCi of 137Cs, 57Co, or 133Ba should be used. 99mTc is not an appropriate choice because it is relatively short-lived.",
@@ -10968,7 +10968,7 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "calculation",
     "difficulty": 5,
-    "question": "If a gallium-67 static image is acquired into a 128 x 128 byte-mode matrix using the photopeaks at 93, 185, and 300 keV, how much computer memory is required to store the image?",
+    "question": "If a 67Ga static image is acquired into a 128 x 128 byte-mode matrix using the photopeaks at 93, 185, and 300 keV, how much computer memory is required to store the image?",
     "options": [
       "256 kB",
       "64 kB",
@@ -11036,8 +11036,8 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "Which of the following instruments is most appropriate for detecting low-level accidental contamination?",
     "options": [
-      "thermoluminescent dosimeter Transfer any SPECT studies to a different computer terminal for",
-      "On October 29, the most appropriate action for the technologist is to: cutie pie (ionization chamber)",
+      "thermoluminescent dosimeter",
+      "cutie pie (ionization chamber)",
       "Geiger-Mueller counter",
       "pocket dosimeter",
       "optically stimulated luminescence dosimetry"
@@ -11083,8 +11083,8 @@ export const QUESTION_BANK = [
       "8%",
       "12%",
       "20%",
-      "93. If a \"Ga static image is acquired into a 128 x 128 byte mode 22%",
-      "matrix using the photopeaks at 93, 185, and 300 keV, how much com- 25%"
+      "22%",
+      "25%"
     ],
     "answerIndex": 1,
     "explanation": "The percentage energy resolution should not exceed 12%. If the photopeak has broadened beyond this point, the instrument cannot accurately distinguish one energy from another.",
@@ -11301,7 +11301,7 @@ export const QUESTION_BANK = [
     "question": "If a package is reading 2 mRem/hr at a distance of 2 m, what is the appropriate DOT label for this package?",
     "options": [
       "No labeling is required.",
-      "DOTI",
+      "DOT I",
       "DOT III",
       "DOT II",
       "DOT IV"
@@ -11368,9 +11368,9 @@ export const QUESTION_BANK = [
     "options": [
       "DOT III",
       "DOT II",
-      "DOTI",
+      "DOT I",
       "DOT IV",
-      "DOTV"
+      "DOT V"
     ],
     "answerIndex": 2,
     "explanation": "According to the Department of Transportation, the radioactive label designated as totally white is DOT I. DOT I denotes packages with less than 0.5 mR/hr exposure rate at the surface and with no detectable radiation (NDR) at 1 m.",
@@ -11391,7 +11391,7 @@ export const QUESTION_BANK = [
       "cardboard",
       "No shielding is required.",
       "lead",
-      "plexiglas",
+      "plexiglass",
       "paraffin"
     ],
     "answerIndex": 3,
@@ -11434,7 +11434,7 @@ export const QUESTION_BANK = [
     "options": [
       "25 mRem",
       "10.4 mRem",
-      "125 mRem",
+      "12.5 mRem",
       "5.2 mRem",
       "27 mRem"
     ],
@@ -11454,7 +11454,7 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "What is 120 Sv in millirads (Quality Factor [QF] =1)?",
     "options": [
-      "8.3 x 10-8 mrad",
+      "120 million mrad",
       "12 million mrad",
       "1.2 million mrad",
       "120,000 mrad",
@@ -11474,7 +11474,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 1,
-    "question": "An a particle is similar to what?",
+    "question": "An Alpha particle is similar to what?",
     "options": [
       "an electron",
       "a proton",
@@ -11540,7 +11540,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 4,
-    "question": "Photomultiplier tube drift is associated with which of the following: 12. Which absorber would be the best to use to shield strontium-89?",
+    "question": "Photomultiplier tube drift is associated with which of the following: ",
     "options": [
       "auto-voltage stabilization",
       "inverse gain",
@@ -11562,7 +11562,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 5,
-    "question": "A paralyzable counting system will: 13. Which of the following indicates the amount of radioactive sub-",
+    "question": "A paralyzable counting system will: ",
     "options": [
       "exhibit a nonlinear threshold response",
       "never plateau and never obtain a peak count",
@@ -11584,7 +11584,7 @@ export const QUESTION_BANK = [
     "topic": "Uniformity QC",
     "type": "concept",
     "difficulty": 1,
-    "question": "Sources of intrinsic non-uniformity include all of the following 14. If the exposure rate is 25 mRem/hr and the person being exposed except:",
+    "question": "Sources of intrinsic non-uniformity include all of the following except:",
     "options": [
       "\"mistuned\" PMTs",
       "regional variations in Z-pulse amplitude",
@@ -11630,11 +11630,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "What maximum percentage difference is acceptable for most regulatory agencies for all four dose-calibrator QC checks?",
     "options": [
-      "+5% properly set Pulse Height Analyzer (PHA) and window width",
-      "‡10%",
-      "‡7%",
-      "+15%",
-      "20% 17. A higher or lower sensitivity is affected by all of the following except:"
+      "+-5%",
+      "+-10%",
+      "+-7%",
+      "+-15%",
+      "+-20% "
     ],
     "answerIndex": 1,
     "explanation": "The limit for % difference is # 10%, according to the NRC regulations. However, it may be 5% per manufacturer recommendations, which the NRC also says must be adhered to.",
@@ -11716,13 +11716,13 @@ export const QUESTION_BANK = [
     "topic": "Renal Imaging",
     "type": "concept",
     "difficulty": 2,
-    "question": "Which of the following quantitative renal techniques require(s) the calculation of kidney depth?",
+    "question": "Which of the following quantitative renal techniques require(s) the calculation of kidney depth?\nA. Schlegel technique\nB. Gates' method\nC. Two-compartment effective renal plasma flow (ERPF) determination\nD. Russell's glomerular filtration rate (GFR) method",
     "options": [
-      "A. Schlegel technique A, B, and C",
-      "B. Gates' method",
-      "C. Two-compartment effective renal plasma flow (ERPF) C and D B and D",
-      "determination",
-      "D. Russell's glomerular filtration rate (GFR) method A and B is to:"
+      "A",
+      "B and C",
+      "C and D",
+      "B and D",
+      "A and B"
     ],
     "answerIndex": 4,
     "explanation": "sampling. These methods allow determination of these parameters separately for each kidney and derive values for global renal function.",
@@ -11766,7 +11766,7 @@ export const QUESTION_BANK = [
       "small intestine",
       "right hepatic lobe",
       "upper esophagus",
-      "lower esophagus rects for:"
+      "lower esophagus"
     ],
     "answerIndex": 0,
     "explanation": "Background subtraction is used to enhance image quality and increase statistical reliability for quantitative studies such as gastroesophageal reflux studies. The lower left lung serves as an appropriate background region of interest close to but not within the field of view of imaging the esophagus and stomach.",
@@ -11782,7 +11782,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "calculation",
     "difficulty": 5,
-    "question": "Geometric mean is sometimes used in quantization because it cor-",
+    "question": "Geometric mean is sometimes used in quantization because it corrects for:",
     "options": [
       "the size and shape of the organ",
       "background activity",
@@ -11874,9 +11874,9 @@ export const QUESTION_BANK = [
     "options": [
       "eliminate the effects of detector tilt in the reconstructed images",
       "minimize count sensitivity variations from one area of the crystal to another",
-      "ensure that all pixels are uniformly sized over the entire field",
-      "of view",
-      "align the center of the computer matrix with the mechanical axis of rotation maximize count sensitivity variations from one area of the crystal to another"
+      "ensure that all pixels are uniformly sized over the entire field of view",
+      "align the center of the computer matrix with the mechanical axis of rotation",
+      "maximize count sensitivity variations from one area of the crystal to another"
     ],
     "answerIndex": 3,
     "explanation": "The center of rotation (COR) offset correction makes certain that the COR of the camera matrix corresponds to the COR of the camera heads.",
@@ -11892,13 +11892,13 @@ export const QUESTION_BANK = [
     "topic": "SPECT",
     "type": "concept",
     "difficulty": 5,
-    "question": "Thexand y-axes of a circumferential profile curve are, respectively:",
+    "question": "The x and y-axes of a circumferential profile curve are, respectively:",
     "options": [
       "x-axis—bull's eye quadrant, y-axis: % maximum counts",
       "x-axis—time, y-axis: activity",
       "x-axis— segment of the myocardium, y-axis: maximum counts",
       "x-axis—rest, y-axis: stress",
-      "-maximum counts, y-axis: segment of the myocardium x-axis—"
+      "x-axis—maximum counts, y-axis: segment of the myocardium"
     ],
     "answerIndex": 2,
     "explanation": "In a circumferential profile curve, segments of the myocardium are listed on the x-axis and the maximum counts related to these segments are plotted on the y-axis.",
@@ -11916,7 +11916,7 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "Diaphragmatic attenuation may be reduced by:",
     "options": [
-      "360-degree acquisition",
+      "360 degree acquisition",
       "supine acquisition",
       "delayed imaging",
       "prone acquisition",
@@ -11940,9 +11940,9 @@ export const QUESTION_BANK = [
     "options": [
       "how good the test is at detecting a true negative",
       "how good the test is at detecting a true positive",
-      "how good the test is at detecting the difference between a true",
-      "negative and a true positive",
-      "how good the test is at detecting something how good the test is an detecting idiopathic conditions"
+      "how good the test is at detecting the difference between a true negative and a true positive",
+      "how good the test is at detecting something",
+      "how good the test is at detecting idiopathic conditions"
     ],
     "answerIndex": 1,
     "explanation": "Sensitivity is the percentage or fraction of ill patients who have a positive test. Thus, sensitivity is how good a test is at detecting a true positive. Specificity is how good a test is at detecting a true negative.",
@@ -11982,7 +11982,7 @@ export const QUESTION_BANK = [
     "topic": "Lung Imaging",
     "type": "concept",
     "difficulty": 4,
-    "question": "Of the following, the biggest disadvantage of 13Xe (xenon gas) for performing lung ventilation studies is its:",
+    "question": "Of the following, the biggest disadvantage of 133Xe (xenon gas) for performing lung ventilation studies is its:",
     "options": [
       "rapid lung clearance",
       "surface contamination",
@@ -12007,9 +12007,9 @@ export const QUESTION_BANK = [
     "question": "Which of the following statements about radiolabeled aerosols used for lung ventilation imaging is true?",
     "options": [
       "The particles are deposited in ventilated areas of the lungs.",
-      "It is necessary to trap any radiolabeled particles exhaled by",
-      "the patient.",
-      "Particle sizes range from 30 to 90 pm in diameter. Deposition of particles in the central airway is never a problem with lung aerosol studies.",
+      "It is necessary to trap any radiolabeled particles exhaled by the patient.",
+      "Particle sizes range from 30-90um in diameter. ",
+      "Deposition of particles in the central airway is never a problem with lung aerosol studies.",
       "Contamination concerns are not warranted."
     ],
     "answerIndex": 0,
@@ -12028,7 +12028,7 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "An uptake probe is what type of detector?",
     "options": [
-      "Geiger-Muller counter",
+      "Geiger-Mueller counter",
       "proportional counter",
       "ionization chamber",
       "scintillation detector",
@@ -12070,13 +12070,13 @@ export const QUESTION_BANK = [
     "topic": "Lung Imaging",
     "type": "concept",
     "difficulty": 3,
-    "question": "The concentration of Xe gas in the lungs is increasing in which 37. Which of the following is a definition of sensitivity of a diagnostic phase of a xenon ventilation study?",
+    "question": "The concentration of 133Xe gas in the lungs is increasing in which phase of a xenon ventilation study?",
     "options": [
       "There is no phase of increasing activity.",
       "equilibrium",
       "washout",
-      "how good the test is at detecting the difference between a true",
-      "wash-in trapping"
+      "wash-in",
+      "trapping"
     ],
     "answerIndex": 3,
     "explanation": "In the wash-in phase, 10-20 mCi of 13Xe diluted in 2 L of oxygen are re-breathed from a simple re-breathing apparatus for approximately 3 min while a static image is taken.",
@@ -12092,16 +12092,16 @@ export const QUESTION_BANK = [
     "topic": "MAA / Pulmonary Perfusion",
     "type": "concept",
     "difficulty": 4,
-    "question": "What is the range of particle size, in micrometers, of the majority of particles in technetium-99m macroaggregated albumin (MAA)?",
+    "question": "What is the range of particle size, in micrometers, of the majority of particles in 99mTc macroaggregated albumin (MAA)?",
     "options": [
-      "150-250 micrometers",
-      "100-150 micrometers",
-      "10-90 micrometers",
-      "1-40 micrometers",
-      "100-250 micrometers"
+      "150-250um",
+      "100-150um",
+      "10-90um",
+      "1-40um",
+      "100-250um"
     ],
     "answerIndex": 2,
-    "explanation": "Particles formed have diameters of 10-90 pm, with the majority between 10 and 40 pm.",
+    "explanation": "Particles formed have diameters of 10-90 um, with the majority between 10 and 40 um.",
     "source": "Source: Christian, et al., 2004; p. 174.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1175.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1252.jpeg"
@@ -12140,9 +12140,9 @@ export const QUESTION_BANK = [
     "options": [
       "higher than adjacent areas",
       "positive",
-      "40. Which of the following statements about radiolabeled aerosols",
       "equal to adjacent areas",
-      "neither higher or lower than adjacent areas lower than adjacent areas"
+      "neither higher or lower than adjacent areas",
+      "lower than adjacent areas"
     ],
     "answerIndex": 4,
     "explanation": "A negative-pressure room is required for xenon ventilation studies to maintain ALARA for staff members and patients in the event of a leak during the study.",
@@ -12186,7 +12186,7 @@ export const QUESTION_BANK = [
       "carbon dioxide",
       "moisture",
       "xenon",
-      "42. The purpose of a charcoal filter in a xenon administration unit Pyrogens"
+      "pyrogens"
     ],
     "answerIndex": 1,
     "explanation": "Carbon dioxide is absorbed in the closed system by soda lime crystals, while moisture is removed by calcium sulfate or cobalt chloride crystals.",
@@ -12250,7 +12250,7 @@ export const QUESTION_BANK = [
     "options": [
       "infection imaging",
       "renal scan",
-      "cause the: liver/spleen scan",
+      "liver/spleen scan",
       "MUGA scan",
       "gastric emptying"
     ],
@@ -12290,13 +12290,13 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 3,
-    "question": "The clinical indication for performing a *C urea breath test is to:",
+    "question": "The clinical indication for performing a 14C urea breath test is to:",
     "options": [
       "rule out excess urea in the blood",
       "detect the presence of Helicobacter pylori bacteria",
       "determine the cause of gastric reflux",
       "diagnose possible causes of abnormal gastric emptying",
-      "determine the cause of esophageal reflux used for:"
+      "determine the cause of esophageal reflux"
     ],
     "answerIndex": 1,
     "explanation": "Helicobacter pylori produces a significant amount of the enzyme urease, which is not present in normal human tissue. When 'C-labeled urea is administered orally to the patient and urease activity is present in the stomach, 4C urea is split into ammonia and *CO*, which is absorbed into the blood and exhaled through the lungs. The '*C activity is trapped in an alkaline solution and measured.",
@@ -12598,7 +12598,7 @@ export const QUESTION_BANK = [
     "topic": "Renal Imaging",
     "type": "protocol",
     "difficulty": 2,
-    "question": "Tachycardia is demonstrated on a EKG strip as: 61. Static renal parenchyma imaging would be best performed with",
+    "question": "Tachycardia is demonstrated on a EKG strip as: ",
     "options": [
       "a large P-R interval",
       "an increased heart rate",
@@ -12645,9 +12645,9 @@ export const QUESTION_BANK = [
     "question": "Consumption of a fatty meal may have the same effect on the hepatobiliary system as which of the following compounds?",
     "options": [
       "cimetidine",
-      "63. If the tracer for an ERPF determination using the blood sampling",
       "furosemide",
-      "method is administered at 0900, at what time should the blood sample morphine sincalide",
+      "morphine",
+      "sincalide",
       "aspirin"
     ],
     "answerIndex": 3,
@@ -12667,7 +12667,7 @@ export const QUESTION_BANK = [
     "question": "Delayed improvement of perfusion after coronary artery revascularization is referred to as:",
     "options": [
       "hibernating myocardium",
-      "64. When using the camera method for a GFR, compare the kidney infarcted myocardium",
+      "infarcted myocardium",
       "stunned myocardium",
       "necrosed myocardium",
       "myocarditis"
@@ -12686,7 +12686,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "calculation",
     "difficulty": 4,
-    "question": "The percentage ejection fraction calculated from these data, diastole 2750 cpm and systole 1775 cpm, is:",
+    "question": "The percentage ejection fraction calculated from this data is:\ndiastole 2750 cpm\nsystole 1775 cpm",
     "options": [
       "61",
       "55",
@@ -12774,7 +12774,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "protocol",
     "difficulty": 5,
-    "question": "In the 1-day protocol for myocardial perfusion imaging performed with a technetium-99m-labeled tracer, the larger amount of activity is administered:",
+    "question": "In the 1-day protocol for myocardial perfusion imaging performed with a 99mTC labeled tracer, the larger amount of activity is administered:",
     "options": [
       "for the rest study",
       "for the study performed second",
@@ -12783,7 +12783,7 @@ export const QUESTION_BANK = [
       "for the study performed third"
     ],
     "answerIndex": 1,
-    "explanation": "When a l-day protocol for myocardial perfusion imaging is performed with a 99mTc-labeled tracer, the smaller dose is administered for the first imaging study and a higher dose is administered for the second study.",
+    "explanation": "When a 1-day protocol for myocardial perfusion imaging is performed with a 99mTc-labeled tracer, the smaller dose is administered for the first imaging study and a higher dose is administered for the second study.",
     "source": "Source: Crawford and Husain, 2011; p. 29.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1178.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1254.jpeg"
@@ -12824,7 +12824,7 @@ export const QUESTION_BANK = [
       "is a calcium analog",
       "has a short half-life",
       "redistributes",
-      "myocardium has a high first pass extraction rate and stays fixed in the"
+      "has a high first pass extraction rate and stays fixed in the myocardium"
     ],
     "answerIndex": 3,
     "explanation": "Thallium-201 redistributes, which means rest and stress images can be obtained with one injection. It has a low-energy photopeak and life of 73.1 hr. low-photon flux. It is a potassium analog. It has a relatively long half-",
@@ -12893,7 +12893,7 @@ export const QUESTION_BANK = [
       "No manipulation of blood samples outside the body is required."
     ],
     "answerIndex": 4,
-    "explanation": "The in vivo method of *Te red cell tagging is the easiest for the techinadvertent cross-transfusion. nologist, with no handling or manipulation of blood products or risk of",
+    "explanation": "The in vivo method of 99mTc red cell tagging is the easiest for the techinadvertent cross-transfusion. nologist, with no handling or manipulation of blood products or risk of",
     "source": "Source: Crawford and Husain, 2011; p. 75.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1178.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1254.jpeg"
@@ -13084,7 +13084,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "protocol",
     "difficulty": 4,
-    "question": "Radiopharmaceutical kits reconstituted with [99mTc] pertechnetate are prepared in nitrogenor argon-purged vials to prevent:",
+    "question": "Radiopharmaceutical kits reconstituted with [99mTc] pertechnetate are prepared in nitrogen- or argon-purged vials to prevent:",
     "options": [
       "bacterial growth",
       "hydrolysis",
@@ -13106,7 +13106,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "concept",
     "difficulty": 5,
-    "question": "Which of the following is not part of a technetium-99m radiopharmaceutical kit?",
+    "question": "Which of the following is not part of a 99mTc radiopharmaceutical kit?",
     "options": [
       "pyrogenocidal agent",
       "ascorbic acid or stannous ion",
@@ -13150,16 +13150,16 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "When labeling technetium-99m (VII), in what state is the technetium changed to make it more reactive?",
+    "question": "When labeling 99mTc (+7), in what state is the technetium changed to make it more reactive?",
     "options": [
-      "technetium-99m (VIII)",
-      "technetium-99m (VI)",
-      "technetium-99m (IV)",
-      "technetium-99m (V)",
-      "technetium-99m (III)"
+      "99mTc (+8)",
+      "99mTc (+6)",
+      "99mTc (+4)",
+      "99mTc (+5)",
+      "99mTc (+3)"
     ],
     "answerIndex": 2,
-    "explanation": "99mTc+ is reduced to 99mTc + in a reaction that occurs during the reduction of technetium by stannous chloride in an acidic medium.",
+    "explanation": "99mTc+7 is reduced to 99mTc+4 in a reaction that occurs during the reduction of technetium by stannous chloride in an acidic medium.",
     "source": "Source: Saha, 2004; p. 98.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1179.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1255.jpeg"
@@ -13178,7 +13178,7 @@ export const QUESTION_BANK = [
       "generator yields",
       "PET blank scans",
       "center of rotation",
-      "fraction of drug that is delivered to body on the basis of weight target:non-target ratios fraction of drug that reaches systemic circulation after a partic-"
+      "target:non-target ratios"
     ],
     "answerIndex": 4,
     "explanation": "The presence of radiochemical impurities in a radiopharmaceutical can result in poor-quality images due to high background from the surrounding tissues in the blood, which is a result of undesirable radionuclides in the dose. This will affect the target:non-target ratio.",
@@ -13219,7 +13219,7 @@ export const QUESTION_BANK = [
     "question": "Possible radiochromatography artifacts include all of the following except:",
     "options": [
       "using tweezers to pick up the chromatography paper",
-      "89. Radiopharmaceutical kits reconstituted with [99mTc] pertechnetate the strip touching the side of the developing chamber",
+      "the strip touching the side of the developing chamber",
       "the solvent evaporating before chromatography is completed",
       "using the wrong solvent",
       "too much solvent in the bottom of the chamber"
@@ -13238,7 +13238,7 @@ export const QUESTION_BANK = [
     "topic": "MAA / Pulmonary Perfusion",
     "type": "concept",
     "difficulty": 1,
-    "question": "An MAA kit has 3 million total particles. If a 5 mCi dose is needed at 1000 and the following information is provided: 25 mCi/mL in 5 mL total volume at 0700, what approximate number of particles will be given to the patient?",
+    "question": "An MAA kit has 3 million total particles. If a 5 mCi dose is needed at 1000 and the following information is provided: \n\n25 mCi/mL in 5 mL total volume at 0700\nwhat approximate number of particles will be given to the patient?",
     "options": [
       "600,000",
       "169,635",
@@ -13332,7 +13332,7 @@ export const QUESTION_BANK = [
       "diphenhydramine",
       "air",
       "water",
-      "saline and"
+      "saline"
     ],
     "answerIndex": 1,
     "explanation": "Diphenhydramine, which is an antihistamine, can be given to reduce the symptoms if an allergic reaction occurs due to administration of contrast media.",
@@ -13395,10 +13395,10 @@ export const QUESTION_BANK = [
     "question": "For an occupational worker who has received 14,000 mRem of exposure to the eyes in 1 year on his/her eye dose dosimeter, which course of action would be appropriate?",
     "options": [
       "Recommend eye chelation therapy.",
-      "Review ALARA standards to reduce exposure because s/he is",
-      "close to exceeding their annual eye dose limit.",
-      "Review ALARA standards to reduce exposure because s/he has",
-      "exceeded his/her annual eye dose limit. Recommend s/he use leaded eyeglasses to reduce exposure. Recommend s/he use thyroid shields."
+      "Review ALARA standards to reduce exposure because s/he is close to exceeding their annual eye dose limit.",
+      "Review ALARA standards to reduce exposure because s/he HAS exceeded his/her annual eye dose limit.",
+      "Recommend s/he use leaded eyeglasses to reduce exposure. ",
+      "Recommend s/he use thyroid shields."
     ],
     "answerIndex": 1,
     "explanation": "An occupational radiation worker is allowed up to 15,000 mRem/yr dose to the eye. Since this worker is close to but not exceeding the yearly dose, a review of the ALARA concept and a dedicated reduction in eye exposure in the future is recommended.",
@@ -13460,11 +13460,11 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "In doing a room survey, you discover that a therapy patient's room has removable contamination above acceptable levels. What is the acceptable level?",
     "options": [
-      "<367 Bq/100 cm'",
-      "<200 MBq/100 cm'",
-      "<12,000 Bq/100 cm?",
-      "<200 Bq/100 cm'",
-      "<15,000 Bq/100 cm"
+      "<367 Bq/100 cm2",
+      "<200 MBq/100 cm2",
+      "<12,000 Bq/100 cm2",
+      "<200 Bq/100 cm2",
+      "<15,000 Bq/100 cm2"
     ],
     "answerIndex": 0,
     "explanation": "To remain in compliance, removable contamination in the therapy room must be below the applicable contamination action level.",
@@ -13546,13 +13546,13 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 5,
-    "question": "IfaG-M meter has ascale of 1-5 mR/hr. IF a deflection on the mete 5. The allowed dose of ionizing radiation to a declared pregnant womreads 4.5 and the meter is set on the XO.1 setting, what is the reading? 40.5 mR/hr",
+    "question": "If a G-M meter has a scale of 1-5 mR/hr. If a deflection on the meter reads 4.5 and the meter is set on the xO.1 setting, what is the reading?",
     "options": [
-      "10% of the standard occupational workers whole-body dose",
+      "40.5 mR/hr",
       "4.5 mR/hr",
       "0.45 mR/hr",
       "0.045 mR/hr",
-      "45 mR/hr 20% of the standard yearly occupational dose for the gestation"
+      "45 mR/hr"
     ],
     "answerIndex": 2,
     "explanation": "The reading determined by using the G-M meter was 4.5 mR/hr. However, it was measured on the X0.1 setting. Therefore, the initial reading meter correctly. of 45 mR/hr has to be multiplied by XO.1 to get the reading from the",
@@ -13593,10 +13593,10 @@ export const QUESTION_BANK = [
     "question": "Form X or NRC Form 3 includes all of the following except:",
     "options": [
       "The employer must abide by the state and federal regulations.",
-      "The worker is required to become familiar with the regulations",
-      "and operating procedures for the work engaged in.",
+      "The worker is required to become familiar with the regulations and operating procedures for the work engaged in.",
       "The worker must abide by the state and federal regulations.",
-      "The employer will make available to the worker a copy of all 7. In calibrating your survey meter for your nuclear medicine departapplicable state and federal regulations, licenses, and operating ment, you discover that it has a 12% error. What is your next course of procedures pertaining to the work. The employer is not required to post any notices of violations of the regulations involving radiological working conditions."
+      "The employer will make available to the worker a copy of all applicable state and federal regulations, licenses, and operating ment, you discover that it has a 12% error. What is your next course of procedures pertaining to the work.",
+      "The employer is not required to post any notices of violations of the regulations involving radiological working conditions."
     ],
     "answerIndex": 4,
     "explanation": "According to the NRC, the employer is required to post any notices or violations of the regulations to employees.",
@@ -13639,8 +13639,8 @@ export const QUESTION_BANK = [
       "\"Caution: Radioactive Material\"",
       "\"Caution: High Radiation Area\"",
       "\"Caution: Radiation Area\"",
-      "9. An unrestricted nuclear medicine waiting room is on the other side",
-      "\"Grave Danger: Very High Radiation Area\" of the wall from a hot lab. G-M meter readings in the hot lab read \"Caution: Very High Radiation Area\" 50 mRem/hr. Readings on the other side of the wall in the waiting room read 25 mRem/hr. What is the minimum number HVLs of Pb required in the wall to bring the waiting room reading down into compliance"
+      "\"Grave Danger: Very High Radiation Area\"",
+      "\"Caution: Very High Radiation Area\""
     ],
     "answerIndex": 1,
     "explanation": "Different radiation caution signs are used depending on the amount of radiation an individual is likely to receive in that area in the course of 1 hr while 30 cm from a radioactive source or surface. Using the Inverse Square Law and the information given, it can be determined that an individual in this circumstance would receive 160 mRem/hr at a distance of 30 cm. For an area where an individual is exposed to radiation levels in excess of 100 mRem/hr, the correct sign to post is the \"Caution: High Radiation Area\" sign.",
@@ -13687,7 +13687,7 @@ export const QUESTION_BANK = [
       "50 eV"
     ],
     "answerIndex": 1,
-    "explanation": "Ly 1I, The average amount of energy required to cause an ionization depends on the type of gas used in the chamber, but it is generally between 20 and 45 eV per ion pair. 34 eV per ion pair is a commonly accepted value. lowding n the",
+    "explanation": "The average amount of energy required to cause an ionization depends on the type of gas used in the chamber, but it is generally between 20 and 45 eV per ion pair. 34 eV per ion pair is a commonly accepted value. lowding n the",
     "source": "Source: Prekeges, 2011; p. 3.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1183.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1258.jpeg"
@@ -13700,7 +13700,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 2,
-    "question": "The ionization of the entire fixed volume of a gas due to secondary ionization is known as the",
+    "question": "The ionization of the entire fixed volume of a gas due to secondary ionization is known as the _______.",
     "options": [
       "Geiger effect",
       "Townsend avalanche",
@@ -13942,7 +13942,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "concept",
     "difficulty": 3,
-    "question": "The chance detection of photons from unrelated annihilation events within the coincidence timing window is called the coincidence:",
+    "question": "The chance detection of photons from unrelated annihilation events within the coincidence timing window is called the _______ coincidence:",
     "options": [
       "true",
       "scatter",
@@ -14010,7 +14010,7 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "concept",
     "difficulty": 1,
-    "question": "In nuclear medicine, threshold) is used primarily for:",
+    "question": "In nuclear medicine, \"windowing\" (choosing a linear scale with threshold) is used primarily for:",
     "options": [
       "background subtraction",
       "image normalization",
@@ -14034,11 +14034,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "Which of the following is the correct method to calculate gall bladder (GB) ejection fraction?",
     "options": [
-      "net min GB cts - net max GB cts",
-      "net min GB cts",
-      "net max GB cts - net min GB cts x 100",
-      "net min GB cts",
-      "net max GB cts - net min GB cts net max GB cts - x 100 net max GB cts net max GB cts - net min GB cts x 100 net max GB cts - net min GB cts net max GB cts"
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
     ],
     "answerIndex": 4,
     "explanation": "This is the only equation given that accurately represents the true total net value of counts from the gallbladder by using the percent difference equation. This equation can also be represented as: pre-CCK cts - lowest post - CCK cts - x 100 pre-CCK cts",
@@ -14058,11 +14058,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "For SPECT acquisition, a reasonable choice for pixel size would be:",
     "options": [
-      "5.25 mm",
+      "5.25 mm^2",
       "1/3 FWHM of detector resolution or smaller",
       "equal to 3 FWHM",
       "equal to 2 FWHM",
-      "3.12 mm"
+      "3.12 mm^2"
     ],
     "answerIndex": 4,
     "explanation": "If a test image of two point sources is acquired in a 128 x 128 image matrix, the approximate pixel size would be 3.133 mm in one plane. Both the x and y planes are needed.",
@@ -14128,7 +14128,7 @@ export const QUESTION_BANK = [
       "skull",
       "sternum",
       "thigh",
-      "lumbar spine \"windowing\" (choosing a linear scale with"
+      "lumbar spine"
     ],
     "answerIndex": 3,
     "explanation": "The thigh area is used to obtain non-thyroidal body background because it provides a more-accurate approximation of the soft tissue uptake throughout the entire body. The camera is positioned over the patient's thigh at the same distance as it is positioned from the thyroid organ.",
@@ -14166,13 +14166,13 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "concept",
     "difficulty": 3,
-    "question": "The therapeutic effectivness of 134T in treating hyperthyroidism results from the delivery of energy to thyroid tissue from:",
+    "question": "The therapeutic effectivness of 131I in treating hyperthyroidism results from the delivery of energy to thyroid tissue from:",
     "options": [
-      "a particles",
+      "Alpha particles",
       "neutron radiation",
-      "Y rays",
+      "Gamma rays",
       "X-rays",
-      "B particles"
+      "Beta particles"
     ],
     "answerIndex": 4,
     "explanation": "X-ray alpha particles are not emitted from 3IJ. 13'T is both a gamma and beta emitter; however, the beta particles are what is responsible for the effectiveness of the therapy.",
@@ -14279,8 +14279,8 @@ export const QUESTION_BANK = [
     "question": "It is safe to block a portion of the pulmonary circulation with MAA particles in patients with symptoms of pulmonary emboli because:",
     "options": [
       "the particles pass through the lungs",
-      "serum",
-      "the particles are made from albumin isolated from human the particles are rapidly phagocytized by lung macrophages",
+      "the particles are made from albumin isolated from human serum",
+      "the particles are rapidly phagocytized by lung macrophages",
       "the number of injected particles is very small compared to the number of available precapillary arterioles",
       "the albumin is denatured before it is made into particles"
     ],
@@ -14303,11 +14303,11 @@ export const QUESTION_BANK = [
       "The tracer contained unbound [99mTc] pertechnetate.",
       "The patient did not drink sufficient fluids.",
       "There is pathology in those areas.",
-      "The patient was imaged too soon to allow adequate blood",
-      "clearance of the tracer. The patient ate dairy products between the injection time and post imaging."
+      "The patient was imaged too soon to allow adequate blood clearance of the tracer.",
+      "The patient ate dairy products between the injection time and post imaging."
     ],
     "answerIndex": 0,
-    "explanation": "Radiotracer tag, like 9\"*Tc, may break down or be delivered to the body with an insufficient tag. This means that the tracer did not properly attach itself to the pharmaceutical used for the study. It results in unbound pertechnetate or \"free 'Ic\" that localizes in the stomach, thyroid, salivary glands, gastrointestinal tract, and some other systems.",
+    "explanation": "Radiotracer tag, like 99mTc, may break down or be delivered to the body with an insufficient tag. This means that the tracer did not properly attach itself to the pharmaceutical used for the study. It results in unbound pertechnetate or \"free 'Tc\" that localizes in the stomach, thyroid, salivary glands, gastrointestinal tract, and some other systems.",
     "source": "Source: Shackett, 2009; p. 32.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1185.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1260.jpeg"
@@ -14368,9 +14368,9 @@ export const QUESTION_BANK = [
     "options": [
       "Confer with the nuclear medicine physician.",
       "Ask the patient why s/he came to nuclear medicine.",
-      "Locate the written directive for the therapy in the patient's",
-      "medical record.",
-      "Text the physician. Telephone the referring physician for confirmation."
+      "Locate the written directive for the therapy in the patient's medical record.",
+      "Text the physician. ",
+      "Telephone the referring physician for confirmation."
     ],
     "answerIndex": 2,
     "explanation": "For a therapeutic procedure, there should always be a written directive in the patient's record. It is mandatory that a nuclear medicine technologist have the written directive and that he/she verifies it before administering any therapeutic radiopharmaceuticals. The referring physician or nuclear medicine physicians may not always be readily available for questions, and the patient may not always be certain about the procedures s/he is scheduled for.",
@@ -14386,12 +14386,12 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "protocol",
     "difficulty": 3,
-    "question": "All of the following statements about threeor four-phase bone imaging are true except:",
+    "question": "All of the following statements about three- or four-phase bone imaging are true except:",
     "options": [
       "This study has dynamic imaging.",
       "The last phase is performed 24 hr post-tracer administration.",
-      "The patient is positioned under the camera before tracer",
-      "administration. This study has static imaging.",
+      "The patient is positioned under the camera before tracer administration.",
+      "This study has static imaging.",
       "Special instructions are given to the patient before the injection."
     ],
     "answerIndex": 4,
@@ -14452,7 +14452,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 1,
-    "question": "The ability of an antibody to react with one and only one antigen is known as its:",
+    "question": "The ability of an antibody to react with one and \"only\" one antigen is known as its:",
     "options": [
       "affinity",
       "sensitivity",
@@ -14520,11 +14520,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "All of the following PET radionuclides must be produced very close to the site where they are administered except:",
     "options": [
-      "rubidium-82",
-      "carbon-11",
-      "nitrogen-13",
-      "fluorine-18",
-      "oxygen-15"
+      "82Rb",
+      "11C",
+      "15O",
+      "18F",
+      "13N"
     ],
     "answerIndex": 3,
     "explanation": "18F has the longest half-life of these PET radionuclides. Therefore, it is not necessary for 18F to be produced close to the site where it is administered. 18F has a half-life of 110 min; 11C, 20 min; 15O, 2 min; and 13N, 10 min.",
@@ -14584,7 +14584,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "concept",
     "difficulty": 2,
-    "question": "[90Y]ibritumomab tiuxetan is used for therapy of which type of 51. The ability of an antibody to react with one and only one antigen cancer?",
+    "question": "[90Y] ibritumomab tiuxetan is used for therapy of which type of cancer?",
     "options": [
       "breast",
       "prostate",
@@ -14606,9 +14606,9 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 3,
-    "question": "[90Y] ibritumomab tiuxetan is used in conjunction with which che- 52. The property where an antibody reacts with two or more antigens motherapeutic agent?",
+    "question": "[90Y] ibritumomab tiuxetan is used in conjunction with which chemotherapeutic agent?",
     "options": [
-      "interteron",
+      "interferon",
       "ribavirin",
       "cyclosporine",
       "methotrexate",
@@ -14634,7 +14634,7 @@ export const QUESTION_BANK = [
       "posterior",
       "right lateral",
       "left lateral",
-      "anterior oblique 54. All of the following PET radionuclides must be produced very close"
+      "anterior oblique"
     ],
     "answerIndex": 1,
     "explanation": "The spleen is located posterior-laterally in the left upper abdomen, so a right lateral will not show the size of the spleen well. A left lateral view will show the liver and spleen, making it hard to view the size of the spleen. The best view to determine the size of the spleen, therefore, is the posterior view.",
@@ -14656,7 +14656,7 @@ export const QUESTION_BANK = [
       "3.2 mCi",
       "4 mCi",
       "0.2 mCi",
-      "2.3 mCi 55. For what reason is a patient's blood glucose level checked before"
+      "2.3 mCi"
     ],
     "answerIndex": 0,
     "explanation": "[99mTc] sulfur colloid once injected will biodistribute 80% in the liver, 15% in the spleen, and 5% in the bone marrow. If 4 mCi is injected, 0.6 mCi will be concentrated in the spleen. 4 mCi x 0.15 = 0.6 mCi of activity",
@@ -14694,7 +14694,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "image-interpretation",
     "difficulty": 4,
-    "question": "Which of the following diagnostic tests should not be performed 56. Preparation of patients undergoing PET imaging for an oncologic immediately before liver/spleen imaging with [99mTc] sulfur colloid?",
+    "question": "Which of the following diagnostic tests should \"not\" be performed immediately before liver/spleen imaging with [99mTc] sulfur colloid?",
     "options": [
       "gallbladder examination with ultrasound",
       "chest radiograph",
@@ -14744,7 +14744,7 @@ export const QUESTION_BANK = [
       "morphine",
       "dobutamine",
       "furosemide",
-      "adeosine"
+      "adenosine"
     ],
     "answerIndex": 1,
     "explanation": "Morphine is usually given to the patient after 60 min because morphine contracts the sphincter of Oddi and increases the pressure in the common bile duct and cystic duct. This causes the gallbladder to fill up with the radiopharmaceutical if the gallbladder is functioning.",
@@ -14791,7 +14791,7 @@ export const QUESTION_BANK = [
       "Framing rate is not a relevant consideration for this study."
     ],
     "answerIndex": 4,
-    "explanation": "The computer setup for the procedure is usually 20-60 sec/frame for 1800 sec, which is a dynamic study but not a gating study.",
+    "explanation": "The computer setup for the procedure is usually 20-60 sec/frame for 1800 sec, which is a dynamic study but not a gating study.\n\nP.S. Cody does not like this answer...",
     "source": "Source: Shackett, 2009; p. 251.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1187.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1261.jpeg"
@@ -14810,7 +14810,7 @@ export const QUESTION_BANK = [
       "24 hr delayed imaging",
       "anterior images",
       "delayed imaging as late as 3 hr after tracer administration",
-      "immediate blood pool images per sec?"
+      "immediate blood pool images"
     ],
     "answerIndex": 1,
     "explanation": "In liver hemangioma imaging, a blood flow image, an immediate blood pooling image, and a delayed image 2-3 hr after injection are required as a normal imaging protocol. The 24-hr delayed image is not required for a liver hemangioma study.",
@@ -14831,7 +14831,7 @@ export const QUESTION_BANK = [
       "no redistribution of tracer",
       "acquisition of ventricular function information",
       "completion of stress and rest imaging on the same day",
-      "administration flexibility in the time of imaging following tracer",
+      "flexibility in the time of imaging following tracer administration",
       "acquisition of stress and rest images with one tracer dose"
     ],
     "answerIndex": 4,
@@ -14857,8 +14857,8 @@ export const QUESTION_BANK = [
       "atropine"
     ],
     "answerIndex": 1,
-    "explanation": "only have half-lives of a couple of min.",
-    "source": "Source: Christian and Waterstram-Rich, 2007; p. 493. Dipyridamole has a half-life of up to 30 min and can last several hours. Adenosine's half-life is only 10 sec, and dobutamine and nitroglycerin",
+    "explanation": "Dipyridamole has a half-life of up to 30 min and can last several hours. Adenosine's half-life is only 10 sec, and dobutamine and nitroglycerin only have half-lives of a couple of min.",
+    "source": "Source: Christian and Waterstram-Rich, 2007; p. 493. ",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1187.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1261.jpeg"
   },
@@ -14982,7 +14982,7 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "Which agent is preferred for acute myocardial infarction imaging?",
     "options": [
-      "[201Tl] chloride",
+      "[201Tl] Cl",
       "[99mTc] pyrophosphate",
       "[99mTc] sestamibi",
       "[99mTc] tetrofosmin",
@@ -15002,13 +15002,13 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 1,
-    "question": "Which of the following pharmacologic stress agents indirectty affects adenosine receptor sites on cell membranes?",
+    "question": "Which of the following pharmacologic stress agents indirectly affects adenosine receptor sites on cell membranes?",
     "options": [
       "dobutamine",
       "adenosine",
       "atropine",
       "esmolol",
-      "dipyidamole"
+      "dipyridamole"
     ],
     "answerIndex": 4,
     "explanation": "Dipyridamole produces coronary vasodilation and reactive hyperemia by increasing endogenous plasma adenosine levels. Because dipyridamole inhibits the clearance pathway of adenosine across the cell membrane, it indirectly affects adenosine receptor sites.",
@@ -15028,7 +15028,7 @@ export const QUESTION_BANK = [
     "options": [
       "dobutamine",
       "adenosine",
-      "dipyidamole",
+      "dipyridamole",
       "esmolol",
       "atropine"
     ],
@@ -15068,12 +15068,12 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 4,
-    "question": "It is best not to administer 89Sr and 153Sm directly via straight stick injection because:",
+    "question": "It is best \"not\" to administer 89Sr and 153Sm directly via straight stick injection because:",
     "options": [
       "The syringe cannot be adequately shielded.",
       "There is an increased possibility of local irradiation of soft tissue due to infiltration.",
       "There is no means of controlling the rate of radiopharmaceutical administration.",
-      "The radiation dose to the technologist's hands from the beta emissions is great.",
+      "The radiation dose to the technologist's hands from the beta- emissions is great.",
       "The radiation dose to the technologist's hands from the alpha emissions is great."
     ],
     "answerIndex": 1,
@@ -15112,13 +15112,13 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 1,
-    "question": "When reporting a medical event to the NRC, which of the following 75. Which agent is preferred for acute myocardial infarction imaging?",
+    "question": "When reporting a medical event to the NRC, which of the following information should not be included?",
     "options": [
-      "information should not be included? identity of the patient",
+      "identity of the patient",
       "licensee's name",
       "description of the event",
       "remedial action",
-      "facility name 76. Which of the following pharmacologic stress agents indirectty"
+      "facility name"
     ],
     "answerIndex": 0,
     "explanation": "2003 (10 CFR Part 35). Due to confidentiality rules, the patient identity should not be disclosed in the report to the NRC.",
@@ -15158,11 +15158,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "Which of the following is/are medical event(s) according to the NRC?",
     "options": [
-      "A second dose of [99mTc] MAA is administered after the first is",
-      "inadvertently infiltrated. [99mTc] DTPA for renal function imaging is requested by the referring physician, but [99mTc] mertiatide is prescribed by the nuclear medicine physician.",
-      "A [131I] sodium iodide (15 mCi) is prescribed for therapy, but",
-      "19 mCi are administered. A myocardial perfusion dose is given to a therapy patient by",
-      "mistake. A second dose of [99mTc] medronate is administered after the first is inadvertently infiltrated."
+      "A second dose of [99mTc] MAA is administered after the first is inadvertently infiltrated.",
+      "[99mTc] DTPA for renal function imaging is requested by the referring physician, but [99mTc] mertiatide is prescribed by the nuclear medicine physician.",
+      "A [131I] sodium iodide (15 mCi) is prescribed for therapy, but 19 mCi are administered.",
+      "A myocardial perfusion dose is given to a therapy patient by mistake.",
+      "A second dose of [99mTc] medronate is administered after the first is inadvertently infiltrated."
     ],
     "answerIndex": 2,
     "explanation": "A 19 mCi iodine-131 therapy administration for a 15 mCi prescription exceeds the allowed variance for a therapeutic dosage and is a medical event.",
@@ -15206,7 +15206,7 @@ export const QUESTION_BANK = [
       "referring physician's name",
       "nuclear medicine staff involved in the medical event",
       "estimated dose to personnel involved",
-      "actions taken, if any"
+      "actions taken, if any."
     ],
     "answerIndex": 3,
     "explanation": "A written report to the appropriate NRC regional office must be submitted within 15 days and must include the licensee's name; prescribing physician; description of event; why event occurred; effect, if any, on the individual(s) who received the dose; actions taken, if any, to prevent recurrence; and certification that licensee notified the individual and, if not, why not. A separate section for occupationally overexposed individuals must also be included in the report and must include employee's name, Social Security number, and date of birth.",
@@ -15270,9 +15270,9 @@ export const QUESTION_BANK = [
     "options": [
       "Squirt excess dose into a waste bucket.",
       "Do not use the dose and call the radiopharmacy for a replacement dose.",
-      "Question whether the right radiopharmaceutical has been",
-      "prepared. Delay the radiopharmaceutical administration until the unit",
-      "dose has decayed. Administer the unit dose to the patient."
+      "Question whether the right radiopharmaceutical has been prepared.",
+      "Delay the radiopharmaceutical administration until the unit dose has decayed.",
+      "Administer the unit dose to the patient."
     ],
     "answerIndex": 1,
     "explanation": "Unless otherwise directed by the authorized user (AU), a licensee may not use a dosage if it does not fall within the prescribed range or if it differs from the prescribed dosage by greater than 20%.",
@@ -15288,7 +15288,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 4,
-    "question": "How many microcuries must be placed in each [123I] sodium iodide capsule to provide approximately 220 uCi at the time of calibration 29 hr after preparation (DF for 1 hr = 0.9488)?",
+    "question": "How many microcuries must be placed in each [123I] sodium iodide capsule to provide approximately 220 uCi at the time of calibration 29 hr after preparation (Decay Factor for 1 hr = 0.9488)?",
     "options": [
       "264 uCi",
       "704 uCi",
@@ -15332,7 +15332,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "concept",
     "difficulty": 1,
-    "question": "The following studies are ordered for the next day: total-body bone image, Meckel's diverticulum localization, renal and a hepatobiliary study. Which of the following radiopharmaceuticals is not needed?",
+    "question": "The following studies are ordered for the next day: \ntotal-body bone image, Meckel's diverticulum localization, renal and a hepatobiliary study. \n\nWhich of the following radiopharmaceuticals is not needed?",
     "options": [
       "[99mTc] mebrofenin",
       "[99mTc] macroaggregated albumin",
@@ -15358,9 +15358,9 @@ export const QUESTION_BANK = [
     "options": [
       "fraction of a drug that is delivered to body based on weight",
       "fraction of a drug that is excreted from the body",
-      "fraction of a drug that reaches systemic circulation after a",
-      "particular route of administration",
-      "fraction of a drug that reaches the heart fraction of a drug that reaches the kidney"
+      "fraction of a drug that reaches systemic circulation after a particular route of administration",
+      "fraction of a drug that reaches the kidney",
+      "fraction of a drug that reaches the heart"
     ],
     "answerIndex": 2,
     "explanation": "Bioavailability is the fraction of an administered drug that reaches systemic circulation after a particular route of administration.",
@@ -15398,7 +15398,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 4,
-    "question": "Which of the following is not a route of administration of a radiopharmaceutical?",
+    "question": "Which of the following is \"not\" a route of administration of a radiopharmaceutical?",
     "options": [
       "inhalation",
       "intravenous (IV)",
@@ -15420,7 +15420,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 5,
-    "question": "If a concentration equals 25 mCi/mL at 0700 but a dose of 30 mCi has to be drawn at 0200, what volume has to be drawn if the DF equals1 hr = 0.985?",
+    "question": "If a concentration equals 25 mCi/mL at 0700 but a dose of 30 mCi has to be drawn at 0200, what volume has to be drawn if the Decay Factor equals 1 hr = 0.985?",
     "options": [
       "~1.11 mL",
       "~1.52 mL",
@@ -15464,13 +15464,13 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "protocol",
     "difficulty": 2,
-    "question": "Which of the following statements about the determination of aluminum contamination in mTc eluate is true?",
+    "question": "Which of the following statements about the determination of aluminum contamination in 99mTc eluate is true?",
     "options": [
       "The eluate sample is compared to a standard solution with an aluminum concentration of zero.",
-      "The test for aluminum breakthrough needs to be performed onlv after the generator has been eluted 10-12 times.",
-      "The USP states that the aluminum concentration in 99mTc eluate is not to exceed 15 pg/mL of eluate.",
+      "The test for aluminum breakthrough needs to be performed only after the generator has been eluted 10-12 times.",
+      "The USP states that the aluminum concentration in 99mTc eluate is not to exceed 15 ug/mL of eluate.",
       "An excessively increased aluminum concentration indicates that the elution volume exceeds the capacity of the generator.",
-      "The USP states that the aluminum concentration in 99mTc eluate is not to exceed 10 pg/L of eluate."
+      "The USP states that the aluminum concentration in 99mTc eluate is not to exceed 10 ug/L of eluate."
     ],
     "answerIndex": 4,
     "explanation": "The USP 26 limit states that the limit for aluminum concentration in a 9m*Tc eluate is 10 pg/mL. for fission-produced 99Mo.",
@@ -15530,13 +15530,13 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 5,
-    "question": "A(n) _ contrast material may be described as one that does not dissociate or divide into charged particles in solution.",
+    "question": "A(n) _______ contrast material may be described as one that does not dissociate or divide into charged particles in solution.",
     "options": [
       "non-ionic",
       "ionic",
       "oral",
       "osmolar",
-      "intravenous."
+      "intravenous"
     ],
     "answerIndex": 0,
     "explanation": "A non-ionic contrast material may be described as one that does not dissociate or divide into charged particles in solution.",
@@ -15577,7 +15577,7 @@ export const QUESTION_BANK = [
     "question": "The recommended dosage of adenosine is:",
     "options": [
       "140 mcg/kg/min",
-      "• 14 mcg/kg/min",
+      "14 mcg/kg/min",
       "1.4 mcg/kg/min",
       "1,400 mcg/kg/min",
       "14,000 mcg/kg/min"
@@ -15618,7 +15618,7 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 4,
-    "question": "The process of eluting a dry 99Mo Te generator relies on:",
+    "question": "The process of eluting a dry 99Mo/99mTc generator relies on:",
     "options": [
       "positive pressure",
       "neutral pressure",
@@ -15664,11 +15664,11 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "The USP has set the aluminum breakthrough for a 99Mo/99mTc generator at or below what amount?",
     "options": [
-      "10 pg/mL",
-      "100 pg/mL",
-      "10 pg/pL",
-      "100 pg/pL",
-      "0.15 pg/pL"
+      "10 ug/mL",
+      "100 ug/mL",
+      "10 ug/uL",
+      "100 ug/uL",
+      "0.15 ug/uL"
     ],
     "answerIndex": 0,
     "explanation": "The U.S. Pharmacopeia has set the concentration limit for Al3+ to be no greater than 10 pg/mL of the eluate.",
@@ -15750,7 +15750,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 5,
-    "question": "If the bound radiochemical purity percentage is 92% and the hydrolyzed percentage is 3.2%, what amount of free 99mTc is in the product?",
+    "question": "If the bound radiochemical purity % is 92% and the hydrolyzed % is 3.2%, what amount of free 99mTc is in the product?",
     "options": [
       "92%",
       "3.2%",
@@ -15772,7 +15772,7 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 1,
-    "question": "A radiopharmaceutical kit has to be reconstituted at 0800. Given the following information, what approximate amount of 99mTc-TcO4 and saline would be needed to make up the kit? 99Mo/99mTc generator eluate: 850 mCi in 20 mL at 0600. Preservative-free saline: 50 mL available. Package insert kit preparation information: 8 mL kit with 65 mCi of 99mTc needed at reconstitution.",
+    "question": "A radiopharmaceutical kit has to be reconstituted at 0800. Given the following information, what approximate amount of 99mTc-TcO4 and saline would be needed to make up the kit? \n99Mo/99mTc generator eluate: 850 mCi in 20 mL at 0600.\nPreservative-free saline: 50 mL available.\nPackage insert kit preparation information: 8 mL kit with 65 mCi of 99mTc needed at reconstitution.",
     "options": [
       "2 mL eluate and 6 mL saline",
       "6 mL eluate and 2 mL saline",
@@ -15794,7 +15794,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "A patient dose is needed at 1300. Based on the following information, what approximate volume would be needed for this 99mTc-based product? Radiopharmaceutical kit: 150 mCi in 6 mL at 0900; dose needed at 1300: 25 mCi.",
+    "question": "A patient dose is needed at 1300. Based on the information provided below, what approximate volume would be needed for this 99mTc-based product? \n\nRadiopharmaceutical kit: 150 mCi in 6 mL at 0900 \nDose needed at 1300 is 25 mCi.",
     "options": [
       "2.6 mL",
       "1.0 mL",
@@ -15816,7 +15816,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 3,
-    "question": "For a Y ibritumomab tiuxetan monoclonal antibody therapy, the prescribed dose is 25.6 mCi, according to NRC and CFR regulations what would be the approximate dose range for this radioimmunotherapy?",
+    "question": "For a 90Y ibritumomab tiuxetan monoclonal antibody therapy, the prescribed dose is 25.6 mCi, according to NRC and CFR regulations what would be the approximate dose range for this radioimmunotherapy?",
     "options": [
       "20.5-30.7 mCi",
       "23.2-28.4 mCi",
@@ -15847,7 +15847,7 @@ export const QUESTION_BANK = [
       "chromate ion is transported across red cell membrane and binds to beta chain of hemoglobin molecule"
     ],
     "answerIndex": 4,
-    "explanation": "When labeling RBCs with \"Gr ascorbic acid, approximately 80% to 95% of the chromate ion is promptly transported across the RBC membrane and binds to the beta chain of the hemoglobin molecule.",
+    "explanation": "When labeling RBCs with \"Cr ascorbic acid, approximately 80% to 95% of the chromate ion is promptly transported across the RBC membrane and binds to the beta chain of the hemoglobin molecule.",
     "source": "Source: Waterstram-Rich and Gilmore, 2017 p. 623.",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1193.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1266.jpeg"
@@ -15904,7 +15904,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "The SNMMI Pediatric Tool Kit recommended dosage of fluorine-18 FDG is 0.1 mCi/kg. A pediatric patient weighs 45 lb. What is the recommended administered activity?",
+    "question": "The SNMMI Pediatric Tool Kit recommended dosage of 18F FDG for brain imaging in pediatric patients is 0.10 mCi/kg. If a pediatric patient weighs 45 lbs, What approximate dose should the patient recieve?",
     "options": [
       "20 mCi",
       "2.0 mCi",
@@ -15930,7 +15930,7 @@ export const QUESTION_BANK = [
     "options": [
       "0.69 mL",
       "6.8 mL",
-      "15 mL",
+      "1.5 mL",
       "0.15 mL",
       "4.2 mL"
     ],
@@ -15973,7 +15973,7 @@ export const QUESTION_BANK = [
     "question": "Which of the following radiopharmaceuticals would be used for a bone marrow evaluation?",
     "options": [
       "[111In] WBCs",
-      "[99mTc] RBCS",
+      "[99mTc] RBCs",
       "[99mTc] MAA",
       "[99mTc] sulfur colloid",
       "[99mTc] bicisate"
@@ -16023,8 +16023,8 @@ export const QUESTION_BANK = [
       "phosphoric calcium and methyl hydroxide"
     ],
     "answerIndex": 3,
-    "explanation": "hydroxyl, carbonate, and citrate.",
-    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 579. The bone salt material (inorganic matter) has the crystalline form of an apatite and is composed of the following ions: calcium, phosphate,",
+    "explanation": "The bone salt material (inorganic matter) has the crystalline form of an apatite and is composed of the following ions: calcium, phosphate, hydroxyl, carbonate, and citrate.",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 579. ",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1194.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1266.jpeg"
   },
@@ -16036,7 +16036,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "image-interpretation",
     "difficulty": 4,
-    "question": "A 49-year-old female patient receives 25 mCi of *TC-MDP for a bone scan. The organ receiving the greatest radiation dose from this injection is:",
+    "question": "A 49-year-old female patient receives 25 mCi of 99mTc-MDP for a bone scan. The organ receiving the greatest radiation dose from this injection is:",
     "options": [
       "bones",
       "kidneys",
@@ -16058,7 +16058,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "concept",
     "difficulty": 4,
-    "question": "Bone cancers, bone metastases, and other bone disorders produce extremely high levels of_ in the blood.",
+    "question": "Bone cancers, bone metastases, and other bone disorders produce extremely high levels of ______ in the blood.",
     "options": [
       "lactic dehydrogenase",
       "alkaline phosphatase",
@@ -16146,7 +16146,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "image-interpretation",
     "difficulty": 3,
-    "question": "A bone scan of a 60-year-old female demonstrates a difuse pattern of intensely increased activity in the skull, proximal femurs, and one side of the pelvis. This appearance is typical of what disease process?",
+    "question": "A bone scan of a 60-year-old female demonstrates a diffuse pattern of intensely increased activity in the skull, proximal femurs, and one side of the pelvis. This appearance is typical of what disease process?",
     "options": [
       "Ewing's sarcoma",
       "multiple myeloma",
@@ -16155,8 +16155,8 @@ export const QUESTION_BANK = [
       "Paget's disease"
     ],
     "answerIndex": 4,
-    "explanation": "Ziessman, O'Malley, Thrall, and Fahey, 2014; p. 112. Paget's disease is characterized by marked increase in skeletal uptake. Most-common areas are pelvis, spine, skull, femur, scapula, tibia, and humerus.",
-    "source": "Source photo: Answers/Exam 8/IMG_1266.jpeg.",
+    "explanation": "Paget's disease is characterized by marked increase in skeletal uptake. Most-common areas are pelvis, spine, skull, femur, scapula, tibia, and humerus.",
+    "source": "Ziessman, O'Malley, Thrall, and Fahey, 2014; p. 112. ",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1194.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1266.jpeg"
   },
@@ -16190,13 +16190,13 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "concept",
     "difficulty": 5,
-    "question": "Dipyridamole is supplied to a nuclear medicine department in 10 mL vials, each containing 50 mg. If a patient weighs 155 pounds, how many ml must be injected for the patient to receive 0.56 mg/kg?",
+    "question": "Dipyridamole is supplied to a nuclear medicine department in 10 mL vials, each containing 50 mg. If a patient weighs 155 pounds, how many mL must be injected for the patient to receive 0.56 mg/kg?",
     "options": [
       "7.9 mL",
       "8.7 mL",
       "17.4 mL",
       "39.5 mL",
-      "53 mL"
+      "5.3 mL"
     ],
     "answerIndex": 0,
     "explanation": "155 lbs/2.2 lbs/kg = 70.45 kg 70.45 kg x 0.56 mg/kg = 39.45 mg needed 50 mg/10 mL = 5 mg/mL 39.45 mg needed/5 mg/mL = approximately 79 mL needed",
@@ -16212,7 +16212,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "image-interpretation",
     "difficulty": 3,
-    "question": "A patient has an enlarged left atrium. When drawing an ROI for calculation of LNEF after radionuclide ventriulography, the technologist includes some activity from the left atrium. The resulting ejection fraction would:",
+    "question": "A patient has an enlarged left atrium. When drawing an ROI for calculation of LVEF after radionuclide ventriulography, the technologist includes some activity from the left atrium. The resulting ejection fraction would:",
     "options": [
       "be unchanged",
       "be falsely elevated",
@@ -16265,7 +16265,7 @@ export const QUESTION_BANK = [
       "Images would be degraded on stress images after exercise."
     ],
     "answerIndex": 2,
-    "explanation": "Like ([201Tl] thallous chloride, 99mTc-sestamibi is taken up by the myocardium in proportion to blood flow. Unlike [201Tl] thallous chloride, they passively diffuse across the cell membrane, bind to mitochondria, and exhibit limited redistribution. Because of the limited redistribution, one-day protocols require a low-dose/high-dose, two-injection procedure.",
+    "explanation": "Like [201Tl] thallous chloride, 99mTc-sestamibi is taken up by the myocardium in proportion to blood flow. Unlike [201Tl] thallous chloride, they passively diffuse across the cell membrane, bind to mitochondria, and exhibit limited redistribution. Because of the limited redistribution, one-day protocols require a low-dose/high-dose, two-injection procedure.",
     "source": "Source: Kowalsky and Falen, 2004; p. 549.",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1195.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1267.jpeg"
@@ -16280,11 +16280,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "When performing a dual-isotope myocardial perfusion rest/stress study, which isotope should be injected first?",
     "options": [
-      "thallium-201",
-      "technetium-99m",
-      "fluorine-18",
+      "201Tl",
+      "99mTc",
+      "18F",
       "It does not matter which is injected first, as long as the patient is fasting.",
-      "carbon-11"
+      "11C"
     ],
     "answerIndex": 0,
     "explanation": "3-4 mCi (11-148 MBq) of [201Tl] thallous chloride is administered at rest and images are obtained about 15 minutes later. About 30 minutes after the rest images are completed, the stress portion of the exam—either via treadmill or pharmacologically—is performed with 25-30 mCi of the 99mTc agent.",
@@ -16300,7 +16300,7 @@ export const QUESTION_BANK = [
     "topic": "Cardiac Imaging",
     "type": "concept",
     "difficulty": 5,
-    "question": "Persistent pulmonary activity and poor visualization of the left side of the heart represent during a first pass evaluation.",
+    "question": "Persistent pulmonary activity and poor visualization of the left side of the heart represent ____________ during a first pass evaluation.",
     "options": [
       "a ventricular aneurysm",
       "a left-to-right intracardiac shunt",
@@ -16397,8 +16397,8 @@ export const QUESTION_BANK = [
       "blood draw of at least 1 cc"
     ],
     "answerIndex": 4,
-    "explanation": "Ziessman, O'Malley, Thrall, and Fahey, 2014; p. 194. Camera-based calculations of effective renal plasma flow are not as accurate but require pre- and post-injection syringe counting, imaging, and patient height and weight. No blood draw or urine collection is required.",
-    "source": "Source photo: Answers/Exam 8/IMG_1267.jpeg.",
+    "explanation": "Camera-based calculations of effective renal plasma flow are not as accurate but require pre- and post-injection syringe counting, imaging, and patient height and weight. No blood draw or urine collection is required.",
+    "source": "Ziessman, O'Malley, Thrall, and Fahey, 2014; p. 194. ",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1195.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1267.jpeg"
   },
@@ -16410,12 +16410,12 @@ export const QUESTION_BANK = [
     "topic": "Lung Imaging",
     "type": "concept",
     "difficulty": 5,
-    "question": "Pulmonary blood flow in a person sitting in an upright position",
+    "question": "Pulmonary blood flow in a person sitting in an upright position will be?",
     "options": [
       "more abundant in the base of the lungs",
       "more abundant in the apex of the lungs lungs",
-      "more abundant poseriorly than anteriorly throughout the",
-      "more abundant anteriorly than posteriorly throughout the",
+      "more abundant posteriorly than anteriorly throughout the lungs",
+      "more abundant anteriorly than posteriorly throughout the lungs",
       "uniformly distributed throughout the lungs"
     ],
     "answerIndex": 0,
@@ -16432,9 +16432,9 @@ export const QUESTION_BANK = [
     "topic": "MAA / Pulmonary Perfusion",
     "type": "image-interpretation",
     "difficulty": 4,
-    "question": "In the absence of a ventilation scan, a segmental or lobar perfusion defect seen on [99mTc] MAA perfusion scintigraphy would be",
+    "question": "In the absence of a ventilation scan, a segmental or lobar perfusion defect seen on [99mTc] MAA perfusion scintigraphy would be _________ in the diagnosis of pulmonary embolism.",
     "options": [
-      "in the diagnosis of pulmonary embolism. both sensitive and specific",
+      "both sensitive and specific",
       "sensitive, but not specific",
       "specific, but not sensitive",
       "non-sensitive, and non-specific",
@@ -16564,7 +16564,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "image-interpretation",
     "difficulty": 4,
-    "question": "Patients being treated for thyroid disorders with exogenous T3 or Synthroid should have those medications discontinued for at least before obtaining a radioiodine uptake and scan.",
+    "question": "Patients being treated for thyroid disorders with exogenous T3 or Synthroid should have those medications discontinued for at least ____________ before obtaining a radioiodine uptake and scan.",
     "options": [
       "3-5 days",
       "1 week",
@@ -16828,7 +16828,7 @@ export const QUESTION_BANK = [
     "topic": "Renal Imaging",
     "type": "concept",
     "difficulty": 4,
-    "question": "What is the preparation for renal functional imaging with technetium-99m-MAG3?",
+    "question": "What is the preparation for renal functional imaging with 99mTc-MAG3?",
     "options": [
       "NPO for at least 4 hours before injection.",
       "Patient must be well-hydrated.",
@@ -16850,7 +16850,7 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "concept",
     "difficulty": 5,
-    "question": "Which patient will have the longest wait before an accurate thyroid uptake with 13I can be obtained?",
+    "question": "Which patient will have the longest wait before an accurate thyroid uptake can be obtained with 131I?",
     "options": [
       "a patient who had a CTA",
       "a patient who took Synthroid",
@@ -16894,7 +16894,7 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "concept",
     "difficulty": 2,
-    "question": "Sequential acquisitions taken while the patient exhales 133Xe comprise the_ portion of the test.",
+    "question": "Sequential acquisitions taken while the patient exhales 133Xe comprise the ________ portion of the test.",
     "options": [
       "washout",
       "wash-in",
@@ -16938,7 +16938,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 4,
-    "question": "The radiopharmaceutical used for assessment of CSF dynamics is",
+    "question": "The radiopharmaceutical used for assessment of CSF dynamics is administered:",
     "options": [
       "intravenously",
       "intrathecally",
@@ -17048,12 +17048,12 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 4,
-    "question": "If the radiation intensity was \"x\" at a distance \"d\" from a source, what would the radiation intensity be at half of that distance?",
+    "question": "If the radiation intensity was \"x\" at a distance of \"d\" from a source, what would the radiation intensity be at half of that distance?",
     "options": [
       "2X",
-      "X'",
+      "X^2",
       "4X",
-      "X*",
+      "X^4",
       "X/2"
     ],
     "answerIndex": 2,
@@ -17180,7 +17180,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 5,
-    "question": "Chances of congenital abnormalities are high if the fetal radiation is during which gestational age?",
+    "question": "Chances of congenital abnormalities are high if the fetal irradiation is during which gestational age?",
     "options": [
       "pre-implantation",
       "first trimester",
@@ -17255,8 +17255,8 @@ export const QUESTION_BANK = [
       "absolute activity calibration"
     ],
     "answerIndex": 3,
-    "explanation": "Source: Waterstram-Rich and Gilmore, 2017; p. 349. Blank scans are performed daily to provide accurate transmission scan data for the attenuation correction of images.",
-    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 349. Blank scans are performed daily to provide accurate transmission scan data for the attenuation correction of images.",
+    "explanation": "Blank scans are performed daily to provide accurate transmission scan data for the attenuation correction of images.",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 349",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1199.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1269.jpeg"
   },
@@ -17277,8 +17277,8 @@ export const QUESTION_BANK = [
       "\"Caution: Very High Radiation Area\""
     ],
     "answerIndex": 2,
-    "explanation": "in excess of 5 mRem in 1 hour at 30 cm from the radiation source or from any surface that the radiation penetrates.",
-    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 121. Radiation area means an area that is accessible to individuals in which radiation levels could result in an individual receiving a dose equivalent",
+    "explanation": "Radiation area means an area that is accessible to individuals in which radiation levels could result in an individual receiving a dose equivalent in excess of 5 mRem in 1 hour at 30 cm from the radiation source or from any surface that the radiation penetrates.",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 121. ",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1199.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1269.jpeg"
   },
@@ -17356,7 +17356,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "image-interpretation",
     "difficulty": 4,
-    "question": "Uncorrected flood field non-uniformities cause _ tomographic reconstruction.",
+    "question": "Uncorrected flood field non-uniformities cause _________ artifacts in tomographic reconstruction.",
     "options": [
       "irregular",
       "dropout",
@@ -17554,16 +17554,16 @@ export const QUESTION_BANK = [
     "topic": "Uniformity QC",
     "type": "calculation",
     "difficulty": 4,
-    "question": "If a technologist wishes to evaluate the intrinsic uniformity of a camera used for planar imaging and is preparing a dose of technetium-99m, how much activity is sufficient for the image?",
+    "question": "If a technologist wishes to evaluate the intrinsic uniformity of a camera used for planar imaging and is preparing a dose of 99mTc, how much activity is sufficient for the image?",
     "options": [
       "10 mCi",
-      "1 mC1",
+      "1 mCi",
       "200 uCi",
       "2 mCi",
       "20 mCi"
     ],
     "answerIndex": 2,
-    "explanation": "Por an intrinsic flood, the collimator is removed and a point source containing a small (<l mCi or 37 MBq) amount of radioactivity is placed at a distance of at least 5 times the largest camera dimension from the camera face.",
+    "explanation": "For an intrinsic flood, the collimator is removed and a point source containing a small (<1 mCi or 37 MBq) amount of radioactivity is placed at a distance of at least 5 times the largest camera dimension from the camera face.",
     "source": "Source: Prekeges, 2013; pp. 114-115.",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1200.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1270.jpeg"
@@ -17673,8 +17673,8 @@ export const QUESTION_BANK = [
       "monthly"
     ],
     "answerIndex": 1,
-    "explanation": "Source: Waterstram-Rich and Gilmore, 2017; p. 349. Blank scans are performed daily to provide accurate transmission scan data for the attenuation correction of images.",
-    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 349. Blank scans are performed daily to provide accurate transmission scan data for the attenuation correction of images.",
+    "explanation": "Blank scans are performed daily to provide accurate transmission scan data for the attenuation correction of images.",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 349. ",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1200.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1270.jpeg"
   },
@@ -17708,7 +17708,7 @@ export const QUESTION_BANK = [
     "topic": "Instrumentation & QC",
     "type": "image-interpretation",
     "difficulty": 5,
-    "question": "How often should a rose index assessment be performed in a CT scanner?",
+    "question": "How often should a dose index assessment be performed in a CT scanner?",
     "options": [
       "with every patient study",
       "daily",
@@ -17717,8 +17717,8 @@ export const QUESTION_BANK = [
       "annually"
     ],
     "answerIndex": 4,
-    "explanation": "Source: Waterstram-Rich and Gilmore, 2017; A CT dose index assessment should be performed by a certified health physicist (CHP) annually.",
-    "source": "Source: Waterstram-Rich and Gilmore, 2017; A CT dose index assessment should be performed by a certified health physicist (CHP) annually.",
+    "explanation": "A CT dose index assessment should be performed by a certified health physicist (CHP) annually.",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017; ",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1200.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1270.jpeg"
   },
