@@ -17745,3 +17745,22 @@ export const QUESTION_BANK = [
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1270.jpeg"
   }
 ];
+
+export const IMPORT_TEMPLATE = [
+  {
+    "id": "custom-001",
+    "category": "Radiation Safety",
+    "topic": "ALARA",
+    "type": "concept",
+    "difficulty": 2,
+    "question": "Sample imported question text goes here.",
+    "options": [
+      "Option A",
+      "Option B",
+      "Option C",
+      "Option D"
+    ],
+    "answerIndex": 1,
+    "explanation": "Brief explanation for why the correct answer is right."
+  }
+];
