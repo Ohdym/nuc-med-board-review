@@ -25,6 +25,7 @@ DATA_PATH = ROOT / "data.js"
 ATTEMPTS_PATH = Path(os.getenv("ATTEMPTS_PATH", str(ROOT / ".shared_attempts.json")))
 QUESTION_FLAGS_PATH = Path(os.getenv("QUESTION_FLAGS_PATH", str(ROOT / ".question_flags.json")))
 QUESTION_EDITS_PATH = Path(os.getenv("QUESTION_EDITS_PATH", str(ROOT / ".question_edits.json")))
+QUESTION_BANK_PATH = Path(os.getenv("QUESTION_BANK_PATH", str(ROOT / ".question_bank.json")))
 USER_STORE_PATH = Path(os.getenv("USER_STORE_PATH", str(ROOT / ".users.json")))
 USER_CREDENTIALS_PATH = Path(os.getenv("USER_CREDENTIALS_PATH", str(ROOT / "user_credentials.json")))
 USER_CREDENTIALS_JSON = os.getenv("USER_CREDENTIALS_JSON", "").strip()
@@ -89,7 +90,8 @@ def load_data_exports():
 
 DATA_EXPORTS = load_data_exports()
 CATEGORY_CONFIG = DATA_EXPORTS["CATEGORY_CONFIG"]
-QUESTION_BANK = DATA_EXPORTS["QUESTION_BANK"]
+SEEDED_QUESTION_BANK = DATA_EXPORTS["QUESTION_BANK"]
+QUESTION_BANK = list(SEEDED_QUESTION_BANK)
 QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
 
 
@@ -297,6 +299,24 @@ def normalize_question_edit_store(raw):
     return {"edits": edits}
 
 
+def apply_question_edit_to_question(question, edit):
+    if not edit:
+        return dict(question)
+
+    updated = dict(question)
+    for field, value in edit.items():
+        if field == "options" and isinstance(value, list):
+            updated["options"] = list(value)
+            continue
+        updated[field] = value
+    return updated
+
+
+def apply_question_edit_store(question_bank, edit_store):
+    edits = edit_store.get("edits", {}) if isinstance(edit_store, dict) else {}
+    return [apply_question_edit_to_question(question, edits.get(question.get("id"))) for question in question_bank]
+
+
 def load_question_edit_store():
     fallback = {"edits": {}}
     if QUESTION_EDITS_PATH.exists():
@@ -315,6 +335,80 @@ def save_question_edit_store():
         return
     QUESTION_EDITS_PATH.parent.mkdir(parents=True, exist_ok=True)
     QUESTION_EDITS_PATH.write_text(json.dumps(QUESTION_EDIT_STORE, indent=2))
+
+
+def normalize_shared_question_bank(raw):
+    raw_questions = raw.get("questions", raw) if isinstance(raw, dict) else []
+    if not isinstance(raw_questions, list):
+        raw_questions = []
+
+    question_ids = {question.get("id") for question in SEEDED_QUESTION_BANK}
+    questions = []
+    seen_ids = set()
+    source_by_id = {question.get("id"): question for question in SEEDED_QUESTION_BANK}
+
+    for item in raw_questions:
+        if not isinstance(item, dict):
+            continue
+        question_id = str(item.get("id") or "").strip()
+        if not question_id or question_id in seen_ids or question_id not in question_ids:
+            continue
+        base_question = source_by_id[question_id]
+        normalized = normalize_question_edit(question_id, item) or {}
+        questions.append(apply_question_edit_to_question(base_question, normalized))
+        seen_ids.add(question_id)
+
+    if len(questions) != len(SEEDED_QUESTION_BANK):
+        merged = apply_question_edit_store(SEEDED_QUESTION_BANK, QUESTION_EDIT_STORE)
+        return {"questions": merged}
+
+    return {"questions": questions}
+
+
+def load_question_bank_store():
+    fallback = {"questions": apply_question_edit_store(SEEDED_QUESTION_BANK, QUESTION_EDIT_STORE)}
+    if QUESTION_BANK_PATH.exists():
+        try:
+            fallback = normalize_shared_question_bank(json.loads(QUESTION_BANK_PATH.read_text()))
+        except Exception:
+            pass
+    return normalize_shared_question_bank(load_database_store("question_bank", fallback))
+
+
+QUESTION_BANK_STORE = load_question_bank_store()
+QUESTION_BANK = QUESTION_BANK_STORE["questions"]
+QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
+
+
+def save_question_bank_store():
+    if save_database_store("question_bank", QUESTION_BANK_STORE):
+        return
+    QUESTION_BANK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    QUESTION_BANK_PATH.write_text(json.dumps(QUESTION_BANK_STORE, indent=2))
+
+
+def set_shared_question_bank(question_bank):
+    global QUESTION_BANK, QUESTION_BY_ID, QUESTION_BANK_STORE
+    QUESTION_BANK_STORE = {"questions": list(question_bank)}
+    QUESTION_BANK = QUESTION_BANK_STORE["questions"]
+    QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
+    save_question_bank_store()
+
+
+def build_storage_status_payload():
+    return {
+        "storageBackend": "postgres" if DATABASE_STORE_READY else "local-json",
+        "databaseConfigured": bool(DATABASE_URL),
+        "databaseReady": bool(DATABASE_STORE_READY),
+        "postgresDriverAvailable": bool(psycopg and Jsonb),
+    }
+
+
+def build_question_bank_response():
+    return {
+        "questionBank": QUESTION_BANK,
+        "storageStatus": build_storage_status_payload(),
+    }
 
 
 def public_question_flag(flag):
@@ -2163,7 +2257,9 @@ async def login_user(request):
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
         "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
+        "questionBank": QUESTION_BANK,
         "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "storageStatus": build_storage_status_payload(),
     })
 
 
@@ -2185,7 +2281,37 @@ async def current_user(request):
         "performance": user.get("performance", []),
         "placements": user.get("live_placements", []),
         "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
+        "questionBank": QUESTION_BANK,
         "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "storageStatus": build_storage_status_payload(),
+    })
+
+
+async def question_bank(request):
+    if request.method == "GET":
+        return web.json_response(build_question_bank_response())
+
+    require_instructor_username(request)
+    payload = await json_body(request)
+    raw_bank = payload.get("questionBank")
+
+    if isinstance(raw_bank, list):
+        normalized_bank = normalize_shared_question_bank({"questions": raw_bank})["questions"]
+        set_shared_question_bank(normalized_bank)
+        return web.json_response({
+            "saved": True,
+            **build_question_bank_response(),
+        })
+
+    normalized = normalize_question_edit_store(payload.get("questionEdits", {}))
+    QUESTION_EDIT_STORE["edits"] = normalized["edits"]
+    QUESTION_EDIT_STORE["updated_at"] = int(time.time() * 1000)
+    save_question_edit_store()
+    set_shared_question_bank(apply_question_edit_store(QUESTION_BANK, normalized))
+    return web.json_response({
+        "saved": True,
+        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        **build_question_bank_response(),
     })
 
 
@@ -2219,6 +2345,8 @@ async def question_edits(request):
         require_auth_username(request)
         return web.json_response({
             "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+            "questionBank": QUESTION_BANK,
+            "storageStatus": build_storage_status_payload(),
         })
 
     require_instructor_username(request)
@@ -2227,9 +2355,12 @@ async def question_edits(request):
     QUESTION_EDIT_STORE["edits"] = normalized["edits"]
     QUESTION_EDIT_STORE["updated_at"] = int(time.time() * 1000)
     save_question_edit_store()
+    set_shared_question_bank(apply_question_edit_store(QUESTION_BANK, normalized))
     return web.json_response({
         "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "questionBank": QUESTION_BANK,
         "saved": True,
+        "storageStatus": build_storage_status_payload(),
     })
 
 
@@ -2310,10 +2441,7 @@ async def instructor_update_student_graduation_year(request):
 async def storage_status(request):
     require_instructor_username(request)
     return web.json_response({
-        "storageBackend": "postgres" if DATABASE_STORE_READY else "local-json",
-        "databaseConfigured": bool(DATABASE_URL),
-        "databaseReady": bool(DATABASE_STORE_READY),
-        "postgresDriverAvailable": bool(psycopg and Jsonb),
+        **build_storage_status_payload(),
         "userCount": len(USER_STORE.get("users", {})),
         "sharedQuestionBuckets": len(ATTEMPT_STORE.get("questions", {})),
         "questionEditCount": len(QUESTION_EDIT_STORE.get("edits", {})),
@@ -2690,6 +2818,8 @@ def create_app():
     app.router.add_post("/api/auth/login", login_user)
     app.router.add_post("/api/auth/logout", logout_user)
     app.router.add_get("/api/auth/me", current_user)
+    app.router.add_get("/api/question-bank", question_bank)
+    app.router.add_put("/api/question-bank", question_bank)
     app.router.add_get("/api/instructor/stats", instructor_stats)
     app.router.add_get("/api/instructor/custom-quizzes", instructor_custom_quizzes)
     app.router.add_put("/api/instructor/custom-quizzes", instructor_custom_quizzes)

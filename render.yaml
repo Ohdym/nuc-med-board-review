@@ -10,4 +10,11 @@ services:
       - key: USER_CREDENTIALS_B64
         sync: false
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: nuclear-medicine-boards-review-db
+          property: connectionString
+
+databases:
+  - name: nuclear-medicine-boards-review-db
+    plan: free
+    databaseName: nucmedreview

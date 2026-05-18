@@ -146,12 +146,14 @@ In Render, open your web service and add a custom domain if you want your own br
 
 Render Free web services do not provide persistent local file storage, so the app supports an external Postgres database through `DATABASE_URL`.
 
-Use a free hosted Postgres provider such as Neon or Supabase, create a database, copy its pooled connection string, then add this private environment variable in Render:
+This repo's [render.yaml](/Users/codymueller/Project/render.yaml) now provisions a managed Render Postgres database and injects its connection string automatically into `DATABASE_URL` through the Blueprint.
 
-```bash
-DATABASE_URL=<paste-your-postgres-connection-string>
-```
+Redeploy after applying the Blueprint. When `DATABASE_URL` is set, the server stores shared question bank data, instructor question-bank saves, account history, instructor stats, flags, and adaptive history in Postgres. When it is not set, the app falls back to local JSON files for local development.
 
-Redeploy after saving. When `DATABASE_URL` is set, the server stores account history, instructor stats, and shared adaptive difficulty data in Postgres. When it is not set, the app falls back to the local `.users.json` and `.shared_attempts.json` files for local development.
+Important migration note:
+
+- If your currently running live site is still using local JSON fallback, any runtime-only data on that Render web service can be lost on redeploy unless you back it up first.
+- This includes live instructor question-bank saves and any other server-side data that was never committed to Git or copied into Postgres yet.
+- After Postgres is connected, new shared bank saves will persist in the database instead of the web service filesystem.
 
 If you want, I can also set up the Git repo and make the first deployment commit for you.

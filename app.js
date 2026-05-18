@@ -98,6 +98,7 @@ const state = {
   activeView: "dashboard",
   theme: getInitialTheme(),
   sharedUserId: loadSharedUserId(),
+  sharedQuestionBank: QUESTION_BANK.map((question) => ({ ...question })),
   importedQuestions: loadJSON(STORAGE_KEYS.importedQuestions, []),
   importedFlashcards: loadJSON(STORAGE_KEYS.importedFlashcards, []),
   questionEdits: loadJSON(STORAGE_KEYS.questionEdits, {}),
@@ -576,8 +577,19 @@ function applyQuestionEdits(question) {
   };
 }
 
+function getSharedQuestionBank() {
+  return Array.isArray(state.sharedQuestionBank) && state.sharedQuestionBank.length ? state.sharedQuestionBank : QUESTION_BANK;
+}
+
+function applySharedQuestionBank(questionBank) {
+  if (!Array.isArray(questionBank) || !questionBank.length) {
+    return;
+  }
+  state.sharedQuestionBank = questionBank.map((question) => ({ ...question }));
+}
+
 function getAllQuestions() {
-  return uniqueById([...QUESTION_BANK, ...state.importedQuestions]).map((question) => applyQuestionEdits(question));
+  return uniqueById([...getSharedQuestionBank(), ...state.importedQuestions]).map((question) => applyQuestionEdits(question));
 }
 
 function hasStudyQuestions() {
@@ -585,7 +597,7 @@ function hasStudyQuestions() {
 }
 
 function hasSharedLiveBank() {
-  return QUESTION_BANK.length > 0;
+  return getSharedQuestionBank().length > 0;
 }
 
 function getQuestionOrigin(question) {
@@ -611,11 +623,11 @@ function getQuestionBankStorageSummary() {
   }
 
   if (state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady) {
-    return "Changes are staged as you type. Save Changes stores them in the shared Postgres database so they appear on other signed-in devices.";
+    return "Changes are staged as you type. Save Changes stores them in the shared Postgres database so they become the question bank for every user.";
   }
 
   if (state.storageStatus.storageBackend === "local-json") {
-    return "Changes are staged as you type. Save Changes is using the server's local JSON fallback instead of shared Postgres, so edits are not reliably shared across devices and can be lost after restart or redeploy.";
+    return "Changes are staged as you type. Save Changes is using the server's local JSON fallback instead of shared Postgres, so edits are not reliably shared for every user and can be lost after restart or redeploy.";
   }
 
   return "Changes are staged as you type. Save Changes needs the instructor backend to store edits beyond this browser.";
@@ -2397,6 +2409,9 @@ async function saveQuestionBankEdits() {
       questionEdits: state.questionEdits,
     });
     applyStorageStatus(data.storageStatus);
+    if (Array.isArray(data.questionBank)) {
+      applySharedQuestionBank(data.questionBank);
+    }
     state.questionEdits = data.questionEdits || {};
     saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
     state.questionBank.hasUnsavedChanges = false;
@@ -2404,7 +2419,7 @@ async function saveQuestionBankEdits() {
       tone: "success",
       message:
         state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady
-          ? "Question bank changes saved to the shared Postgres database."
+          ? "Question bank changes saved to the shared Postgres database for every user."
           : "Question bank changes saved to the server's local JSON fallback.",
     };
   } catch (error) {
@@ -2967,6 +2982,9 @@ function applyAccountSession(data) {
     saveJSON(STORAGE_KEYS.questionEdits, state.questionEdits);
     state.questionBank.hasUnsavedChanges = false;
   }
+  if (Array.isArray(data.questionBank)) {
+    applySharedQuestionBank(data.questionBank);
+  }
   applyStorageStatus(data.storageStatus);
   state.account.placements = Array.isArray(data.placements) ? data.placements : [];
   if (isInstructor() && Array.isArray(data.customQuizzes)) {
@@ -2976,6 +2994,20 @@ function applyAccountSession(data) {
   persistAccountAuth();
   syncLiveNameToAccount();
   setAccountMessage("success", `Signed in as ${state.account.auth.displayName}.`);
+}
+
+async function loadSharedQuestionBank() {
+  try {
+    const data = await apiRequest("/api/question-bank", "GET");
+    if (Array.isArray(data.questionBank)) {
+      applySharedQuestionBank(data.questionBank);
+      applyStorageStatus(data.storageStatus);
+      buildJeopardyBoard();
+      renderApp();
+    }
+  } catch (error) {
+    // Keep the bundled seeded bank when the live server is not reachable.
+  }
 }
 
 async function apiRequest(path, method, payload) {
@@ -7661,6 +7693,7 @@ window.setInterval(() => {
 
 buildJeopardyBoard();
 renderApp();
+loadSharedQuestionBank();
 restoreAccountSession();
 
 if (state.live.auth && hasSharedLiveBank()) {
