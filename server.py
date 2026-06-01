@@ -5,6 +5,7 @@ import hmac
 import json
 import os
 import random
+import re
 import secrets
 import time
 from pathlib import Path
@@ -50,6 +51,31 @@ MAX_USER_PLACEMENTS = 500
 MAX_CUSTOM_QUIZZES = 200
 MAX_QUESTION_FLAGS = 20000
 MAX_QUESTION_EDITS = 2000
+AGENT_LABEL_RULES = [
+    (re.compile(r"\bMedronate\b(?!\s*\(MDP\))", re.IGNORECASE), "MDP"),
+    (re.compile(r"\bPentatate\b(?!\s*\(DTPA\))", re.IGNORECASE), "DTPA"),
+    (re.compile(r"\bpentetate\b(?!\s*\(DTPA\))", re.IGNORECASE), "DTPA"),
+    (re.compile(r"\bDisofenin\b(?!\s*\(DISIDA\))", re.IGNORECASE), "DISIDA"),
+    (re.compile(r"\bMertiatide\b(?!\s*\(MAG3\))", re.IGNORECASE), "MAG3"),
+    (re.compile(r"\bExametazime\b(?!\s*\(HMPAO\))", re.IGNORECASE), "HMPAO"),
+    (re.compile(r"((?:\[\s*99mTc\]|\b99mTc\b)\s*albumin)(?!\s*\(MAA\))", re.IGNORECASE), "MAA"),
+    (re.compile(r"((?:\[\s*153Sm\]|\b153Sm\b)\s*lexidronam)(?!\s*\(Quadramet\))", re.IGNORECASE), "Quadramet"),
+    (re.compile(r"((?:\[\s*111In\]|\b111In\b)\s*oxine)(?!\s*\(WBC\))", re.IGNORECASE), "WBC"),
+    (re.compile(r"\bOxidronate\b(?!\s*\(HDP\))", re.IGNORECASE), "HDP"),
+    (re.compile(r"((?:\[\s*99mTc\]|\b99mTc\b)\s*pyrophosphate)(?!\s*\(PYP\))", re.IGNORECASE), "PYP"),
+    (re.compile(r"\bMebrofenin\b(?!\s*\(HIDA\))", re.IGNORECASE), "HIDA"),
+    (re.compile(r"((?:\[\s*111In\]|\b111In\b)\s*oxyquinoline)(?!\s*\(WBC\))", re.IGNORECASE), "WBC"),
+    (re.compile(r"((?:\[\s*131I\]|\b131I\b)\s*iobenguane)(?!\s*\(MIBG\))", re.IGNORECASE), "MIBG"),
+    (re.compile(r"((?:\[\s*99mTc\]|\b99mTc\b)\s*arcitumomab)(?!\s*\(CEA\))", re.IGNORECASE), "CEA"),
+    (re.compile(r"\bTetrofosmin\b(?!\s*\(MPI\))", re.IGNORECASE), "MPI"),
+    (re.compile(r"\bSuccimer\b(?!\s*\(DMSA\))", re.IGNORECASE), "DMSA"),
+    (re.compile(r"(?<!\()\bDisida\b(?!\s*\(HIDA\))", re.IGNORECASE), "HIDA"),
+    (re.compile(r"((?:\[\s*14C\]|\b14C\b)\s*urea)(?!\s*\(H Pylori\))", re.IGNORECASE), "H Pylori"),
+    (re.compile(r"\bBicisate\b(?!\s*\(ECD\))", re.IGNORECASE), "ECD"),
+    (re.compile(r"\bTeboroxime\b(?!\s*\(MPI\))", re.IGNORECASE), "MPI"),
+    (re.compile(r"\bLidofenin\b(?!\s*\(HIDA\))", re.IGNORECASE), "HIDA"),
+    (re.compile(r"((?:\[\s*51Cr\]|\b51Cr\b)\s*red cell sequestration)(?!\s*\(RBC\))", re.IGNORECASE), "RBC"),
+]
 
 
 def parse_js_literal(node):
@@ -252,6 +278,28 @@ QUESTION_EDIT_FIELDS = {
 }
 
 
+def annotate_agent_labels(text):
+    output = str(text or "")
+    for pattern, abbreviation in AGENT_LABEL_RULES:
+        output = pattern.sub(lambda match: f"{match.group(0)} ({abbreviation})", output)
+    return output
+
+
+def canonicalize_question_text_field(value):
+    return annotate_agent_labels(str(value or ""))
+
+
+def canonicalize_question_record(question):
+    updated = dict(question)
+    if "question" in updated:
+        updated["question"] = canonicalize_question_text_field(updated.get("question"))
+    if "explanation" in updated:
+        updated["explanation"] = canonicalize_question_text_field(updated.get("explanation"))
+    if isinstance(updated.get("options"), list):
+        updated["options"] = [canonicalize_question_text_field(option) for option in updated["options"]]
+    return updated
+
+
 def normalize_question_edit(question_id, edit):
     if question_id not in QUESTION_BY_ID or not isinstance(edit, dict):
         return None
@@ -269,13 +317,15 @@ def normalize_question_edit(question_id, edit):
             if field == "answerIndex":
                 number = max(0, min(4, number))
             normalized[field] = number
-        elif field in {"question", "explanation", "source"}:
+        elif field in {"question", "explanation"}:
+            normalized[field] = canonicalize_question_text_field(value)[:12000]
+        elif field == "source":
             normalized[field] = str(value or "")[:12000]
         else:
             normalized[field] = str(value or "")[:240]
 
     if "options" in edit and isinstance(edit.get("options"), list):
-        options = [str(option or "")[:4000] for option in edit.get("options", [])[:5]]
+        options = [canonicalize_question_text_field(option)[:4000] for option in edit.get("options", [])[:5]]
         while len(options) < 5:
             options.append("")
         normalized["options"] = options
@@ -301,7 +351,7 @@ def normalize_question_edit_store(raw):
 
 def apply_question_edit_to_question(question, edit):
     if not edit:
-        return dict(question)
+        return canonicalize_question_record(question)
 
     updated = dict(question)
     for field, value in edit.items():
@@ -309,7 +359,7 @@ def apply_question_edit_to_question(question, edit):
             updated["options"] = list(value)
             continue
         updated[field] = value
-    return updated
+    return canonicalize_question_record(updated)
 
 
 def apply_question_edit_store(question_bank, edit_store):
@@ -385,6 +435,9 @@ def save_question_bank_store():
         return
     QUESTION_BANK_PATH.parent.mkdir(parents=True, exist_ok=True)
     QUESTION_BANK_PATH.write_text(json.dumps(QUESTION_BANK_STORE, indent=2))
+
+
+save_question_bank_store()
 
 
 def set_shared_question_bank(question_bank):

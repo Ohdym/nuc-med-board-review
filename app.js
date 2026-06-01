@@ -361,7 +361,7 @@ function preserveRenderedLineBreaks(text) {
 }
 
 function formatScientificText(value) {
-  const escaped = escapeHtml(annotateAgentLabels(normalizeIsotopeText(value)));
+  const escaped = escapeHtml(normalizeIsotopeText(value));
   const massFirstPattern = new RegExp(
     `(\\[?)(\\d{1,3}m?)\\s*[- ]?\\s*(${ISOTOPE_SYMBOL_PATTERN})(\\]?)(?![a-z])`,
     "g"
