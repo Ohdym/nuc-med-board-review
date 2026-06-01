@@ -1056,12 +1056,30 @@ def first_name_from_display(value):
     return name.split(" ")[0]
 
 
+def last_initial_from_display(value):
+    name = " ".join(str(value or "").strip().split())
+    if not name:
+        return ""
+    parts = [part for part in name.split(" ") if part]
+    if len(parts) < 2:
+        return ""
+    return parts[-1][:1].upper()
+
+
 def live_name_for_account(account_username, fallback):
     if account_username and account_username in USER_STORE["users"]:
         first_name = first_name_from_display(USER_STORE["users"][account_username].get("display_name"))
         if first_name:
             return first_name[:20]
     return sanitize_username(fallback)
+
+
+def live_last_initial_for_account(account_username, fallback):
+    if account_username and account_username in USER_STORE["users"]:
+        initial = last_initial_from_display(USER_STORE["users"][account_username].get("display_name"))
+        if initial:
+            return initial
+    return last_initial_from_display(fallback)
 
 
 def get_auth_username(request):
@@ -1537,6 +1555,7 @@ class GameSession:
         self.question_task = None
         self.last_results = []
         self.placements_recorded = False
+        self.turn_cycle_pool = []
         self.lock = asyncio.Lock()
         self._create_player(host_name, is_host=True, account_username=host_account_username)
 
@@ -1548,6 +1567,7 @@ class GameSession:
             "token": token,
             "username": username,
             "base_username": username,
+            "last_initial": live_last_initial_for_account(account_username, username),
             "account_username": account_username,
             "score": 0,
             "is_host": is_host,
@@ -1563,16 +1583,35 @@ class GameSession:
         base_groups = {}
         for player in self.players.values():
             base = str(player.get("base_username") or player.get("username") or "Player").strip() or "Player"
-            base_groups.setdefault(base.lower(), {"base": base, "players": []})["players"].append(player)
+            first_name = first_name_from_display(base) or base
+            base_groups.setdefault(first_name.lower(), {"base": first_name, "players": []})["players"].append(player)
 
         display_names = {}
         for group in base_groups.values():
             players = sorted(group["players"], key=lambda player: player["joined_at"])
             if len(players) == 1:
-                display_names[players[0]["id"]] = group["base"]
+                player = players[0]
+                full_base = str(player.get("base_username") or player.get("username") or group["base"]).strip() or group["base"]
+                display_names[player["id"]] = full_base
                 continue
 
+            initial_counts = {}
+            for player in players:
+                initial = str(player.get("last_initial") or "").strip().upper()
+                if initial:
+                    initial_counts[initial] = initial_counts.get(initial, 0) + 1
+
+            initial_seen = {}
             for index, player in enumerate(players, start=1):
+                initial = str(player.get("last_initial") or "").strip().upper()
+                if initial:
+                    initial_seen[initial] = initial_seen.get(initial, 0) + 1
+                    suffix = f" {initial}."
+                    if initial_counts.get(initial, 0) > 1:
+                        suffix = f"{suffix} {initial_seen[initial]}"
+                    display_names[player["id"]] = f"{group['base'][: max(1, 20 - len(suffix))]}{suffix}"
+                    continue
+
                 suffix = f" ({index})"
                 display_names[player["id"]] = f"{group['base'][: max(1, 20 - len(suffix))]}{suffix}"
 
@@ -1629,16 +1668,34 @@ class GameSession:
     def connected_player_ids(self):
         return [player_id for player_id, player in self.players.items() if player["connected"]]
 
+    def _enqueue_turn_candidate(self, player_id):
+        if player_id == self.current_turn_player_id or player_id in self.turn_cycle_pool:
+            return
+        insert_at = random.randint(0, len(self.turn_cycle_pool))
+        self.turn_cycle_pool.insert(insert_at, player_id)
+
     def choose_next_turn(self, exclude_player_id=None):
         connected_ids = self.connected_player_ids()
         if not connected_ids:
             self.current_turn_player_id = None
+            self.turn_cycle_pool = []
             return
 
-        candidates = [player_id for player_id in connected_ids if player_id != exclude_player_id]
+        connected_set = set(connected_ids)
+        self.turn_cycle_pool = [player_id for player_id in self.turn_cycle_pool if player_id in connected_set]
+
+        candidates = [player_id for player_id in self.turn_cycle_pool if player_id != exclude_player_id]
         if not candidates:
-            candidates = connected_ids
-        self.current_turn_player_id = random.choice(candidates)
+            refill = [player_id for player_id in connected_ids if player_id != exclude_player_id]
+            if not refill:
+                refill = connected_ids[:]
+            random.shuffle(refill)
+            self.turn_cycle_pool = refill
+            candidates = self.turn_cycle_pool[:]
+
+        next_player_id = candidates[0]
+        self.turn_cycle_pool = [player_id for player_id in self.turn_cycle_pool if player_id != next_player_id]
+        self.current_turn_player_id = next_player_id
 
     def remaining_tiles(self):
         return sum(1 for column in self.board for tile in column if tile["question"] and not tile["answered"])
@@ -1761,6 +1818,8 @@ class GameSession:
         self.sockets[player_id] = socket
         if player_id in self.players:
             self.players[player_id]["connected"] = True
+            if self.status in {"picking", "question", "reveal", "board_complete"}:
+                self._enqueue_turn_candidate(player_id)
 
         if self.status == "picking" and self.current_turn_player_id not in self.connected_player_ids():
             self.choose_next_turn()

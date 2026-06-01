@@ -7148,7 +7148,7 @@ function renderLiveEntry() {
             <h3>${state.account.auth ? "Signed-in player name" : "Enter your player name"}</h3>
             <p>${
               state.account.auth
-                ? `Online Jeopardy will show your first name, ${escapeHtml(getSignedInLiveName())}. If another player has the same first name, the live room will add a number automatically.`
+                ? `Online Jeopardy will show your first name, ${escapeHtml(getSignedInLiveName())}. If another player has the same first name, the live room will add the first initial of each last name automatically.`
                 : "Use the same name for hosting or joining. This is what everyone will see on the scoreboard."
             }</p>
           </div>
