@@ -142,13 +142,21 @@ function parseNumber(value, fallback) {
   return Number.isFinite(numericValue) ? numericValue : fallback;
 }
 
+function normalizeTextValue(value, fallback = "") {
+  const text = value === undefined || value === null ? fallback : String(value);
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\\n/g, "\n");
+}
+
 function buildOptions(record, fallbackOptions) {
   if (Array.isArray(record.options) && record.options.length) {
-    return record.options.map((option) => String(option));
+    return record.options.map((option) => normalizeTextValue(option));
   }
 
   const keyedOptions = [record.optionA, record.optionB, record.optionC, record.optionD, record.optionE]
-    .map((value) => String(value ?? ""))
+    .map((value) => normalizeTextValue(value))
     .filter((value) => value !== "");
 
   return keyedOptions.length ? keyedOptions : fallbackOptions;
@@ -178,15 +186,15 @@ function applyRecord(question, record) {
     ...question,
     examNumber: parseNumber(record.examNumber, question.examNumber),
     questionNumber: parseNumber(record.questionNumber, question.questionNumber),
-    category: String(record.category ?? question.category),
-    topic: String(record.topic ?? question.topic),
-    type: String(record.type ?? question.type),
+    category: normalizeTextValue(record.category, question.category),
+    topic: normalizeTextValue(record.topic, question.topic),
+    type: normalizeTextValue(record.type, question.type),
     difficulty: parseNumber(record.difficulty, question.difficulty),
-    question: String(record.question ?? question.question),
+    question: normalizeTextValue(record.question, question.question),
     options,
     answerIndex,
-    explanation: String(record.explanation ?? question.explanation),
-    source: String(record.source ?? question.source ?? ""),
+    explanation: normalizeTextValue(record.explanation, question.explanation),
+    source: normalizeTextValue(record.source, question.source ?? ""),
   };
 
   const optionalFields = ["sourcePhoto", "answerPhoto", "image", "imageAlt", "imageCaption"];
@@ -194,7 +202,7 @@ function applyRecord(question, record) {
     if (!(field in record)) {
       continue;
     }
-    const value = String(record[field] ?? "");
+    const value = normalizeTextValue(record[field]);
     if (value !== "") {
       updatedQuestion[field] = value;
       continue;

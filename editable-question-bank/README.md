@@ -50,6 +50,12 @@ Useful columns:
 - `explanation`: answer explanation
 - `source`: source citation
 
+Line breaks:
+
+- If you edit `data.js` directly, use `\\n` inside the quoted string where you want a new line.
+- If you edit the TSV/JSON, you can either use a real in-cell line break or type `\\n`; the apply script now converts `\\n` into a real line break in `data.js`.
+- For a blank line, use `\\n\\n`.
+
 If you take better source photos later, the strongest cleanup workflow is:
 
 1. Run `node scripts/generate-question-bank-triage.mjs`.

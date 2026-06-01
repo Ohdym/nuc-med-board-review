@@ -121,7 +121,7 @@ export const QUESTION_BANK = [
       "rule in a pulmonary embolus"
     ],
     "answerIndex": 0,
-    "explanation": "Many of the symptoms of pulmonary emboli are similar to those of rib fracture, myocardial infarction, and pneumonia. A chest radiograph allows the interpreting physician to rule out certain of these conditions, thereby increasing the specificity of the lung image findings.",
+    "explanation": "Many df the symptoms of pulmonary emboli are similar to those of rib fracture, myocardial infarction, and pneumonia. A chest radiograph clors the itepreting physician to rule out certain of these conditions, theby increasing the specificity of the lung image findings.",
     "source": "Source: Early and Sodee, 1995; p. 451.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1294.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1201.jpeg"
@@ -666,7 +666,7 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "Proper placement of a urine collection bag includes:",
     "options": [
-      "placing it across the patient's lower legs to keep it near the level of the bladder",
+      "placing it across the patien's lower legs to keep it near the level of the bladder",
       "placing it on the stretcher near the patient's feet so it is out of the field of view of the camera",
       "discharging the urine collection bag must be done before the exam begins",
       "hanging it from an IV pole and raising it above the level of the bladder",
@@ -981,7 +981,7 @@ export const QUESTION_BANK = [
       "77%"
     ],
     "answerIndex": 1,
-    "explanation": "The percentage perfusion to the right lung is calculated as right lung counts divided by total lung counts, multiplied by 100: 175,362 / (175,362 + 325,672) x 100 = 35%.",
+    "explanation": "counts in ROI % activity in RO1 = (total counts in all ROIs) 175,362 cts % activity right lung = (175,362 cts + 325,672 ts) * 100 175,362 cts - × 100 = 35% = 501,034 cts",
     "source": "Source: Wells, 1999; p. 253.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1297.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1205.jpeg"
@@ -1004,7 +1004,7 @@ export const QUESTION_BANK = [
     ],
     "answerIndex": 1,
     "explanation": "Elution does not remove all 99mTc present on the generator column. Elution efficiency is expressed as the percentage of 9°99mTc activity on the column that is eluted: 99mTc activity eluted elution efficiency = 99mTc activity on column In this case: 342 mCi elution efficiency = 375 mCi",
-    "source": "Source: Chilton and Witcofski; 1986, pp. 57-60.",
+    "source": "Source: Chilton and Witcofsi; 1986, pp. 57-60.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1297.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1205.jpeg"
   },
@@ -1269,7 +1269,7 @@ export const QUESTION_BANK = [
       "85%"
     ],
     "answerIndex": 2,
-    "explanation": "According to USP standards, most 99mTc-labeled radiopharmaceuticals must have a radiochemical purity of at least 90% to be administered to patients.",
+    "explanation": "U.S. Pharmacopeia, 1990. According to the USP, most 99mTc-labeled radiopharmaceuticals should have a radiochemical purity of at least 90%. 57, a Chilton and Witcofski, 1986; pp. 17-18. The elapsed time between calibration and unit dosage administration is 4 hours (1700-1100). From a decay fact-table from 99mTc, the decay factor for 4 hours is 0.631. The initial concentration is decay-corrected to determine the concentration at 1100: C(t) = C(0) x DF = 11.8 mCi/mL x 0.631 = 7.4 mCi/mL at 1100 Then the volume to be administered is calculated based on the prescribed patient dosage and the concentration at the time of administration: 8 mCi -= 1.1 mL volume = atient dosage 7.4 mCi/mL C(t)",
     "source": "Source photo: Answers/Exam 1/IMG_1206.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1299.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1206.jpeg"
@@ -1533,7 +1533,7 @@ export const QUESTION_BANK = [
       "12.5 min"
     ],
     "answerIndex": 3,
-    "explanation": "Relative centrifugal force (RCF) and centrifugation time are inversely related. T2 = (5 min x 5000 g) / 2500 g = 10 min.",
+    "explanation": "In this case, the centrifuge cannot provide the necessary relative centrifugal force (RCF) identified in the protocol. However, by adjusting the time, the same degree of centrifugation may be obtained. The relationship is: IG = IG2 where Ti and G, are the minimum time of centrifugation and RCE, respectively, and I, and G, are the alternative time and RCF, respectively. Solving for the alternative time: T,G (5 min) (5000 g) = - = 10 min 2500 g G2",
     "source": "Source: Wells, 1999; pp. 166-167.",
     "sourcePhoto": "Question photos/Questions/Exam 1/IMG_1300.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 1/IMG_1207.jpeg"
@@ -2331,8 +2331,8 @@ export const QUESTION_BANK = [
       "albumin is denatured before it is made into particles"
     ],
     "answerIndex": 3,
-    "explanation": "Less than 1% of the precapillary arterioles are blocked with MAA particles; therefore, there is no adverse effect on the patient.",
-    "source": "Source: Waterstram-Rich and Gilmore, et al., 2017; p. 476.",
+    "explanation": "Source: Waterstram-Rich and Gilmore, et al., 2017; p. 476. Less than 1% of the precapillary arterioles are blocked with the MAA particles; therefore, there is no adverse effect on the patient.",
+    "source": "Source: Waterstram-Rich and Gilmore, et al., 2017; p. 476. Less than 1% of the precapillary arterioles are blocked with the MAA particles; therefore, there is no adverse effect on the patient.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1129.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1212.jpeg"
   },
@@ -2859,7 +2859,7 @@ export const QUESTION_BANK = [
       "bladder in the top field of view"
     ],
     "answerIndex": 2,
-    "explanation": "Red blood cells labeled with [99mTc] pertechnetate are used for demonstrating intermittent lower gastrointestinal (GI) bleeding. The area between the xiphoid and symphysis pubis must be included in the field of view to visualize bleeding in the lower GI tract.",
+    "explanation": "the Red blood cells labeled with [99mTc] pertechnetate are used for demonstrating intermittent lower gastrointestinal (GI) bleeding. The area between the xiphoid and symphysis pubis must be included in the field of view to visualize bleeding in the lower GI tract. aust",
     "source": "Source: Early and Sodee, 1995; p. 517.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1132.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1213.jpeg"
@@ -2938,7 +2938,7 @@ export const QUESTION_BANK = [
     "topic": "Lung Imaging",
     "type": "concept",
     "difficulty": 2,
-    "question": "Data derived from a first-pass cardiac examination and a region of interest drawn over the lung are used to generate the pulmonary time-activity curve shown here. Time in Seconds The arrow indicates:",
+    "question": "Data derived from a first-pass cardiac examination and a region of interest drawn over the lung are used to generate the pulmonary time-activity curve shown here. The arrow indicates:",
     "options": [
       "first pass of activity through the lungs",
       "second pass of activity through the lungs",
@@ -3215,7 +3215,7 @@ export const QUESTION_BANK = [
       "14.5 MBq"
     ],
     "answerIndex": 1,
-    "explanation": "Elution efficiency is the percentage of 99mTc activity on the column that is eluted: 11.7 MBq x 0.956 = 11.2 MBq.",
+    "explanation": "Elution efficiency is expressed as the percentage of 99mTc on the column 99mTc activity eluted that is eluted. alution efficiency = 99mTc activity on column Thus: 99mTc activity eluted = elution efficiency x 99mTc activity on column = 0.96 x 11.7 MBq = 11.2 MBq",
     "source": "Source: Chilton and Witcofski, 1986; pp. 57-60.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1133.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg"
@@ -3325,7 +3325,7 @@ export const QUESTION_BANK = [
       "Total body bone image Patient B Meckel's diverticulum localization Patient C Hepatobiliary study Patient D the technologist should prepare or order all of the following radiopharmaceuticals except: [99mTc] pertechnetate"
     ],
     "answerIndex": 0,
-    "explanation": "The technologist does not have to order or prepare [99mTc] macroaggregated albumin for the listed schedule. The renal function study can be performed with [99mTc] mertiatide (MAG3), the Meckel's diverticulum study with [99mTc] pertechnetate, the bone study with [99mTc] medronate (MDP), and the hepatobiliary study with [99mTc] mebrofenin (HIDA).",
+    "explanation": "The technologist does not have to order or prepare [99mTc] macroaggregated albumin, the agent used to perform perfusion lung imaging. A renal function study may be performed with [99mTc] mertiatide (MAG3), bone imaging with (Pme] medronate (MDP), Meckel s diverticulum localization ith [99mTc] pertechnetate, and a hepatobiliarystudy with (?rc) mebrofenin (HIDA). 99mTc activity eluted - × 100",
     "source": "Source: Schwarz, et al., 1997; pp. 167-172.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1134.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1214.jpeg",
@@ -3432,11 +3432,11 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "To calculate the yield of a 99Mo/99mTc generator, in what sequence should the following steps be performed?",
     "options": [
-      "A, B, C, D, E",
-      "E, B, D, A, C",
-      "D, B, E, C, A",
-      "A, E, B, D, C",
-      "B, E, A, D, C"
+      "1, 2, 3, 4, 5",
+      "5, 2, 4, 1, 3",
+      "4, 2, 5, 3, 1",
+      "1, 5, 2, 4, 3",
+      "2, 5, 1, 4, 3"
     ],
     "answerIndex": 1,
     "explanation": "Generator yield—amount of 99mTc that may be eluted from a 99Mo/99mTc generator-— is calculated by using decay equations that determine the amount of 99mTc formed from the decay of 99Mo at any given time. The sequence for calculating the generator yield is as follows:",
@@ -3500,7 +3500,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "A technologist needs 1 mCi [111In] chloride at 0900 on May 18. The label on the radiopharmaceutical vial contains the following information: Total activity 3.0 mCi Total volume 3.0 mL Assay 1200, May 21.   What volume is required to obtain the necessary activity on May 18?",
+    "question": "A technologist needs 1 mCi [111In] chloride at 0900 on May 18. The label on the radiopharmaceutical vial contains the following information:\nTotal activity 3.0 mCi\nTotal volume 3.0 mL\nAssay 1200, May 21. \nWhat volume is required to obtain the necessary activity on May 18?",
     "options": [
       "0.48 mL",
       "0.69 mL",
@@ -3612,7 +3612,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "Venipuncture materials labeled with which of the following expiration dates may be used safely on August 10, 2017?  A. July 31, 2017 B. August 31, 2017  C. September 30, 2017 D. October 1, 2018 ",
+    "question": "Venipuncture materials labeled with which of the following expiration dates may be used safely on August 10, 2017?\nA. July 31, 2017\nB. August 31, 2017\nC. September 30, 2017\nD. October 1, 2018 ",
     "options": [
       "D only",
       "C or D only",
@@ -3746,8 +3746,8 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "What is the volume contained in the syringe shown here?",
     "options": [
-      "Plunger Piston 14 mL",
-      "Final edge of plunger piston 2.0 mL",
+      "1.4 mL",
+      "2.0 mL",
       "3.8 mL",
       "4.0 mL",
       "4.6 mL"
@@ -4361,7 +4361,7 @@ export const QUESTION_BANK = [
       "0.42 cm"
     ],
     "answerIndex": 3,
-    "explanation": "The following calculation is used when using the point source or line source method for pixel calibration: distance between sources pixel size = number of pixels between activity profile peaks In this example: 15 cm = 0.33 cm 45 pixels",
+    "explanation": "The following calculation is used when using the point source or line source method for pixel calibration: distance between sources pixel size = number of pixels beween activity profile peaks In this example: 15 cm = 0.33 cm 45 pixels",
     "source": "Source: Wells, 1999; p. 159.",
     "sourcePhoto": "Question photos/Questions/Exam 2/IMG_1139.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 2/IMG_1218.jpeg"
@@ -4662,7 +4662,7 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "The function of a draw sheet is to provide:",
     "options": [
-      "support for the patient during a stretcher to bed transfer",
+      "support for the patient during a stretcher to bed transter",
       "warmth to the patient during the procedure",
       "protection from infectious disease",
       "patient privacy during an imaging procedure",
@@ -4979,7 +4979,7 @@ export const QUESTION_BANK = [
       "[125I] sodium iodide"
     ],
     "answerIndex": 2,
-    "explanation": "Written consent must be obtained for any radiopharmaceutical that is investigational. These drugs are referred to as investigational new drugs (INDs). All of the radiopharmaceuticals cited in this publication have been approved by the FDA for clinical use. That is, their new drug authorization (NDA) has been approved, and they are referred to as NDA drugs.",
+    "explanation": "Written consent must be ohtained for anv radionharmacentical that is investigational. These drugs are referred to as investigational new drigs (INDs). All of the radiopharmaceuticals cited in this publication have been approved by the FDA for clinical use. That is, their new drug authonztion (NDA) has been approved, and they are referred to as NDA drugs.",
     "source": "Source: Saha, 2004; p. 204.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1143.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1221.jpeg"
@@ -5155,10 +5155,10 @@ export const QUESTION_BANK = [
       "intrathecal"
     ],
     "answerIndex": 3,
-    "explanation": "The proper route of administration for Ga infection imaging is intravenously.",
-    "source": "Source: Shackett, 2009; p. 104.",
-    "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1143.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 3/IMG_1222.jpeg",
+    "explanation": "The proper route of administration for Ga infection imaging is intravenously.\tSource: Shackett, 2009; p. 104.\tQuestion photos/Questions/Exam 3/IMG_1143.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-032\t3\t32\tRadiopharmaceuticals\tRadiopharmaceuticals\tprotocol\t2\tWhich of the following statements best describes the preferred injection and blood sampling site(s) when performing a plasma volume study?\tPlace a butterfly needle in an antecubital vein for injection of the radiopharmaceutical and subsequent blood sampling.\tIntravenous injection should be performed in an antecubital vein, and subsequent blood samples should be obtained from the same vein.\tIntravenous injection should be performed in an antecubital vein in one arm, and subsequent blood samples should be obtained from an antecubital vein in the opposite arm.\tIntravenous injection should be performed in an antecubital vein, and subsequent blood samples should be obtained from a different antecubital vein in the same arm.\tAn angiocath should be placed in an antecubital vein for injection of the radiopharmaceutical and subsequent blood sampling.\t2\tIntravenous injection should be performed in an antecubital vein in one arm, and subsequent blood samples should be obtained from an antecubital vein in the opposite arm.\tBecause radioiodinated serum albumin is sticky, it has a tendency to adhere to substances, including tissue. Tracer administration and blood sampling should be performed, if possible, in contralateral arms.\tSource: Early and Sodee, 1995; p. 725.\tQuestion photos/Questions/Exam 3/IMG_1143.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-033\t3\t33\tClinical Procedures\tClinical Procedures\tprotocol\t3\tWhen administering an intravenous injection, the needle should be inserted into the vein at an angle of:\t90 degrees\t45 degrees\t5 degrees\t15 degrees\t1 degree\t3\t15 degrees\tAn intravenous injection should be done with the needle at about a 15-degree angle to the vein it is being inserted into.\tSource: Adler and Carlton, 2016; p. 297.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-034\t3\t34\tClinical Procedures\tClinical Procedures\tprotocol\t4\tWhen counting 51Cr red blood cell samples in a scintillation well counter, the window should be set around the photopeak at:\t320 keV\t159 keV\t81 keV\t511 keV\t664 keV\t0\t320 keV\tThe gamma energy of 51Cr is 320 keV. Therefore, the scintillation detector should be set to accommodate this photopeak.\tSource: Waterstram-Rich and Gilmore, et al., 2017; p. 623.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-035\t3\t35\tClinical Procedures\tClinical Procedures\timage-interpretation\t4\tWhich tomographic plane of the heart displays all walls of the left ventricle?\thorizontal long axis\tshort axis\ttransaxial\tvertical long axis\tsagittal\t1\tshort axis\tThe short-axis slice displays all walls of the left ventricle.\tSource: Crawford and Husain, 2011; p. 40.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-036\t3\t36\tInstrumentation & QC\tThyroid Imaging\tconcept\t1\tWhen performing a radioiodine thyroid uptake with an uptake probe, the most appropriate collimator to use is a:\tlow-energy, high-sensitivity parallel-hole collimator\tconverging collimator\tflat-field collimator\tstraight-bore collimator\tdiverging collimator\t2\tflat-field collimator\tA scintillation probe with a flat-field-of-view collimator is used for a radioiodine uptake test. The flat-field collimator allows for small variations in organ depth without affecting statistical accuracy.\tSource: Early and Sodee, 1995; p. 628.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-037\t3\t37\tInstrumentation & QC\tInstrumentation & QC\tconcept\t2\tWhich of the following would not be in accordance with electrical safety guidelines?\tuse of three-pronged plugs and outlets\tkeeping walk areas free from electrical cords\tdisconnecting an electrical plug from the wall by pulling on the cord\tnot using frayed or kinked cords\tusing a 25 amp appliance in a 30 amp outlet\t2\tdisconnecting an electrical plug from the wall by pulling on the cord\tCords should be disconnected from the wall by grasping and pulling on the plug, not on the cord.\tSource: Kowalczyk and Donnett, 1996; p. 234.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-038\t3\t38\tInstrumentation & QC\tInstrumentation & QC\tconcept\t3\tWhich of the following statements about the image of a left ventricle slice shown here is correct?\tapex It is an incorrectly labeled image of a vertical long axis slice.\tseptur It is an incorrectly labeled image of a horizontal long axis slice.\tIt is a correctly labeled image of a vertical long axis slice.\tIt is a correctly labeled image of a horizontal long axis slice.\tIt is a correctly image of a short axis slice.\t3\tIt is a correctly labeled image of a horizontal long axis slice.\tIt is a correctly labeled image of a horizontal long-axis slice of the left ventricle.\tSource: Crawford and Husain, 2011; p. 40.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\tassets/question-bank/retake/exam3-038/e3q38.jpg\tGraphic for Exam 3, Question 38.\t\r\nexam3-039\t3\t39\tRadiopharmaceuticals\tPET\tprotocol\t4\tWhen using [18F]FDG for PET imaging, which of the following should be considered as a contraindication for performing the study?\tlow-carb diet\tblood glucose level of 120 mg/dl\thigh-iodine diet within past week\tlow-iodine diet within past week\tblood glucose level of 200 mg/dL\t4\tblood glucose level of 200 mg/dL\tIdeally, the blood glucose should be less than 120 mg/dL when imaging with [18F]FDG. The [18F]FDG competes for glucose receptors, and a high blood glucose level reduces potential uptake of the [18F]FDG.\tSource: Waterstram-Rich and Gilmore, et al., 2017; p. 374.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-040\t3\t40\tClinical Procedures\tClinical Procedures\tprotocol\t5\tA 1:25 dilution of a solution with a concentration of 10 µCi/mL is prepared. What is the tracer concentration in the dilution?\t0.04 µCi/mL\t0.25 µCi/mL\t25 µCi/mL\t0.4 Ci/mL\t45 µCi/mL\t3\t0.4 Ci/mL\tSource: Remson and Ackermann, 1977; pp. 77-\tSource: Remson and Ackermann, 1977; pp. 77-\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1222.jpeg\t\t\t\r\nexam3-041\t3\t41\tRadiopharmaceuticals\tCardiac Imaging\tconcept\t1\tIn preparation for [18F] fluorodeoxyglucose (FDG) imaging, patients are required to fast to:\tprevent hypoglycemic episodes\tenhance cardiac uptake\teliminate the need for laxatives\tmaximize tumor uptake\tprevent brown fat disposition\t3\tmaximize tumor uptake\tIn preparation for [18F] fluorodeoxyglucose (FDG) imaging, patients are required to fast to maximize tumor uptake. More [18F]FDG is taken up by cancer cells when the extracellular concentration of glucose is low, which enhances the detection of tumors.\tSource: Nabi and Zubeldia, 2002; pp. 3-4.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-042\t3\t42\tPatient Care\tPatient Care\tprotocol\t2\tWhich of the following steps is performed before the administration of [90Y] ibritumomab tiuxetan therapy?\tdetermining PSA level\tfasting for 8 hr\tNPO from midnight before the study\tintravenous hydration for 4 hr\twhole-body imaging with [111In] ibritumomab tiuxetan\t4\twhole-body imaging with [111In] ibritumomab tiuxetan\tBefore administration of [90Y] ibritumomab tiuxetan therapy, a whole-body image is performed with [111In] ibritumomab tiuxetan to assess the biodistribution of the antibody and identify areas of normal tissue that may be at risk of exposure to a high radiation dose because of proximity to the tumor.\tSource: Zevalin package insert.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-043\t3\t43\tInstrumentation & QC\tGenerator / Eluate\tconcept\t3\tThe size of a 99Mo/99mTc generator is expressed as the total activity of:\t99mTc on the column\t99Mo on the column\t99mTc eluted from the column\tdecay-corrected 99mTc available at time of elution\tdecay-corrected 99Mo available at time of elution\t1\t99Mo on the column\tThe size of a 99Mo/99mTc generator is expressed as the total 99Mo activity on the column at the time of initial assay (calibration).\tSource: Saha, 2004; pp. 71-72.\tQuestion photos/Questions/Exam 3/IMG_1144.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-044\t3\t44\tRadiopharmaceuticals\tGenerator / Eluate\tconcept\t4\tIf 1.2 Ci of 99mTc are eluted from a generator in a 5.7 mL volume, what is the concentration of the eluate?\t210 mCi/mL\t475 mCi/mL\t32.4 MBq/mL\t5.7 GBq/mL\t7.5 GBq/mL\t0\t210 mCi/mL\tConcentration is expressed as activity per unit volume. It is obtained by dividing the total volume into the total activity. In this case: 1.2 Ci = 0.210 Ci/mL 5.7 mL 0.210 Ci x 1000 mCi = 210 mCi 1 Ci\tSource: Wells, 1999; p. 183.\tQuestion photos/Questions/Exam 3/IMG_1145.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-045\t3\t45\tRadiopharmaceuticals\tGenerator / Eluate\tprotocol\t5\tIf 633 mCi are expected to be eluted from a wet column generator, what volume evacuated vial should be used to obtain an eluate concentration of approximately 30 mCi/mL?\t20 mL\t10 mL\t15 mL\t5 mL\t25 mL\t0\t20 mL\tThe amount of 99mTc activity eluted from the column will be the same whether 5 or 20 mL of saline are used for elution. For a wet-column generator, however, the eluate concentration is determined by the volume of saline drawn from the supply contained within the generator. The volume of saline is controlled by the volume of the evacuated vial used to remove the eluate. Lower-volume evacuated vials provide eluate with greater concentration, and higher-volume vials produce eluate with lower concentration. In this example, the eluate volume is unknown. Thus: total activity concentration = eluate volume total activity eluate volume = desired concentration = 21 mL A 21 mL. evacuated vial is not available, but the 20 mL vial will produce an eluate with a concentration of 31.6 mCi/mL. (approximately 30 mCi/mL): 20 mCi/mL. concentration = (32 mCi/mL. = 31.6 mCi/mL.\tSource: Chilton and Witcofski, 1986; p. 54.\tQuestion photos/Questions/Exam 3/IMG_1145.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-046\t3\t46\tRadiopharmaceuticals\tRadiopharmaceuticals\tconcept\t1\tThe maximum allowable limit of Al3+ in 99mTc eluate is set by the:\tNuclear Regulatory Commission\tEnvironmental Protection Agency\tU.S. Pharmacopeia\tU.S. Department of Transportation\tU.S. Department of Energy\t2\tU.S. Pharmacopeia\tThe maximum allowable aluminum ion concentration is set by the U.S. Pharmacopeia. Aluminum is a nonradioactive chemical impurity.\tSource: Saha, 2004; p. 75.\tQuestion photos/Questions/Exam 3/IMG_1145.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-047\t3\t47\tRadiation Safety\tRadiation Safety\tconcept\t2\tIf the following measurements were obtained from an assay of 99mTc eluate:  99Mo, 8 µCi 99mTc, 652 mCi  then the 99Mo concentration in 1 mCi of 99mTc is:\t81.5 µCi/mCi\t8.0 µCi/mCi\t0.000012 µCi/mCi\t0.012 µCi/mCi\t0.0012 µCi/mCi\t3\t0.012 µCi/mCi\t99Mo concentration is expressed as the number of microcuries of 99Mo per millicurie of 99mTc. In this example, 8 µCi / 652 mCi = 0.012 µCi 99Mo/mCi 99mTc.\tSource: Wells, 1999; pp. 224-225.\tQuestion photos/Questions/Exam 3/IMG_1145.jpeg\tQuestion photos/Answers/Exam 3/IMG_1223.jpeg\t\t\t\r\nexam3-048\t3\t48\tRadiopharmaceuticals\tLung Imaging\tconcept\t3\tIncreased levels of Al3+ in 99mTc eluate used to prepare [99mTc] sulfur colloid may cause the tracer to concentrate in the:\tliver\tlungs\tred blood cells\tthyroid\tbrain\t1\tlungs\tHigh levels of aluminum ions in 99mTc eluate cause the colloidal particles in [99mTc] sulfur colloid to clump together, forming particles large enough to be trapped in the blood vessels of th",
+    "source": "moving the camera closer to the patient's body",
+    "sourcePhoto": "increasing the pulse-height analyzer window width",
+    "answerPhoto": "using a high-sensitivity collimator instead of LEAP collimator",
     "image": "using fewer shades of gray to display the image",
     "imageAlt": "using a slant hole collimator",
     "imageCaption": "0"
@@ -5503,7 +5503,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 2,
-    "question": "If the following measurements were obtained from an assay of 99mTc eluate:  99Mo, 8 uCi 99mTc, 652 mCi  then the 99Mo concentration in 1 mCi of 99mTc is:",
+    "question": "If the following measurements were obtained from an assay of 99mTc eluate: \n99Mo, 8 uCi\n99mTc, 652 mCi\n\nthen the 99Mo concentration in 1 mCi of 99mTc is:",
     "options": [
       "81.5 uCi/mCi",
       "8.0 uCi/mCi",
@@ -5681,13 +5681,13 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "image-interpretation",
     "difficulty": 3,
-    "question": "The radiochemical purity of a radiopharmaceutical is determined using a solvent/support media combination with these Rf values: Radiopharmaceutical: 0 Radiochemical impurity: 1.0  After the radiochromatography strip is developed and cut in half, the solvent front half of the strip counted 15,345 cpm and the origin half of the strip counted 55,632 cpm. What is the radiochemical purity of the sample?",
+    "question": "The radiochemical purity of a radiopharmaceutical is determined using a solvent/support media combination with these Rf values:\nRadiopharmaceutical: 0\nRadiochemical impurity: 1.0\n\nAfter the radiochromatography strip is developed and cut in half, the solvent front half of the strip counted 15,345 cpm and the origin half of the strip counted 55,632 cpm. What is the radiochemical purity of the sample?",
     "options": [
-      "78.40%",
-      "27.60%",
-      "72.40%",
-      "21.60%",
-      "89.90%"
+      "78.4%",
+      "27.6%",
+      "72.4%",
+      "21.6%",
+      "89.9%"
     ],
     "answerIndex": 0,
     "explanation": "Based on the R, values, the radiopharmaceutical is present on the origin half of the strip, and the radiochemical impurity is present on the solvent front half of the strip. The radiochemical purity is: counts on origin half of strip total counts (counts on both strips) * 100 55,632 cpm - × 100 = 78.4% 55,632 cpm + 15,345 cpm",
@@ -5727,7 +5727,7 @@ export const QUESTION_BANK = [
     "topic": "Patient Care",
     "type": "protocol",
     "difficulty": 2,
-    "question": "The standard adult dosage of [123I] sodium iodide is 400 uCi +/-10%. On the basis of the vial label information shown here: Total activity: 1 mCi Number of capsules: 10 Activity/capsule: 100uCi/capsule Calibration: 1200, October 5.  How many [123I] sodium iodide capsules should be administered to the patient at 0800 on October 5? ",
+    "question": "The standard adult dosage of [123I] sodium iodide is 400 uCi +/-10%. On the basis of the vial label information shown here:\nTotal activity: 1 mCi\nNumber of capsules: 10\nActivity/capsule: 100uCi/capsule\nCalibration: 1200, October 5.\n\nHow many [123I] sodium iodide capsules should be administered to the patient at 0800 on October 5?\n",
     "options": [
       "four",
       "The capsules may not be administered until 1200.",
@@ -5749,7 +5749,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 3,
-    "question": "A technologist needs 185 MBq [131I] sodium iodide solution on November 3. The label on the radiopharmaceutical vial contains the following information:  Total activity: 740 MBq Total volume: 10 ml Assay: 1200, October 28  What volume is required to obtain the necessary activity on November 3?",
+    "question": "A technologist needs 185 MBq [131I] sodium iodide solution on November 3. The label on the radiopharmaceutical vial contains the following information: \nTotal activity: 740 MBq\nTotal volume: 10 ml\nAssay: 1200, October 28\n\nWhat volume is required to obtain the necessary activity on November 3?",
     "options": [
       "0.42 mL",
       "4.2 mL",
@@ -5758,7 +5758,7 @@ export const QUESTION_BANK = [
       "5.2 mL"
     ],
     "answerIndex": 1,
-    "explanation": "The elapsed time between calibration and dose calculation is 6 days (October 28-November 3; remember that October has 31 days). The concentration on October 28 is 74 MBq/mL (740 MBq/10 mL). Decay correct the initial concentration for 6 days using the appropriate decay factor for 131I: 74 MBq/mL x 0.597 = 44.2 MBq/mL Then, determine the required volume: 185 MBq volume = activity required •= 4.2 mL C(t) -= 44.2 MBq/mL.",
+    "explanation": "The elapsed time between calibration and dose calculation is 6 days (October 28-November 3; remember that October has 31 days). The concentration on October 28 is 74 MBq/mL (740 MBq/10 mL). Decay correct the initial concentration for 6 days using the appropriate decay factor for 131T: 74 MBq/mL x 0.597 = 44.2 MBq/mL Then, determine the required volume: 185 MBq volume = axtivity required •= 4.2 mL C(t) -= 44.2 MBq/ml.",
     "source": "Source: Wells, 1999; pp. 172-173, 185-186.",
     "sourcePhoto": "Question photos/Questions/Exam 3/IMG_1146.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 3/IMG_1224.jpeg"
@@ -5865,7 +5865,7 @@ export const QUESTION_BANK = [
     "options": [
       "1300",
       "1100",
-      "900",
+      "0900",
       "1500",
       "1700"
     ],
@@ -5907,11 +5907,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "On the basis of these chromatography results, what is the percentage radiochemical impurity of the [99mTc] pentetate (DTPA) preparation? System 1: origin 3 uCi hydrolyzed-reduced 99mTc; solvent front 177 uCi [99mTc] pentetate (DTPA) plus [99mTc] pertechnetate. System 2: origin 275 uCi [99mTc] pentetate (DTPA) plus hydrolyzed-reduced 99mTc; solvent front 15 uCi [99mTc] pertechnetate.",
     "options": [
-      "74.60%",
-      "93.10%",
-      "94.80%",
-      "98.30%",
-      "6.90%"
+      "74.6%",
+      "93.1%",
+      "94.8%",
+      "98.3%",
+      "6.9%"
     ],
     "answerIndex": 4,
     "explanation": "The hydrolyzed-reduced 99mTc impurity is separated using system 1, and the free pertechnetate impurity is separated using system 2. The hydrolyzed-reduced impurity is 3 uCi / (3 uCi + 177 uCi) x 100 = 1.7%. The free pertechnetate impurity is 15 uCi / (15 uCi + 275 uCi) x 100 = 5.2%. Total radiochemical impurity is 1.7% + 5.2% = 6.9%.",
@@ -5977,11 +5977,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "According to NRC regulations, which of the following signs should be posted on the door of a radiopharmacy laboratory in which radiation levels have been measured to be 7.5 mR/hr?",
     "options": [
-      "Caution: Radiation Area",
-      "Caution: Radioactive Materials",
+      "\"Caution: Radiation Area\"",
+      "\"Caution: Radioactive Materials\"",
       "No posting is required.",
-      "Caution: High Radiation Area",
-      "Caution: Very High Radiation Area"
+      "\"Caution: High Radiation Area\"",
+      "\"Caution: Very High Radiation Area\""
     ],
     "answerIndex": 0,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (10 CFR 20.1003 and 20.1902). The NRC requires that restricted areas, such as a radiopharmacy lab, be posted with specifically worded signs depending on the radiation level present. A \"Caution: Radiation Area\" sign should be posted when an individual could receive more than 5 mRem in an hour.",
@@ -6219,7 +6219,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "protocol",
     "difficulty": 4,
-    "question": "Nurses caring for 131I therapy patients who require isolation should be advised that the major sources of contamination include the patient's:",
+    "question": "Nurses caring for 1131I therapy patients who require isolation should be advised that the major sources of contamination include the patient's:",
     "options": [
       "feces, urine, and blood",
       "urine, saliva, and perspiration",
@@ -6351,7 +6351,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 5,
-    "question": "On the basis of this data: Wipe test count: 375 cpm Background count: 120 cpm  and a well counter efficiency of 45%, the results of the wipe test in dpm are:",
+    "question": "On the basis of this data:\nWipe test count: 375 cpm\nBackground count: 120 cpm\n\nand a well counter efficiency of 45%, the results of the wipe test in dpm are:",
     "options": [
       " 49 dpm",
       " 115 dpm",
@@ -6424,8 +6424,8 @@ export const QUESTION_BANK = [
     "question": "An energy resolution test is performed on a scintillation spectrometer using 137Cs. If the full width at half maximum (FWHM) is determined to be 53 keV and the photopeak energy is 662 keV, what is the percentage energy resolution of the instrument?",
     "options": [
       "0.08%",
-      "12.50%",
-      "1.30%",
+      "12.5%",
+      "1.3%",
       "8%",
       "25%"
     ],
@@ -6850,7 +6850,7 @@ export const QUESTION_BANK = [
       "[99mTc] sulfur colloid"
     ],
     "answerIndex": 0,
-    "explanation": "Technetium-99m pertechnetate is an accepted radiopharmaceutical for thyroid imaging.",
+    "explanation": "technetium-99m pertechnetate is an accepted radiopharmaceutical for thyroid imaging.",
     "source": "Source photo: IMG_1230.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1151.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1230.jpeg"
@@ -7004,7 +7004,7 @@ export const QUESTION_BANK = [
       "sincalide and [99mTc] medronate (MDP)"
     ],
     "answerIndex": 2,
-    "explanation": "Gallbladder ejection fraction is useful in assessing Gallbladder dysfunction. In cases of delayed Gallbladder visualization, sincalide is administered when the Gallbladder is full. Pre- and post-contraction images are used to calculate an ejection fraction.",
+    "explanation": "gallbladder ejection fraction is useful in assessing gallbladder dysfunction. In cases of delayed gallbladder visualization, sincalide is administered when the gallbladder is full. Preand postcontraction images are used to calculate an ejection fraction.",
     "source": "Source photo: Answers/Exam 4/IMG_1230.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1152.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1230.jpeg"
@@ -7180,7 +7180,7 @@ export const QUESTION_BANK = [
       "pump patency"
     ],
     "answerIndex": 0,
-    "explanation": "In the case of cerebrospinal fluid leaks through the nose (rhinorrhea) or ears (otorrhea), placing cotton gauze in the patient's nose or ears is helpful in diagnosing such leaks. This technique is particularly useful with small leaks that may not be visualized on images.",
+    "explanation": "In the case of cerebral spinal fluid leaks through the nose (rhinorthea) or ears (otorrhea), placing cotton gauze in the patient's nose or ears is helpful in diagnosing such leaks. This technique is particularly useful with small leaks that may not be visualized on images.",
     "source": "Source: Early and Sodee, 1995; p. 572.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1153.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1231.jpeg"
@@ -7325,7 +7325,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "protocol",
     "difficulty": 4,
-    "question": "The following studies are ordered for a patient:  A. ERPF determination B. total-body bone imaging C. [111In] pentetreotide imaging.   In which order should the studies be performed so they do not interfere with one another and they can be accomplished in the shortest amount of time?",
+    "question": "The following studies are ordered for a patient: \nA. ERPF determination\nB. total-body bone imaging\nC. [111In] pentetreotide imaging. \n\nIn which order should the studies be performed so they do not interfere with one another and they can be accomplished in the shortest amount of time?",
     "options": [
       "A, B, C",
       "A, C, B",
@@ -7481,10 +7481,10 @@ export const QUESTION_BANK = [
     "topic": "Thyroid Imaging",
     "type": "concept",
     "difficulty": 1,
-    "question": "On the basis of these counts per minute obtained from a thyroid uptake test: Thyroid: 2876 Patient background: 563 Standard: 10,111 Room background: 124  the percentage radioiodine uptake is:",
+    "question": "On the basis of these counts per minute obtained from a thyroid uptake test:\nThyroid: 2876\nPatient background: 563\nStandard: 10,111\nRoom background: 124\n\nthe percentage radioiodine uptake is:",
     "options": [
-      "3.50%",
-      "4.30%",
+      "3.5%",
+      "4.3%",
       "28%",
       "23%",
       "50%"
@@ -7547,7 +7547,7 @@ export const QUESTION_BANK = [
     "topic": "Image Production",
     "type": "calculation",
     "difficulty": 5,
-    "question": "The following data was collected for a plasma volume determination: Net standard counts: 839,621 Standard dilution factor: 15 Net plasma counts: 2,528 cpm/mL  The calculated plasma volume in milliliters is:",
+    "question": "The following data was collected for a plasma volume determination:\nNet standard counts: 839,621\nStandard dilution factor: 15\nNet plasma counts: 2,528 cpm/mL\n\nThe calculated plasma volume in milliliters is:",
     "options": [
       "2,214",
       "3,321",
@@ -7577,7 +7577,7 @@ export const QUESTION_BANK = [
       "100 uCi/mL",
       "125 uCi/mL"
     ],
-    "answerIndex": 3,
+    "answerIndex": 0,
     "explanation": "1:2,000 dilution means that the concentration in the diluted solution is one 2,000th of the original concentration. In this problem, the concentration of the original solution is unknown. Thus: 2000 (? Ci/ml.) = 0.05 uCi/ml. 2000 = 0.05 uCi/mL. x = 2000(0.05 uCi/mL)=100 uCi/mL",
     "source": "Source photo: Answers/Exam 4/IMG_1232.jpeg.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1154.jpeg",
@@ -7613,7 +7613,7 @@ export const QUESTION_BANK = [
     "topic": "Hepatobiliary Imaging",
     "type": "concept",
     "difficulty": 2,
-    "question": "Based on the net counts shown here, what is the percentage gallbladder ejection fraction?  Maximum gallbladder counts: 185,632 Minimum gallbladder counts: 77, 203",
+    "question": "Based on the net counts shown here, what is the percentage gallbladder ejection fraction? \nMaximum gallbladder counts: 185,632\nMinimum gallbladder counts: 77, 203",
     "options": [
       "71%",
       "41%",
@@ -7789,7 +7789,7 @@ export const QUESTION_BANK = [
     "topic": "Radiation Safety",
     "type": "concept",
     "difficulty": 5,
-    "question": "An eluate of [99mTc] pertechnetate is assayed for 99Mo contamination at 0600 with the following results: 99Mo = 15.5 uCi 99mTc = 250 mCi  At 1000, the eluate is used to prepare a 99mTc-labeled compound with a shelf-life of 8 hr. What is the latest time that the 99mTc compound may be administered to patients?",
+    "question": "An eluate of [99mTc] pertechnetate is assayed for 99Mo contamination at 0600 with the following results:\n99Mo = 15.5 uCi\n99mTc = 250 mCi\n\nAt 1000, the eluate is used to prepare a 99mTc-labeled compound with a shelf-life of 8 hr. What is the latest time that the 99mTc compound may be administered to patients?",
     "options": [
       "1400",
       "1500",
@@ -7903,11 +7903,11 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "The tagging efficiency of a radiopharmaceutical is determined using these solvent/support media systems. Rf values: System 1 radiopharmaceutical 0.0, free pertechnetate 0.9, hydrolyzed-reduced 99mTc 0.0; System 2 radiopharmaceutical 1.0, free pertechnetate 1.0, hydrolyzed-reduced 99mTc 0.0. Counts per minute: System 1 solvent front half 1,716 cpm and origin half 23,706 cpm; System 2 solvent front half 21,001 cpm and origin half 1,200 cpm. What is the tagging efficiency of the sample?",
     "options": [
-      "92.80%",
-      "6.70%",
-      "12.10%",
-      "87.90%",
-      "5.40%"
+      "92.8%",
+      "6.7%",
+      "12.1%",
+      "87.9%",
+      "5.4%"
     ],
     "answerIndex": 3,
     "explanation": "Based on the Rf values, free pertechnetate is separated using system 1 and hydrolyzed-reduced 99mTc is separated using system 2. Free pertechnetate is 1,716 cpm / (1,716 cpm + 23,706 cpm) x 100 = 6.7%. Hydrolyzed-reduced 99mTc is 1,200 cpm / (21,001 cpm + 1,200 cpm) x 100 = 5.4%. Tagging efficiency is 100% - (6.7% + 5.4%) = 87.9%.",
@@ -8125,11 +8125,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "On the basis of the chromatography results shown here, what is the percentage radiochemical purity of the [99mTc] mertiatide (MAG3) preparation?",
     "options": [
-      "13.90%",
-      "96.20%",
-      "92.10%",
-      "94.00%",
-      "86.10%"
+      "13.9%",
+      "96.2%",
+      "92.1%",
+      "94.0%",
+      "86.1%"
     ],
     "answerIndex": 4,
     "explanation": "The free pertechnetate impurity is separated using system 1, and the hydrolyzed-reduced 99mTc impurity is separated using system 2. Free pertechnetate = 9.2 uCi / (107.5 uCi + 9.2 uCi) x 100 = 7.9%. Hydrolyzed-reduced 99mTc = 8.4 uCi / (132.6 uCi + 8.4 uCi) x 100 = 6.0%. Radiochemical purity = 100% - (7.9% + 6.0%) = 86.1%.",
@@ -8215,11 +8215,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "A package containing radioactive material is monitored and found to produce 0.4 mR/hr at the surface and no detectable radiation exposure at 1 m from the surface. Which DOT label must be affixed to the outside of the package?",
     "options": [
-      "Category I-A",
-      "Category II",
-      "Category III",
+      "\"Category I-A\"",
+      "\"Category II\"",
+      "\"Category III\"",
       "No DOT label is required.",
-      "Category I"
+      "\"Category I\""
     ],
     "answerIndex": 4,
     "explanation": "U.S. Nuclear Regulatory Commission, 2003 (49 CFR 172.403 and 172.436-440). The label types and exposure rate limits for packages containing radioactive materials are: Exposure rate (mR/hr) Label category At surface At 1 m Category I (white) ≤0.5 No detectable radiation ≤50 Category Il (yellow) ≤1.0 Category III (yellow) ≤200 ≤10",
@@ -8714,7 +8714,7 @@ export const QUESTION_BANK = [
       "hourly"
     ],
     "answerIndex": 0,
-    "explanation": "It is recommended that the COR offset correction be performed at least weekly.",
+    "explanation": "weekly. It is recommended that the COR offset correction be performed at least",
     "source": "Source: English, 1995; p. 44.",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1160.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg"
@@ -8846,8 +8846,8 @@ export const QUESTION_BANK = [
       "0.12 cycles/pixel"
     ],
     "answerIndex": 3,
-    "explanation": "The lower the cutoff frequency of a Butterworth filter, the more high-frequency information and image detail are removed from the image. A cutoff frequency of 0.5 cycles/pixel retains more detail, while 0.15 cycles/pixel removes many high-frequency components and produces a smoother image.",
-    "source": "Source: Christian, et al., 2004; pp. 118-119, 258-259.",
+    "explanation": "frequency of 0.5 cycles/pixel results in an image with the most detail and the most high-frequency noise. At the other extreme, a cutoff frequency of 0.15 cycles/pixel removes many of the high frequencies, resulting in a very smooth image without much detail.",
+    "source": "Source: Christian, et al., 2004; pp. 118-119, 258-259. The lower the cutoff frequency, the more high frequencies (which provide image detail) are removed from an image. Therefore, a cutoff fre-",
     "sourcePhoto": "Question photos/Questions/Exam 4/IMG_1160.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 4/IMG_1237.jpeg"
   },
@@ -8980,8 +8980,8 @@ export const QUESTION_BANK = [
       "the heart"
     ],
     "answerIndex": 2,
-    "explanation": "If a patient is injected with [99mTc] MAA while supine, tracer is distributed throughout the lungs according to regional blood flow in the supine position.",
-    "source": "Source: Christian, et al., 2004; pp. 389-390, 392-394.",
+    "explanation": "uted in the bases of the lungs than in the apices. In the supine position, although there is a blood flow gradient from anterior to posterior, there is a more homogeneous distribution of particles from apex to base.",
+    "source": "Source: Christian, et al., 2004; pp. 389-390, 392-394. If the patient is in the upright position, the apices of the lung receive very little blood flow. Consequently, more MAA particles will be distrib-",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1161.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1239.jpeg"
   },
@@ -9046,7 +9046,7 @@ export const QUESTION_BANK = [
       "fasting for at least 4 hr with a blood glucose level below 200 mg/dL"
     ],
     "answerIndex": 1,
-    "explanation": "No special preparation is needed for white blood cell infection imaging, but the technologist should review recent lab work and ask about recent blood transfusions.",
+    "explanation": "No special preparation is needed for a white blood cell infection imaging other than a possible interference if the patient has had a recent blood transfusion. d Christian, et al., 2004; p. 363. A pinhole collimator provides an image with better resolution and offers the ability to obtain oblique views. A parallel-hole collimator used with electronic zoom can provide a magnified image with good resolution.",
     "source": "Source: Shackett, 2009; p. 255.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1161.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1239.jpeg"
@@ -9090,7 +9090,7 @@ export const QUESTION_BANK = [
       "There is no effect."
     ],
     "answerIndex": 0,
-    "explanation": "A portable ionization chamber gives a direct measurement of the total number of ion pairs produced by the radiation source and is commonly used for thyroid uptake measurements.",
+    "explanation": "Recall that, as a point source is moved closer to the face of a flat-field collimator, more counts are collected. If the standard represents the total amount of activity administered to the patient, the counts collected from the patient's neck represent a portion of the total amount of activity that concentrated in the thyroid gland. It is important, therefore, based on the response of the detector at a given distance, to count both the standard and the patient at the same distance. For example, suppose the standard and the patient were both counted at 20 cm, and 20,000 net cpm and 5,000 net cpm were obtained, respectively. The patient's uptake is: 5000 cpm neck counts × 100 = 25% standard counts - x 100 = 20,000 cpm If the patient were counted at 5 cm instead of 20 cm, more counts would be collected (i.e., 10,000 cpm). Then, the patient's uptake is falsely increased: 10,000 cpm neck counts × 100 = 50% standard counts - x 100 = 20,000 cpm aEarly and Sodee, 1995; p. 392. The counts per minute are obtained from the regions of interest drawn around the end-diastolic and end-systolic images. The counts in each region are then corrected for background. The formula for calculating the left ventricular ejection fraction is: net end-diastolic counts - net end-systolic counts × 100 LVEF = net end-diastolic counts 2875 cpm - 2162 cpm x 100 = 25% 2875 cpm",
     "source": "Source: Early and Sodee, 1995; pp. 207-210.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1161.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1239.jpeg"
@@ -9288,7 +9288,7 @@ export const QUESTION_BANK = [
       "Radioactivity is cleared from the renal pelvis into the bladder."
     ],
     "answerIndex": 4,
-    "explanation": "Furosemide is used during renal function studies to increase urine flow and wash activity from the renal pelvis into the bladder.",
+    "explanation": "ical fluids from a patient or with a patient known to be infected with a Purosemide is a diuretic that increases the production of urine. Activity retained in the collecting system or renal pelvis may indicate an obstruction in that area. Furosemide is used to wash out the activity with an increased production of urine. If the activity clears after the The characteristics of normal sinus rhythm as they appear on an ECG administration of furosemide, there is no obstruction. Clearance of the tracing are: (1) heart rate of 60-100 beats per minute, (2) R waves at activity is the normal response. regular intervals (variance of less than 0.12 sec), (3) P waves present and precede QRS complex, (4) PR interval between 0.12 and 0.20 sec",
     "source": "Source: Christian, et al., 2004; p. 485.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1162.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1240.jpeg"
@@ -9307,10 +9307,10 @@ export const QUESTION_BANK = [
       "osteomyelitis",
       "lymphoma",
       "bronchogenic carcinoma",
-      "chondrosarcoma"
+      "chrondrosarcoma"
     ],
     "answerIndex": 1,
-    "explanation": "Early 6-hour 67Ga imaging may be useful when osteomyelitis is suspected because early images can help evaluate infection before normal bowel activity becomes prominent on delayed images.",
+    "explanation": "67Ga imaging can be performed from 6 hr to 3 days or longer after tracer administration. When the examination is being performed for evalua- Defects visualized on stress images are interpreted as myocardial tion of an inflammatory process, early imaging (6 hr after injection) is indicated. ischemia if the defects fill in on the resting images. However, the rate of redistribution varies, and ischemic areas may not appear to have re-perfused by 4 hr. Administering a second, smaller dose of 201Tl before",
     "source": "Source: Early and Sodee, 1995; p. 703.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1162.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1240.jpeg"
@@ -9332,7 +9332,7 @@ export const QUESTION_BANK = [
       "Always wear a face mask."
     ],
     "answerIndex": 0,
-    "explanation": "Handwashing before and after patient contact is the most effective way to reduce the spread of infectious disease in a hospital setting.",
+    "explanation": "rest imaging provides additional tracer in the circulation that can be It is widely accepted that hand washing is considered to be the single extracted into these areas, improving the image quality and identifying most-effective way of preventing the spread of infection in a medical care facility. Mettler and Guiberteau, 1991; p. 200. If the gallbladder is not visualized after 1 hr but tracer is seen in the",
     "source": "Source: Adler and Carlton, 2003; p. 194.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1162.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1240.jpeg"
@@ -9833,7 +9833,7 @@ export const QUESTION_BANK = [
     "difficulty": 2,
     "question": "On the basis of these data shown:",
     "options": [
-      "Total counts 28,065 cts:",
+      "Total counts 28,065 cans:",
       "28,503 19,694",
       "Cardiac ROI 26,644",
       "1,859 15,463 14,652",
@@ -9908,8 +9908,8 @@ export const QUESTION_BANK = [
       "the saline volume used for elution"
     ],
     "answerIndex": 4,
-    "explanation": "Elution efficiency is based on the amount of 99mTc removed from the generator relative to the amount of 99mTc present on the column. It is not significantly affected by the saline volume used for elution; the amount of 99Mo on the column determines the potential 99mTc yield.",
-    "source": "Source: Chilton and Witcofski, 1986; pp. 54, 57-58.",
+    "explanation": "column, the time elapsed since the last elution, and the elution efficiency of the generator all influence the amount of 99mTc activity eluted.",
+    "source": "Source: Chilton and Witcofski, 1986; pp. 54, 57-58. The amount of 99mTc activity removed will be the same regardless of the saline volume used for elution. However, the amount of 99Mo on the col-",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1166.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1243.jpeg"
   },
@@ -10330,7 +10330,7 @@ export const QUESTION_BANK = [
       "0.52 MBq/mL"
     ],
     "answerIndex": 0,
-    "explanation": "Decay-correct the 99mTc activity for 1.5 hours. 4.65 MBq x 0.841 = 3.91 MBq. Concentration = total activity / total volume = 3.91 MBq / 3.5 mL = 1.12 MBq/mL.",
+    "explanation": "factor for 99mTc: Decay-correct the activity for 1.5 hr (0800-0930) using the 1.5-hr decay 4.65 MBq x 0.84 = 3.91 MBq Determine the concentration at 0930 using the decay corrected activity: concentration = total activity = total volume 3.5 mL 3.91 MBQ = 1.12 MBq/mL.",
     "source": "Source: Wells, 1999; pp. 172-173, 183.",
     "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1168.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1245.jpeg"
@@ -10980,10 +10980,10 @@ export const QUESTION_BANK = [
       "16 kB"
     ],
     "answerIndex": 4,
-    "explanation": "Counts from the three 67Ga photopeaks are collected in one acquisition into a 128 x 128 matrix. A byte-mode matrix stores 1 byte per pixel, so 128 x 128 = 16,384 bytes, which equals 16 kB.",
-    "source": "Source: Lee, 2005; pp. 93-95.",
-    "sourcePhoto": "Question photos/Questions/Exam 5/IMG_1171.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 5/IMG_1247.jpeg"
+    "explanation": "Counts from the three photopeaks are collected in one acquisition matrix to form a single Ga image. Therefore, one set of storage locations in computer memory is needed. One 128 x 128 byte-mode matrix bytes to kilobytes: contains 16,384 bytes. A kilobyte (kB) contains 1,024 bytes. To convert 1 kB 16,384 bytes x =16 kB 1024 bytes\tSource: Lee, 2005; pp. 93-95.\tQuestion photos/Questions/Exam 5/IMG_1171.jpeg\tQuestion photos/Answers/Exam 5/IMG_1247.jpeg\t\t\t\r\nexam5-094\t5\t94\tInstrumentation & QC\tUniformity QC\timage-interpretation\t3\tWhich of the following techniques is used to help eliminate the star effect created during tomographic reconstruction?\tfiltered backprojection\tcenter of rotation offset correction\toversampling\tuniformity correction\titerative reconstruction\t0\tfiltered backprojection\tTomographic images may be reconstructed from the planar projections using a technique called backprojection. This creates a star pattern as the ray sums are projected back along a line in the reconstruction matrix. The use of a ramp filter during the process helps eliminate much of the star artifact.\tSource: Bernier, et al., 1994; pp. 254-260.\tQuestion photos/Questions/Exam 5/IMG_1171.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam5-095\t5\t95\tInstrumentation & QC\tDose Calibrator QC\tprotocol\t5\tA technologist performs a linearity test on a dose calibrator. The expected activity at a given time is 28.2 µCi, and the actual reading is 27.0 µCi. Which of the following statements is correct?\tThe instrument should be repaired or replaced.\tThe instrument can be used to measure activities in the microcurie range.\tA correction factor of 0.96 should be applied when measuring activities in the microcurie range.\tA correction factor of 1.04 should be applied when measuring activities in the microcurie range.\tA correction factor of 1.14 should be applied when measuring activities in the microcurie range.\t1\tThe instrument can be used to measure activities in the microcurie range.\tIf the percentage error in the measurement is less than 10%, then the instrument can be used as is. The measured activity falls within ≤10% of the expected value. Therefore, no correction factor is needed.\tSource: Bernier, et al., 1994; p. 81.\tQuestion photos/Retake Photos/IMG_1336.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam5-096\t5\t96\tRadiation Safety\tSPECT\tconcept\t1\tWhich of the following instruments is most appropriate for detecting low-level accidental contamination?\tthermoluminescent dosimeter\tcutie pie (ionization chamber)\tGeiger-Mueller counter\tpocket dosimeter\toptically stimulated luminescence dosimetry\t2\tGeiger-Mueller counter\tThe Geiger-Mueller (G-M) counter is best suited for detecting low-level contamination because it is sensitive to exposure rates just above background, although the readings are not as accurate as those obtained with an ionization chamber. The G-M has a quicker response time compared with the ionization chamber. Although a pocket dosimeter can give an immediate reading, it cannot be used to localize contamination.\tSource: Powsner and Powsner, 1998; pp. 57-58.\tQuestion photos/Questions/Exam 5/IMG_1171.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam5-097\t5\t97\tInstrumentation & QC\tPET\timage-interpretation\t3\tImage noise can be decreased during dedicated PET imaging by:\tdecreasing the distance between the patient and the detectors\tusing 2D mode\tdecreasing the dosage activity\tscanning for a longer time\tusing 4D mode\t3\tscanning for a longer time\tThe more data, the smaller the effect of the randomness of radioactive decay. Scanning for a longer time increases the number of counts acquired, thereby decreasing noise. Using 2D mode allows for more, because it accepts cross-ring interactions. Decreasing the dosage decreases counts and, therefore, increases noise. In a dedicated PET unit, the detectors are stationary on a non-adjustable ring. The distance between the patient and the detectors cannot be adjusted, except to center the imaging pallet in the middle of the ring.\tSource: Turkington, 2001; p. 8.\tQuestion photos/Retake Photos/IMG_1338.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam5-098\t5\t98\tInstrumentation & QC\tInstrumentation & QC\tcalculation\t4\tWhat is the standard maximum acceptable % energy resolution measured with 137Cs for a NaI(Tl) scintillation detector?\t8%\t12%\t20%\t22%\t25%\t1\t12%\tThe percentage energy resolution should not exceed 12%. If the photopeak has broadened beyond this point, the instrument cannot accurately distinguish one energy from another.\tSource: Early and Sodee, 1995; p. 165.\tQuestion photos/Questions/Exam 5/IMG_1171.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam5-099\t5\t99\tRadiation Safety\tSPECT\tprotocol\t4\tA 10% window for 662 keV is set on a spectrometer with a lower-level discriminator (LLD) and an upper-level discriminator (ULD). If each increment on the discriminator dial equals 1 keV, what should be the settings for the LLD and the ULD?\tLLD = 596; ULD = 728\tLLD = 657; ULD = 667\tLLD = 652; ULD = 672\tLLD = 629; ULD = 695\tLLD = 667; ULD = 677\t3\tLLD = 629; ULD = 695\tHalf the percentage of the window is above and half is below the designated energy. The window is expressed as a percentage of the energy of the radionuclide. In this case, it will be 662 keV, because 5% of 662 keV = 33 keV. The LLD will be set at the lower limit of the window (629 keV), and the ULD will be set at the upper limit (695 keV).\tSource: Wells, 1999; p. 142.\tQuestion photos/Questions/Exam 5/IMG_1171.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam5-100\t5\t100\tRadiation Safety\tDose Calibrator QC\tconcept\t5\tWhich of the following radiation monitoring devices is best suited to survey a patient who has received 150 mCi of 131I for therapy?\tpocket ionization chamber\tportable ionization chamber\tGeiger-Mueller counter\tdose calibrator\tliquid scintillation counter\t1\tportable ionization chamber\tA portable ionization chamber, sometimes referred to as a cutie pie, is used to measure areas of high photon intensity. This instrument gives a direct measurement of the total number of ion pairs produced per unit time and, therefore, is more accurate than a Geiger-Mueller counter when surveying a large amount of radioactivity. tive decay. Scanning amnga te\tSource: Early and Sodee, 1995; pp. 131-135.\tQuestion photos/Retake Photos/IMG_1339.jpeg\tQuestion photos/Answers/Exam 5/IMG_1248.jpeg\t\t\t\r\nexam6-001\t6\t1\tRadiation Safety\tRadiation Safety\tconcept\t1\tIf someone is receiving 20 mRem/hr exposure at a distance of 3 m from a source, at what distance would they receive 500 mRem/hr exposure?\t0.36 cm\t0.36 m\t60 cm\t0.60 cm\t3.6 cm\t2\t60 cm\tThe Inverse Square Law is represented by the equation I, (D,) ' = 1, (D,)2, with / equaling intensity in mR/hr and D equaling distance. 20 mR/hr represents the L, value, while 3 m will be the D, value. 500 mR/hr is the D, value and the L, value can be found by plugging in all the given information to the Inverse Square Law equation and solving for the missing variable. 20 mR/hr (3 m)' = 500 mR/hr (L)? (1)* = 20 mR/hr (9 m) = 0.36 m 500 mR/hr Take the square root of both sides to get 1, = 0.60 m How many cm = 0.60 m x 100 cm/1 m = 60 cm?\tSource: Christian and Waterstram-Rich, 2007; p. 4.\tQuestion photos/Questions/Exam 6/IMG_1172.jpeg\tQuestion photos/Answers/Exam 6/IMG_1249.jpeg\t\t\t\r\nexam6-002\t6\t2\tRadiation Safety\tRadiation Safety\tconcept\t2\tIf an area survey reveals an ambient radiation level of 7 mRem/hr, which of the following radioactive signs would be the best choice to display on the door leading to this area?\tCaution: Radioactive Materials\tCaution: Radiation Area\tCaution: High Radiation Area\tGrave Danger: Very High Radiation Area\tCaution: Very High Radiation Area\t1\tCaution: Radiation Area\tThe Caution: Radioactive Materials sign is used in any area where certain quantities of radioactive materials are used or stored. The Caution: Radiation Area sign is used in areas where an individual could receive more than 5 mRem (0.05 mSv) in 1 hr at 30 cm from a radioactive source. The Caution: High Radiation Area sign is used where an individual could receive more than 100 mRem/hr (1 mSv) in 1 hr at 30 cm from a radioactive source. Since the ambient radiation exposure is between 5 mRem/hr and 100 mRem/hr, the appropriate caution sign would be Caution: Radiation Area.\tSource: Christian and Waterstram-Rich, 2007; p. 207.\tQuestion photos/Questions/Exam 6/IMG_1172.jpeg\tQuestion photos/Answers/Exam 6/IMG_1249.jpeg\t\t\t\r\nexam6-003\t6\t3\tRadiation Safety\tRadiation Safety\tprotocol\t3\tAn ionization chamber is left in integral mode for 10 min and records a total dose of 3 mRem. Which of the following area posting signs should be used on the door leading into this area?\tCaution: Radiation Area\tCaution: Radioactive Materials\tCaution: High Radiation Area\tGrave Danger: Very High Radiation Area\tCaution: Very High Radiation Area\t0\tCaution: Radiation Area\tThe Caution: Radioactive Materials sign is used in any area where certain quantities of radioactive materials are used or stored. The Caution: Radiation Area sign is used in areas where an individual could receive more than 5 mRem (0.05 mSv) in 1 hr at 30 cm from a radioactive source. The Caution: High Radiation Area sign is used where an individual could receive more than 100 mRem/hr (1 mSv) in 1 hr at 30 cm from a radioactive source. Since the integral dose in 10 min is 3 mRem, this implies that the total dose for 1 hr is 6 times this amount, or 18 mRem/hr. Therefore, the radiation exposure is between 5 mRem/hr and 100 mRem/hr, and the appropriate caution sign would be Caution: Radiation Area.\tSource: Christian and Waterstram-Rich, 2007; p. 207.\tQuestion photos/Questions/Exam 6/IMG_1172.jpeg\tQuestion photos/Answers/Exam 6/IMG_1249.jpeg\t\t\t\r\nexam6-004\t6\t4\tClinical Procedures\tClinical Procedures\tconcept\t4\tWhich of the following area posting signs would not normally be found in a hospital?\tGrave Danger: Very High Radiation Area\tCaution: Radiation Area\tCaution: High Radiation Area\tCaution: Radioactive Materials\tCaution: Very High Radiation Area\t0\tGrave Danger: Very High Radiation Area\tIn areas where personnel would receive life-threatening doses of radiation such as levels over 500 R/hr, the sign Grave Danger: Very High Radiation Area would be used. It is unlikely that materials with an activity of lethal dose levels would be stored on the premises of a hospital.\tSource: Christian and Waterstram-Rich, 2007; p. 207.\tQuestion photos/Questions/Exam 6/IMG_1172.jpeg\tQuestion photos/Answers/Exam 6/IMG_1250.jpeg\t\t\t\r\nexam6-005\t6\t5\tRadiation Safety\tDose Calibrator QC\tconcept\t5\tWhich of the following type of survey instruments would be best to use to survey a spill for removable contamination in a hot lab area where radioisotopes are being stored?\tG-M detector\tpersonal pocket dosimeter\twell counter with a wipe test\tdose calibrator with a wipe test\tcutie pie\t2\twell counter with a wipe test\tG-M detectors are used to survey large areas for contamination that may not always be removable. Pocket dosimeters are used to measure personnel exposure. Dose calibrators are used to measure activity in patient doses. Scintillation probes can be used to detect removable and non-removable contamination at a higher efficiency than G-M detectors because of its use of a sodium iodide-thallium crystal. Most often, wipe tests with a well counter are used to check for removable contamination.\tSource: Christian and Waterstram-Rich, 2007; p. 60, 198-99, 211.\tQuestion photos/Questions/Exam 6/IMG_1172.jpeg\tQuestion photos/Answers/Exam 6/IMG_1250.jpeg\t\t\t\r\nexam6-006\t6\t6\tRadiation Safety\tRadiation Safety\tconcept\t1\tFour HVLs reduce the amount of incident radiation exposure to what?\t6.50%\t12.25%\t3.13%\t25%\t50%\t0\t6.50%\tamount of incident radiation to a transmission factor of 0.0625 or 6.25%.\tSource: Christian and Waterstram-Rich, 2007; p. 205. The half-value layer (HVL) is the amount of material needed to reduce radiation intensity by half. Following this logic, 4 H",
+    "source": "Source: Shackett, 2009; p. 373; UAB NMT",
+    "sourcePhoto": "Question photos/Retake Photos/IMG_1347.jpeg",
+    "answerPhoto": "Question photos/Answers/Exam 6/IMG_1256.jpeg"
   },
   {
     "id": "exam5-094",
@@ -11134,7 +11134,7 @@ export const QUESTION_BANK = [
       "liquid scintillation counter"
     ],
     "answerIndex": 1,
-    "explanation": "A portable ionization chamber, sometimes referred to as a survey meter, is more accurate than a Geiger-Mueller counter when surveying a patient who has received a large 131I therapy activity.",
+    "explanation": "A portable ionization chamber, sometimes referred to as a cutie pie, is used to measure areas of high photon intensity. This instrument gives a direct measurement of the total number of ion pairs produced per unit time and, therefore, is more accurate than a Geiger-Mueller counter when surveying a large amount of radioactivity. tive decay. Scanning amnga te",
     "source": "Source: Early and Sodee, 1995; pp. 131-135.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1339.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 5/IMG_1248.jpeg"
@@ -11171,11 +11171,11 @@ export const QUESTION_BANK = [
     "difficulty": 2,
     "question": "If an area survey reveals an ambient radiation level of 7 mRem/hr, which of the following radioactive signs would be the best choice to display on the door leading to this area?",
     "options": [
-      "Caution: Radioactive Materials",
-      "Caution: Radiation Area",
-      "Caution: High Radiation Area",
-      "Grave Danger: Very High Radiation Area",
-      "Caution: Very High Radiation Area"
+      "\"Caution: Radioactive Materials\"",
+      "\"Caution: Radiation Area\"",
+      "\"Caution: High Radiation Area\"",
+      "\"Grave Danger: Very High Radiation Area\"",
+      "\"Caution: Very High Radiation Area\""
     ],
     "answerIndex": 1,
     "explanation": "The \"Caution: Radioactive Materials\" sign is used in any area where certain quantities of radioactive materials are used or stored. The \"Caution: Radiation Area\" sign is used in areas where an individual could receive more than 5 mRem (0.05 mSv) in 1 hr at 30 cm from a radioactive source. The \"Caution: High Radiation Area\" sign is used where an individual could receive more than 100 mRem/hr (1 mSv) in 1 hr at 30 cm from a radioactive source. Since the ambient radiation exposure is between 5 mRem/hr and 100 mRem/hr, the appropriate caution sign would be \"Caution: Radiation Area.\"",
@@ -11193,11 +11193,11 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "An ionization chamber is left in integral mode for 10 min and records a total dose of 3 mRem. Which of the following area posting signs should be used on the door leading into this area?",
     "options": [
-      "Caution: Radiation Area",
-      "Caution: Radioactive Materials",
-      "Caution: High Radiation Area",
-      "Grave Danger: Very High Radiation Area",
-      "Caution: Very High Radiation Area"
+      "\"Caution: Radiation Area\"",
+      "\"Caution: Radioactive Materials\"",
+      "\"Caution: High Radiation Area\"",
+      "\"Grave Danger: Very High Radiation Area\"",
+      "\"Caution: Very High Radiation Area\""
     ],
     "answerIndex": 0,
     "explanation": "The \"Caution: Radioactive Materials\" sign is used in any area where certain quantities of radioactive materials are used or stored. The \"Caution: Radiation Area\" sign is used in areas where an individual could receive more than 5 mRem (0.05 mSv) in 1 hr at 30 cm from a radioactive source. The \"Caution: High Radiation Area\" sign is used where an individual could receive more than 100 mRem/hr (1 mSv) in 1 hr at 30 cm from a radioactive source. Since the integral dose in 10 min is 3 mRem, this implies that the total dose for 1 hr is 6 times this amount, or 18 mRem/hr. Therefore, the radiation exposure is between 5 mRem/hr and 100 mRem/hr, and the appropriate caution sign would be \"Caution: Radiation Area.\"",
@@ -11215,11 +11215,11 @@ export const QUESTION_BANK = [
     "difficulty": 4,
     "question": "Which of the following area posting signs would not normally be found in a hospital?",
     "options": [
-      "Grave Danger: Very High Radiation Area",
-      "Caution: Radiation Area",
-      "Caution: High Radiation Area",
-      "Caution: Radioactive Materials",
-      "Caution: Very High Radiation Area"
+      "\"Grave Danger: Very High Radiation Area\"",
+      "\"Caution: Radiation Area\"",
+      "\"Caution: High Radiation Area\"",
+      "\"Caution: Radioactive Materials\"",
+      "\"Caution: Very High Radiation Area\""
     ],
     "answerIndex": 0,
     "explanation": "In areas where personnel would receive life-threatening doses of radiation such as levels over 500 R/hr, the sign \"Grave Danger: Very High Radiation Area\" would be used. It is unlikely that materials with an activity of lethal dose levels would be stored on the premises of a hospital.",
@@ -11259,15 +11259,15 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "Four HVLs reduce the amount of incident radiation exposure to what?",
     "options": [
-      "6.50%",
+      "6.5%",
       "12.25%",
-      "3.13%",
+      "3.125%",
       "25%",
       "50%"
     ],
     "answerIndex": 0,
-    "explanation": "The half-value layer (HVL) is the thickness of shielding needed to reduce radiation intensity by half. Four HVLs reduce the exposure rate by a factor of 2^4 = 16.",
-    "source": "Source: Christian and Waterstram-Rich, 2007; p. 205.",
+    "explanation": "amount of incident radiation to a transmission factor of 0.0625 or 6.25%.",
+    "source": "Source: Christian and Waterstram-Rich, 2007; p. 205. The half-value layer (HVL) is the amount of material needed to reduce radiation intensity by half. Following this logic, 4 HVLs reduce the",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1172.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1250.jpeg"
   },
@@ -11288,8 +11288,8 @@ export const QUESTION_BANK = [
       "internal wipe check"
     ],
     "answerIndex": 1,
-    "explanation": "When a package of radioactive material is received, the record must include the date and time received, radioisotope, amount of activity, and results of wipe checks and radiation surveys, as applicable.",
-    "source": "Source: Christian and Waterstram-Rich, 2007; pp. 203-204.",
+    "explanation": "as mandated by NRC regulations. Patient name is not relevant at this point because you are simply taking inventory.",
+    "source": "Source: Christian and Waterstram-Rich, 2007; p. 203-204. When packages are received, they are inventoried by recording the name of the radioisotope, amount of activity, and results of wipe checks",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1172.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1250.jpeg"
   },
@@ -11442,8 +11442,8 @@ export const QUESTION_BANK = [
       "27 mRem"
     ],
     "answerIndex": 1,
-    "explanation": "25 mRem/hr x 25/60 hr = 10.4 mRem.",
-    "source": "Source: Christian and Waterstram-Rich, 2007.",
+    "explanation": "Source: Christian and Waterstram-Rich, 2007; 25 mRem/hr (1 hr/60 min) x 25 min = 10.4 mRem",
+    "source": "Source: Christian and Waterstram-Rich, 2007; 25 mRem/hr (1 hr/60 min) x 25 min = 10.4 mRem",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1173.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1250.jpeg"
   },
@@ -11486,7 +11486,7 @@ export const QUESTION_BANK = [
       "a helium atom minus its electrons"
     ],
     "answerIndex": 4,
-    "explanation": "An alpha particle is a helium nucleus, which is equivalent to a helium atom without electrons.",
+    "explanation": "When an alpha particle decays, it loses the two electrons it originally had. Helium nuclei consist of the same number of protons and neutrons.",
     "source": "Source: Christian and Waterstram-Rich, 2007; p. 45.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1173.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1251.jpeg"
@@ -11574,8 +11574,8 @@ export const QUESTION_BANK = [
       "decrease in count rate after some peak in countrate is obtained"
     ],
     "answerIndex": 4,
-    "explanation": "In a paralyzable system, as activity increases, count rate increases to a maximum value and then actually starts decreasing at higher activity levels.",
-    "source": "Source: Christian and Waterstram-Rich, 2007.",
+    "explanation": "Source: Christian and Waterstram-Rich, 2007; In a paralyzable system, as the activity increases, the count rate increases to a maximum valve and then actually starts decreasing at higher activity levels.",
+    "source": "Source: Christian and Waterstram-Rich, 2007; In a paralyzable system, as the activity increases, the count rate increases to a maximum valve and then actually starts decreasing at higher activity levels.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1173.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1251.jpeg"
   },
@@ -11589,7 +11589,7 @@ export const QUESTION_BANK = [
     "difficulty": 1,
     "question": "Sources of intrinsic non-uniformity include all of the following except:",
     "options": [
-      "mistuned PMTs",
+      "\"mistuned\" PMTs",
       "regional variations in Z-pulse amplitude",
       "spatial distortion",
       "linearity",
@@ -11618,7 +11618,7 @@ export const QUESTION_BANK = [
       "BGO"
     ],
     "answerIndex": 0,
-    "explanation": "NaI(Tl) scintillation camera systems typically have an 8% to 12% energy resolution. Thallium is added as an activator to the NaI crystal, allowing it to emit additional light after thermal and mechanical shocks.",
+    "explanation": "Nal (TI) scintillation camera systems will have a 8% to 12% energy resolution. Thallium functions as an actuator that allows the creation of acditional \"energy states\" within the crystal. Crystals are very sensitive to thermal and mechanical shocks.",
     "source": "Source: Christian and Waterstram-Rich, 2007; p. 104.",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1340.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1251.jpeg"
@@ -11719,7 +11719,7 @@ export const QUESTION_BANK = [
     "topic": "Renal Imaging",
     "type": "concept",
     "difficulty": 2,
-    "question": "Which of the following quantitative renal techniques require(s) the calculation of kidney depth? A. Schlegel technique B. Gates' method C. Two-compartment effective renal plasma flow (ERPF) determination D. Russell's glomerular filtration rate (GFR) method",
+    "question": "Which of the following quantitative renal techniques require(s) the calculation of kidney depth?\nA. Schlegel technique\nB. Gates' method\nC. Two-compartment effective renal plasma flow (ERPF) determination\nD. Russell's glomerular filtration rate (GFR) method",
     "options": [
       "A",
       "B and C",
@@ -11728,8 +11728,8 @@ export const QUESTION_BANK = [
       "A and B"
     ],
     "answerIndex": 4,
-    "explanation": "Some quantitative renal techniques can estimate GFR and ERPF without blood or urine samples.",
-    "source": "Source: Chachati, A., et al., JNM 28, 1987; pp. 829-836.",
+    "explanation": "sampling. These methods allow determination of these parameters separately for each kidney and derive values for global renal function.",
+    "source": "Source: Chachati, A., et al., JNM 28, 1987; pp. 829-836. Schlegel, et al., Brodkey, et al., and Gates described non-invasive isotopic methods for the estimation of GFR and ERPF without blood or urine",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1174.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1251.jpeg"
   },
@@ -12390,7 +12390,7 @@ export const QUESTION_BANK = [
       "tracer to be diverted into the spleen"
     ],
     "answerIndex": 2,
-    "explanation": "Morphine sulfate contracts the sphincter of Oddi and diverts tracer into the gallbladder during hepatobiliary imaging.",
+    "explanation": "Morphine sulfate contracts the sphincter of Oddi and generates an increase in pressure in the common bile duct and cystic duct. c Christian, et al., 2004; p. 598. Gastric emptying is a complex process affected by the physical and chemical composition of the ingested meal. The rate of gastric emplying is determined by many factors including the volume, physical state, caloric content, caloric density, concentration of nutrients, meal distribution, salinity, acidity, and viscosity of the test meal used.",
     "source": "Source: Christian, et al., 2004; p. 598.",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1176.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1253.jpeg"
@@ -12515,9 +12515,9 @@ export const QUESTION_BANK = [
     "difficulty": 3,
     "question": "If the tracer for an ERPF determination using the blood sampling method is administered at 0900, at what time should the blood sample be collected?",
     "options": [
-      "915",
-      "944",
-      "935",
+      "0915",
+      "0944",
+      "0935",
       "1000",
       "1015"
     ],
@@ -12689,7 +12689,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "calculation",
     "difficulty": 4,
-    "question": "The percentage ejection fraction calculated from this data is: diastole 2750 cpm systole 1775 cpm",
+    "question": "The percentage ejection fraction calculated from this data is:\ndiastole 2750 cpm\nsystole 1775 cpm",
     "options": [
       "61",
       "55",
@@ -12845,7 +12845,7 @@ export const QUESTION_BANK = [
     "difficulty": 5,
     "question": "A cardiac shunt would be best demonstrated with which of the following nuclear medicine techniques?",
     "options": [
-      "first-pass radionuclide angiography",
+      "fist-pass radionuclide angiography",
       "equilibrium-gated ventriculogram",
       "myocardial infarct imaging",
       "myocardial perfusion imaging",
@@ -13006,7 +13006,7 @@ export const QUESTION_BANK = [
       "50,000"
     ],
     "answerIndex": 2,
-    "explanation": "According to the package insert, MAA particles average about 30-40 µm in size. The usual recommended adult particle range is 200,000-700,000, with the suggested number being approximately 350,000.",
+    "explanation": "package insert MAA particles average about 30-40 pm in diameter and, because of this size, become impacted (trapped) in the terminal arterioles and capillaries after they pass through the pulmonary artery. If the recommended dose of particulate material is about 350,000 particles, fewer than 1 in 1000 pulmonary arterioles are actually blocked. The recommended number of particles per single injection is 200,000 to 700,000, with the suggested number being approximately 350,000.",
     "source": "Source: Christian and Waterstram-Rich, 2007; p. 467-468, and DRAX Image MAA",
     "sourcePhoto": "Question photos/Questions/Exam 6/IMG_1179.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1255.jpeg"
@@ -13241,7 +13241,7 @@ export const QUESTION_BANK = [
     "topic": "MAA / Pulmonary Perfusion",
     "type": "concept",
     "difficulty": 1,
-    "question": "An MAA kit has 3 million total particles. If a 5 mCi dose is needed at 1000 and the following information is provided:   25 mCi/mL in 5 mL total volume at 0700 what approximate number of particles will be given to the patient?",
+    "question": "An MAA kit has 3 million total particles. If a 5 mCi dose is needed at 1000 and the following information is provided: \n\n25 mCi/mL in 5 mL total volume at 0700\nwhat approximate number of particles will be given to the patient?",
     "options": [
       "600,000",
       "169,635",
@@ -13294,7 +13294,7 @@ export const QUESTION_BANK = [
       "3.02 x 10^-25 mCi"
     ],
     "answerIndex": 4,
-    "explanation": "Program Course Notes. Original dilution x (dilution factor) no. of tubes = dilution factor 25 mCi/52 mL = 0.48 mCi /mL (1/6 dilution) 33-1 = 6.03 x 10-2\" mCi/ml in tube 33 5 ml. x 6.03 x 10-20 mCi/ml. = 3.02 x 10-25 mCi in tube 33 of serial dilution",
+    "explanation": "Program Course Notes. Original dilution x (dilution factor) no. of tubesl = dilution factor 25 mCi/52 mL = 0.48 mCi /mL (1/6 dilution) 33-1 = 6.03 x 10-2\" mCi/ml in tube 33 5 ml. x 6.03 x 10-20 mCi/ml. = 3.02 x 10-25 mCi in tube 33 of serial dilution",
     "source": "Source: Shackett, 2009; p. 373; UAB NMT",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1347.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 6/IMG_1256.jpeg"
@@ -13536,8 +13536,8 @@ export const QUESTION_BANK = [
       "3"
     ],
     "answerIndex": 0,
-    "explanation": "For unrestricted areas, the exposure rate must be below 2 mRem/hr. If the waiting room reads 25 mRem/hr, shielding is needed to reduce the exposure rate by a factor of 12.5.",
-    "source": "Source: Christian and Waterstram-Rich, 2007; pp. 205-206.",
+    "explanation": "then 4 HVLs of Pb is needed to decrease the radiation to the acceptable level of 2 mRem/hr.",
+    "source": "Source: Christian and Waterstram-Rich, 2007; p. 205-206. For unrestricted areas, it is recommended that the radiation level stay below 2 mRem/hr. Therefore, if the waiting room reads 25 mRem/hr,",
     "sourcePhoto": "Question photos/Retake Photos/IMG_1349.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1257.jpeg"
   },
@@ -13549,7 +13549,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 5,
-    "question": "If a G-M meter has a scale of 1-5 mR/hr. If a deflection on the meter reads 4.5 and the meter is set on the X0.1 setting, what is the reading?",
+    "question": "If a G-M meter has a scale of 1-5 mR/hr. If a deflection on the meter reads 4.5 and the meter is set on the xO.1 setting, what is the reading?",
     "options": [
       "40.5 mR/hr",
       "4.5 mR/hr",
@@ -13558,7 +13558,7 @@ export const QUESTION_BANK = [
       "45 mR/hr"
     ],
     "answerIndex": 2,
-    "explanation": "On the X0.1 scale, multiply the meter reading by 0.1. Therefore, 4.5 x 0.1 = 0.45 mR/hr.",
+    "explanation": "The reading determined by using the G-M meter was 4.5 mR/hr. However, it was measured on the X0.1 setting. Therefore, the initial reading meter correctly. of 45 mR/hr has to be multiplied by XO.1 to get the reading from the",
     "source": "Source: Prekeges, 2011; p. 9.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1182.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1257.jpeg"
@@ -13690,7 +13690,7 @@ export const QUESTION_BANK = [
       "50 eV"
     ],
     "answerIndex": 1,
-    "explanation": "The average amount of energy required to cause an ionization depends on the type of gas used in the chamber, but it is generally between 20 and 45 eV per ion pair. 34 eV per ion pair is a commonly accepted value. ",
+    "explanation": "The average amount of energy required to cause an ionization depends on the type of gas used in the chamber, but it is generally between 20 and 45 eV per ion pair. 34 eV per ion pair is a commonly accepted value. lowding n the",
     "source": "Source: Prekeges, 2011; p. 3.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1183.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1258.jpeg"
@@ -13844,8 +13844,8 @@ export const QUESTION_BANK = [
       "sagittal"
     ],
     "answerIndex": 3,
-    "explanation": "Polar plots are circular profiles of the left ventricle generated from representative short-axis slices. The most basal slice becomes the outermost ring and the apical slice becomes the center.",
-    "source": "Source: Christian and Waterstram-Rich, 2007.",
+    "explanation": "Source: Christian and Waterstram-Rich, 2007; Polar plots are circular profiles of the heart created by placing the most-apical short axis slice in the center, surrounded by each successive short axis slice. The most-basal slice becomes the outermost ring of the plot.",
+    "source": "Source: Christian and Waterstram-Rich, 2007; Polar plots are circular profiles of the heart created by placing the most-apical short axis slice in the center, surrounded by each successive short axis slice. The most-basal slice becomes the outermost ring of the plot.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1183.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1258.jpeg"
   },
@@ -13866,8 +13866,8 @@ export const QUESTION_BANK = [
       "a cracked crystal"
     ],
     "answerIndex": 0,
-    "explanation": "Any area that takes up the radiopharmaceutical appears as a hot spot. Cold spots are areas with little or no uptake, such as tissue with decreased function or necrotic tissue.",
-    "source": "Source: Prekeges, 2011; pp. 53, 67, and Christian and Waterstram-Rich, 2007; p. 127.",
+    "explanation": "and Waterstram-Rich, 2007; p. 127. Any area that uptakes the radiotracer will display as hotter than the background. This means that there is more uptake in these locations. Radiotracer will uptake in active cells and overactive cells. Cold spots are indicative of areas in which the cells are not active, such as dead or necrotic tissue.",
+    "source": "Source: Prekeges, 2011; p. 53, 67, and Christian",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1183.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1258.jpeg"
   },
@@ -13901,7 +13901,7 @@ export const QUESTION_BANK = [
     "topic": "Clinical Procedures",
     "type": "concept",
     "difficulty": 1,
-    "question": "Total combined energy of the two annihilation photons originating from an annihilation reaction is:",
+    "question": "Total combined energy of the two annihilation photos originating from an annihilation reaction is:",
     "options": [
       "500 keV",
       "1.02 MeV",
@@ -14244,10 +14244,10 @@ export const QUESTION_BANK = [
       "kidneys"
     ],
     "answerIndex": 1,
-    "explanation": "Iliac crests, sacroiliac joints, nasopharyngeal areas, and kidneys may normally show activity on adult bone images. Epiphyseal plates are closed in adults and would not normally appear as areas of increased activity.",
-    "source": "Source: Shackett, 2009; p. 31.",
-    "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1185.jpeg",
-    "answerPhoto": "Question photos/Answers/Exam 7/IMG_1260.jpeg"
+    "explanation": "Iliac crests, sacroiliac joints, and the nasopharyngeal areas are typical hot spots in adult bone imaging. Typically there is symmetrical, increased uptake in all joints, junctions, and scapulas. Epiphyseal plates, also known as growth plates, are bright hot spots in pediatric images. Children are steadily growing, which causes increased uptake in those areas.\tSource: Shackett, 2009; p. 31.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-042\t7\t42\tClinical Procedures\tBone Imaging\tconcept\t2\tFor which of the following clinical indications would limited bone imaging (spot views) be most appropriate?\trule out avascular necrosis of the right femoral head\trule out metastatic prostate cancer\tdetermine extent of Paget's disease\thistory of child abuse; rule out occult fractures\trule out metastatic breast cancer\t0\trule out avascular necrosis of the right femoral head\tSpot views are individual images of certain areas after the initial wholebody image has been performed. They provide detailed images of areas not clearly visualized on the whole-body images. The right femoral head is a specific area that has to be imaged, which makes limited imaging the appropriate choice.\tSource: Christian, et al., 2004; p. 578-579.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-043\t7\t43\tRadiopharmaceuticals\tLung Imaging\tconcept\t3\tIt is safe to block a portion of the pulmonary circulation with MAA particles in patients with symptoms of pulmonary emboli because:\tthe particles pass through the lungs\tthe particles are made from albumin isolated from human serum\tthe particles are rapidly phagocytized by lung macrophages\tthe number of injected particles is very small compared to the number of available precapillary arterioles\tthe albumin is denatured before it is made into particles\t3\tthe number of injected particles is very small compared to the number of available precapillary arterioles\tMAA causes micro emboli in approximately 100,000 capillaries of the 350 million arterioles and 280 billion small capillaries of the lungs. The particles are typically 10-90 µm in size, therefore the number injected does not compromise the patient. In general, 0.1% of the capillaries are blocked after an injection.\tSource: Shackett, 2009; p. 152.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-044\t7\t44\tRadiopharmaceuticals\tBone Imaging\tconcept\t4\tIf tracer concentration is visualized in the stomach, thyroid, and salivary glands on a bone image, the most likely explanation is that:\tThe tracer contained unbound [99mTc] pertechnetate.\tThe patient did not drink sufficient fluids.\tThere is pathology in those areas.\tThe patient was imaged too soon to allow adequate blood clearance of the tracer.\tThe patient ate dairy products between the injection time and post imaging.\t0\tThe tracer contained unbound [99mTc] pertechnetate.\tRadiotracer tag, like 99mTc, may break down or be delivered to the body with an insufficient tag. This means that the tracer did not properly attach itself to the pharmaceutical used for the study. It results in unbound pertechnetate or free 'Tc that localizes in the stomach, thyroid, salivary glands, gastrointestinal tract, and some other systems.\tSource: Shackett, 2009; p. 32.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-045\t7\t45\tClinical Procedures\tBone Imaging\tconcept\t5\tWhich of the following phrases describes the sensitivity and specificity of bone imaging?\tsensitive and specific\tmore specific than sensitive\tsensitive but not specific\tneither sensitive or specific\tnot sensitive but specific\t2\tsensitive but not specific\tBone imaging is sensitive for detecting abnormal bone activity but is not specific for the underlying cause.\tSource: Christian, et al., 2004; pp. 576-585.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-046\t7\t46\tClinical Procedures\tClinical Procedures\tconcept\t1\tIschemia means:\tnecrotic tissue\tinfarction\tdecreased blood flow\tthe superior portion of the pelvis\tscar tissue\t2\tdecreased blood flow\tNecrotic tissue is that which has undergone premature cell death. An infarction is localized necrosis caused by a lack of blood supply. Ischemia is the term used to describe inadequate or decreased blood flow to an area caused by a blockage.\tSource: Christian, et al., 2004; p. 510-511.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-047\t7\t47\tInstrumentation & QC\tInstrumentation & QC\tprotocol\t2\tTo confirm a referring physician's request for a nuclear medicine therapeutic procedure, the technologist should:\tConfer with the nuclear medicine physician.\tAsk the patient why s/he came to nuclear medicine.\tLocate the written directive for the therapy in the patient's medical record.\tText the physician. \tTelephone the referring physician for confirmation.\t2\tLocate the written directive for the therapy in the patient's medical record.\tFor a therapeutic procedure, there should always be a written directive in the patient's record. It is mandatory that a nuclear medicine technologist have the written directive and that he/she verifies it before administering any therapeutic radiopharmaceuticals. The referring physician or nuclear medicine physicians may not always be readily available for questions, and the patient may not always be certain about the procedures s/he is scheduled for.\tSource: Shackett, 2009; p. 350.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-048\t7\t48\tPatient Care\tBone Imaging\tprotocol\t3\tAll of the following statements about three- or four-phase bone imaging are true except:\tThis study has dynamic imaging.\tThe last phase is performed 24 hr post-tracer administration.\tThe patient is positioned under the camera before tracer administration.\tThis study has static imaging.\tSpecial instructions are given to the patient before the injection.\t4\tSpecial instructions are given to the patient before the injection.\tThreeand four-phase bone imaging studies include dynamic images for the flow and blood pool. Static images are also included for images of the extremities and torso. To capture blood pooling and flow as they occur, the patient should be positioned under the camera before tracer administration. The instructions given to the patient are to drink lots of fluids and to urinate frequently after the injection. Since 24-hour images are taken by request using the four-phase protocol, no special instructions are needed before the injection.\tSource: Shackett, 2009; p. 28-31.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-049\t7\t49\tClinical Procedures\tBone Imaging\tconcept\t4\tWhich of the following structures normally appear as areas of increased activity on the bone images of a child vs. an adult?\tribs\tfemur\thumerus\tsternoclavicular joints\tcostochondral junctions\t4\tcostochondral junctions\tNormal uptake in children and adults includes the ribs, femur, and joints (sterno-clavicle joints included). However, in children, the growth plates show increased activity during bone imaging and do not in adults.\tSource: Shackett, 2009; p. 31.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-050\t7\t50\tClinical Procedures\tClinical Procedures\tconcept\t5\tNon-reactivity toward a particular antigen is called:\ttolerance\timmunity\timmunogenicity\tanaphylaxis\tautoimmunity\t0\ttolerance\tTaber's Cyclopedic Medical Dictionary, 2009; p. 2197. Tolerance refers to non-reactivity toward a particular antigen.\tSource photo: Answers/Exam 7/IMG_1260.jpeg.\tQuestion photos/Questions/Exam 7/IMG_1185.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-051\t7\t51\tClinical Procedures\tClinical Procedures\tconcept\t1\tThe ability of an antibody to react with one and only one antigen is known as its:\taffinity\tsensitivity\tavidity\tspecificity\ttolerance\t3\tspecificity\tTaber's Cyclopedic Medical Dictionary, 2009; p. 2033. Specificity refers to the ability of an antibody to react with one, and only one, antigen.\tSource photo: Answers/Exam 7/IMG_1260.jpeg.\tQuestion photos/Questions/Exam 7/IMG_1186.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-052\t7\t52\tClinical Procedures\tClinical Procedures\tconcept\t2\tThe property where an antibody reacts with two or more antigens of similar structure is known as:\tsensitivity\tcross-reactivity\ttolerance\timmunoreactivity\tavidity\t1\tcross-reactivity\tTaber's Cyclopedic Medical Dictionary, 2009; p. 505. The property where an antibody reacts with two or more antigens of similar structure is called cross-reactivity.\tSource photo: Answers/Exam 7/IMG_1260.jpeg.\tQuestion photos/Questions/Exam 7/IMG_1186.jpeg\tQuestion photos/Answers/Exam 7/IMG_1260.jpeg\t\t\t\r\nexam7-053\t7\t53\tClinical Procedures\tClinical Procedures\tconcept\t3\tThe major antibody class found in normal human serum is:\tIgG\tIgM\tIgA\tIgD\tIgE\t0\tIgG\tIgG is the major antibody found in normal human serum. It is also the smallest and most-common antibody. IgM is the primary antibody against A & B antigen on red blood cells. IgA is primarily an aid in mucosal immunity, and IgD makes up 1% of proteins in plasma membranes of mature B-lymphocytes.\tSource: Christian and Waterstram-Rich, 2007; p. 609.\tQuestion photos/Questions/Exam 7/IMG_1186.jpeg\tQuestion photos/Answers/Exam 7/IMG_1261.jpeg\t\t\t\r\nexam7-054\t7\t54\tClinical Procedures\tPET\tconcept\t4\tAll of the following PET radionuclides must be produced very close to the site where they are administered except:\t82Rb\t11C\t15O\t18F\t13N\t3\t18F\t18F has the longest half-life of these PET radionuclides. Therefore, it is not necessary for 18F to be produced close to the site where it is administered. 18F has a half-life of 110 min; 11C, 20 min; 15O, 2 min; and 13N, 10 min.\tSource: Shackett, 2009; p. 398.\tQuestion photos/Questions/Exam 7/IMG_1186.jpeg\tQuestion photos/Answers/Exam 7/IMG_1261.jpeg\t\t\t\r\nexam7-055\t7\t55\tRadiopharmaceuticals\tRadiopharmaceuticals\tconcept\t5\tFor what reason is a patient's blood glucose level checked before [18F]FDG administration?\tFDG tends to increase blood glucose levels that may already be elevated.\tThe blood glucose level may have to be increased to ensure good tracer uptake.\tHypoglycemia reduces tumor uptake of the tracer.\tFDG administration is contraindicated in diabetic patients.\tHyperglycemia reduces tumor uptake of the tracer.\t4\tHyperglycemia reduces tumor uptake of the tracer.\tHyperglycemia reduces tumor uptake of the tracer; therefore, the patient's blood glucose level is checked prior to [18F]FDG administration. FDG does not increase glucose levels and is not a contraindication in diabetic patients. High blood glucose levels do not ensure good tracer uptake; they actually reduce uptake in the tumor.\tSource: Shackett, 2009; p. 398.\tQuestion photos/Questions/Exam 7/IMG_1186.jpeg\tQuestion photos/Answers/Exam 7/IMG_1261.jpeg\t\t\t\r\nexam7-056\t7\t56\tRadiation Safety\tPET\tconcept\t1\tPreparation of patients undergoing PET imaging for an oncologic clinical indication includes all of the following except:\tchecking blood glucose levels\tinstallation of IV line\t12-lead ECG monitoring\tfasting\thydration\t2\t12-lead ECG monitoring\tFor PET oncologic studies, the patient should hydrate right before the test and fast for at least 6 hr before test to reduce insulin levels and uptake in certain organs. An IV should be installed in the patient so the injection can be flushed with saline. A 12-lead ECG monitoring is not required.\tSource: Shackett, 2009; p. 223.\tQuestion photos/Questions/Exam 7/IMG_1186.jpeg\tQuestion photos/Answers/Exam 7/IMG_1261.jpeg\t\t\t\r\nexam7-057\t7\t57\tClinical Procedures\tThyroid Imaging\tconcept\t2\t[90Y] ibritumomab tiuxetan is used for therapy of which type of cancer?\tbreast\tprostate\tliver\tnon-Hodgkin's lymphoma\tthyroid\t3\tnon-Hodgkin's lymph",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017 p. 623.",
+    "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1193.jpeg",
+    "answerPhoto": "Question photos/Answers/Exam 8/IMG_1266.jpeg"
   },
   {
     "id": "exam7-042",
@@ -14794,7 +14794,7 @@ export const QUESTION_BANK = [
       "Framing rate is not a relevant consideration for this study."
     ],
     "answerIndex": 4,
-    "explanation": "The computer setup for the procedure is usually 20-60 sec/frame for 1800 sec, which is a dynamic study but not a gating study.",
+    "explanation": "The computer setup for the procedure is usually 20-60 sec/frame for 1800 sec, which is a dynamic study but not a gating study.\n\nP.S. Cody does not like this answer...",
     "source": "Source: Shackett, 2009; p. 251.",
     "sourcePhoto": "Question photos/Questions/Exam 7/IMG_1187.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 7/IMG_1261.jpeg"
@@ -15252,7 +15252,7 @@ export const QUESTION_BANK = [
       "assembling the syringe and needle aseptically",
       "using disposable equipment before its expiration date",
       "aseptically cleaning the venipuncture site before injection with an alcohol swab",
-      "uncapping the needle immediately before the injection",
+      "uncapping the needie immediately before the injection",
       "wearing sterile gloves"
     ],
     "answerIndex": 4,
@@ -15335,7 +15335,7 @@ export const QUESTION_BANK = [
     "topic": "Bone Imaging",
     "type": "concept",
     "difficulty": 1,
-    "question": "The following studies are ordered for the next day:  total-body bone image, Meckel's diverticulum localization, renal and a hepatobiliary study.   Which of the following radiopharmaceuticals is not needed?",
+    "question": "The following studies are ordered for the next day: \ntotal-body bone image, Meckel's diverticulum localization, renal and a hepatobiliary study. \n\nWhich of the following radiopharmaceuticals is not needed?",
     "options": [
       "[99mTc] mebrofenin (HIDA)",
       "[99mTc] macroaggregated albumin",
@@ -15630,8 +15630,8 @@ export const QUESTION_BANK = [
       "magnetic resonance"
     ],
     "answerIndex": 2,
-    "explanation": "The dry column generator uses up to a 20 mL saline charge attached to the exterior of the generator system. An evacuated vial is placed on the collection port and draws saline from the saline charge over the column through negative pressure to produce the yield product.",
-    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 83.",
+    "explanation": "placed on the collection port and draws saline from the saline charge over the column through negative pressure to produce the yield product.",
+    "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 83. The dry column generator uses up to a 20 mL saline charge that is applied to the exterior of the generator system. An evacuated vial is",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1192.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1265.jpeg"
   },
@@ -15756,10 +15756,10 @@ export const QUESTION_BANK = [
     "question": "If the bound radiochemical purity % is 92% and the hydrolyzed % is 3.2%, what amount of free 99mTc is in the product?",
     "options": [
       "92%",
-      "3.20%",
-      "4.80%",
-      "2.30%",
-      "8.10%"
+      "3.2%",
+      "4.8%",
+      "2.3%",
+      "8.1%"
     ],
     "answerIndex": 2,
     "explanation": "100% - 92% radiochemical purity - 3.2% hydrolyzed product = 4.8% free 99mTc",
@@ -15775,7 +15775,7 @@ export const QUESTION_BANK = [
     "topic": "Generator / Eluate",
     "type": "concept",
     "difficulty": 1,
-    "question": "A radiopharmaceutical kit has to be reconstituted at 0800. Given the following information, what approximate amount of 99mTc-TcO4 and saline would be needed to make up the kit?  99Mo/99mTc generator eluate: 850 mCi in 20 mL at 0600. Preservative-free saline: 50 mL available. Package insert kit preparation information: 8 mL kit with 65 mCi of 99mTc needed at reconstitution.",
+    "question": "A radiopharmaceutical kit has to be reconstituted at 0800. Given the following information, what approximate amount of 99mTc-TcO4 and saline would be needed to make up the kit? \n99Mo/99mTc generator eluate: 850 mCi in 20 mL at 0600.\nPreservative-free saline: 50 mL available.\nPackage insert kit preparation information: 8 mL kit with 65 mCi of 99mTc needed at reconstitution.",
     "options": [
       "2 mL eluate and 6 mL saline",
       "6 mL eluate and 2 mL saline",
@@ -15797,7 +15797,7 @@ export const QUESTION_BANK = [
     "topic": "Radiopharmaceuticals",
     "type": "concept",
     "difficulty": 2,
-    "question": "A patient dose is needed at 1300. Based on the information provided below, what approximate volume would be needed for this 99mTc-based product?   Radiopharmaceutical kit: 150 mCi in 6 mL at 0900  Dose needed at 1300 is 25 mCi.",
+    "question": "A patient dose is needed at 1300. Based on the information provided below, what approximate volume would be needed for this 99mTc-based product? \n\nRadiopharmaceutical kit: 150 mCi in 6 mL at 0900 \nDose needed at 1300 is 25 mCi.",
     "options": [
       "2.6 mL",
       "1.0 mL",
@@ -15916,8 +15916,8 @@ export const QUESTION_BANK = [
       "0.20 mCi"
     ],
     "answerIndex": 1,
-    "explanation": "45 lb / 2.2 lb/kg = 20.45 kg. 20.45 kg x 0.10 mCi/kg = approximately 2.0 mCi [18F]FDG.",
-    "source": "Source: SNMMI Pediatric Tool Kit, 2017.",
+    "explanation": "Source: SNMMI Pediatric Tool Kit, 2017. 45 lbs / 2.2 lbs/kg = 20.45 kg 20.45 kg x 0.1 mCi = approximately 2.0 mCi [18F]FDG",
+    "source": "Source: SNMMI Pediatric Tool Kit, 2017. 45 lbs / 2.2 lbs/kg = 20.45 kg 20.45 kg x 0.1 mCi = approximately 2.0 mCi [18F]FDG",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1194.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1266.jpeg"
   },
@@ -17522,7 +17522,7 @@ export const QUESTION_BANK = [
       "the focal distance"
     ],
     "answerIndex": 0,
-    "explanation": "Parallel-hole collimator resolution degrades the test image as the distance between the collimator and the object increases.",
+    "explanation": "Parallel-hold collimator resolution degrades the test image as the distance between the collimator and the object increases.",
     "source": "Source: Waterstram-Rich and Gilmore, 2017; p. 262.",
     "sourcePhoto": "Question photos/Questions/Exam 8/IMG_1200.jpeg",
     "answerPhoto": "Question photos/Answers/Exam 8/IMG_1270.jpeg"

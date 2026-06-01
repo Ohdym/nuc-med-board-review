@@ -1,8 +1,9 @@
 {
-  "source": "seeded",
+  "source": "shared-local-auto",
   "remoteUrl": null,
   "questionCount": 800,
-  "seededDiffCount": 0,
-  "localSharedDiffCount": 98,
-  "generatedAt": "2026-06-01T04:14:43.390Z"
+  "seededDiffCount": 98,
+  "localSharedDiffCount": 0,
+  "generatedAt": "2026-06-01T06:58:28.829Z",
+  "legacyCommand": "export-seeded-question-bank.mjs"
 }
