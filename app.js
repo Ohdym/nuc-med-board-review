@@ -6764,14 +6764,28 @@ function renderLivePageTabs() {
   `;
 }
 
+function renderLiveSessionMetrics(session) {
+  const secondaryLabel =
+    session.status === "finished"
+      ? `Winner${session.winnerNames.length > 1 ? "s" : ""}`
+      : "Currently Choosing";
+  const secondaryValue =
+    session.status === "finished"
+      ? session.winnerNames.length
+        ? session.winnerNames.join(", ")
+        : "No winner"
+      : session.currentTurnUsername || "Waiting";
+
+  return `
+    <div class="card-grid card-grid--metrics">
+      ${renderMetric("Join Code", session.code, "gold")}
+      ${renderMetric(secondaryLabel, secondaryValue, "blue")}
+    </div>
+  `;
+}
+
 function renderLiveLeaderboard(session) {
   const selfPlayer = getSelfPlayer();
-  const winnerText =
-    session.status === "finished" && session.winnerNames.length
-      ? `Winner${session.winnerNames.length > 1 ? "s" : ""}: ${session.winnerNames.join(", ")}`
-      : session.status === "board_complete"
-      ? "All clues have been used. The host can end the game."
-      : `${session.currentTurnUsername || "Waiting"} ${session.status === "picking" ? "has the next pick" : "is active"}`;
 
   return `
     <section class="view">
@@ -6781,15 +6795,7 @@ function renderLiveLeaderboard(session) {
         "Track everyone in the live room from a dedicated ranking page while the board stays active on other devices.",
       )}
       ${renderLivePageTabs()}
-      <div class="card-grid card-grid--metrics">
-        ${renderMetric("Join Code", session.code, "gold")}
-        ${renderMetric(
-          "Status",
-          session.status === "finished" ? "Finished" : session.status === "board_complete" ? "Board Complete" : "In Progress",
-          "blue",
-        )}
-        ${renderMetric("Summary", winnerText, "default")}
-      </div>
+      ${renderLiveSessionMetrics(session)}
       <section class="panel">
         <div class="panel__header">
           <h3>Ranking</h3>
@@ -6819,7 +6825,11 @@ function renderLiveLeaderboard(session) {
             .join("")}
         </div>
         <div class="question-card__actions">
-          <button type="button" class="button button--ghost" data-action="set-live-page" data-page="board">Back to board</button>
+          ${
+            session.status !== "finished"
+              ? `<button type="button" class="button button--ghost" data-action="set-live-page" data-page="board">Back to board</button>`
+              : ""
+          }
           <button type="button" class="button button--ghost" data-action="live-leave">Leave game</button>
         </div>
       </section>
@@ -7042,11 +7052,7 @@ function renderLiveGame(session) {
         "The next chooser is randomized after each clue, every player answers on their own device, and the scoreboard updates in real time.",
       )}
       ${renderLivePageTabs()}
-      <div class="card-grid card-grid--metrics">
-        ${renderMetric("Join Code", session.code, "gold")}
-        ${renderMetric("Currently Choosing", session.currentTurnUsername || "Waiting", "blue")}
-        ${renderMetric("Your Seat", selfPlayer ? selfPlayer.username : "Spectator", "default")}
-      </div>
+      ${renderLiveSessionMetrics(session)}
       <div class="split-layout split-layout--live">
         <section class="panel">
           <div class="panel__footer panel__footer--top">
