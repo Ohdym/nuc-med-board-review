@@ -1277,11 +1277,13 @@ a:focus-visible {
 }
 
 .history-row.is-correct {
-  border-color: rgba(41, 135, 89, 0.22);
+  border-color: rgba(41, 135, 89, 0.34);
+  background: rgba(41, 135, 89, 0.08);
 }
 
 .history-row.is-wrong {
-  border-color: rgba(186, 61, 61, 0.22);
+  border-color: rgba(186, 61, 61, 0.34);
+  background: rgba(186, 61, 61, 0.08);
 }
 
 .profile-callout {
@@ -1830,7 +1832,7 @@ a:focus-visible {
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: zoom-in;
+  cursor: default;
   padding: 0.55rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(244, 248, 252, 0.92));
@@ -1909,13 +1911,13 @@ a:focus-visible {
 }
 
 .option.is-correct {
-  border-color: rgba(41, 135, 89, 0.35);
-  background: rgba(41, 135, 89, 0.08);
+  border-color: rgba(41, 135, 89, 0.5);
+  background: rgba(41, 135, 89, 0.14);
 }
 
 .option.is-wrong {
-  border-color: rgba(186, 61, 61, 0.35);
-  background: rgba(186, 61, 61, 0.08);
+  border-color: rgba(186, 61, 61, 0.5);
+  background: rgba(186, 61, 61, 0.14);
 }
 
 .feedback {
@@ -1925,13 +1927,13 @@ a:focus-visible {
 }
 
 .feedback--correct {
-  background: rgba(41, 135, 89, 0.08);
-  border: 1px solid rgba(41, 135, 89, 0.18);
+  background: rgba(41, 135, 89, 0.14);
+  border: 1px solid rgba(41, 135, 89, 0.3);
 }
 
 .feedback--wrong {
-  background: rgba(186, 61, 61, 0.08);
-  border: 1px solid rgba(186, 61, 61, 0.18);
+  background: rgba(186, 61, 61, 0.14);
+  border: 1px solid rgba(186, 61, 61, 0.3);
 }
 
 .result-panel {
@@ -2051,8 +2053,8 @@ a:focus-visible {
 }
 
 .bank-option-edit.is-correct {
-  border-color: rgba(41, 135, 89, 0.35);
-  background: rgba(41, 135, 89, 0.08);
+  border-color: rgba(41, 135, 89, 0.5);
+  background: rgba(41, 135, 89, 0.14);
 }
 
 .review-card__header {
@@ -2067,11 +2069,13 @@ a:focus-visible {
 }
 
 .review-card.is-correct {
-  border-color: rgba(41, 135, 89, 0.22);
+  border-color: rgba(41, 135, 89, 0.38);
+  background: rgba(41, 135, 89, 0.08);
 }
 
 .review-card.is-wrong {
-  border-color: rgba(186, 61, 61, 0.22);
+  border-color: rgba(186, 61, 61, 0.38);
+  background: rgba(186, 61, 61, 0.08);
 }
 
 .option-list--bank .option {
@@ -2180,6 +2184,11 @@ a:focus-visible {
   background: var(--surface-strong);
   color: var(--accent-text);
   font-size: 1.5rem;
+}
+
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .import-textarea {
@@ -2528,11 +2537,13 @@ a:focus-visible {
 }
 
 .player-result.is-correct {
-  border-color: rgba(41, 135, 89, 0.25);
+  border-color: rgba(41, 135, 89, 0.38);
+  background: rgba(41, 135, 89, 0.08);
 }
 
 .player-result.is-wrong {
-  border-color: rgba(186, 61, 61, 0.24);
+  border-color: rgba(186, 61, 61, 0.38);
+  background: rgba(186, 61, 61, 0.08);
 }
 
 .live-question-panel {

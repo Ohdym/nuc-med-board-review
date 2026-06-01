@@ -242,6 +242,7 @@ applyTheme(state.theme);
 let mockTimerHandle = null;
 let onlineQuizRefreshInFlight = false;
 let customQuizSyncInFlight = false;
+let modalScrollState = { solo: 0, live: 0 };
 const FLASHCARD_IMPORT_TEMPLATE = `Term\tDefinition
 Tc-99m MDP\tCommon radiopharmaceutical for routine bone imaging
 ALARA\tRadiation safety principle focused on minimizing exposure
@@ -256,6 +257,28 @@ function loadJSON(key, fallback) {
     console.warn(`Failed to load ${key}`, error);
     return fallback;
   }
+}
+
+function captureModalScrollState() {
+  const soloModal = document.querySelector(".modal-backdrop:not(.modal-backdrop--live) .modal--question");
+  const liveModal = document.querySelector(".modal-backdrop--live .modal--question");
+  modalScrollState = {
+    solo: soloModal ? soloModal.scrollTop : 0,
+    live: liveModal ? liveModal.scrollTop : 0,
+  };
+}
+
+function restoreModalScrollState() {
+  window.requestAnimationFrame(() => {
+    const soloModal = document.querySelector(".modal-backdrop:not(.modal-backdrop--live) .modal--question");
+    const liveModal = document.querySelector(".modal-backdrop--live .modal--question");
+    if (soloModal && modalScrollState.solo > 0) {
+      soloModal.scrollTop = modalScrollState.solo;
+    }
+    if (liveModal && modalScrollState.live > 0) {
+      liveModal.scrollTop = modalScrollState.live;
+    }
+  });
 }
 
 function saveJSON(key, value) {
@@ -3866,9 +3889,7 @@ function renderQuestionMedia(entry) {
         .map(
           (item) => `
             <figure class="question-media">
-              <a class="question-media__link" href="${escapeHtml(item.src)}" target="_blank" rel="noopener">
-                <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" />
-              </a>
+              <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" />
               ${item.caption ? `<figcaption>${escapeHtml(item.caption)}</figcaption>` : ""}
             </figure>
           `,
@@ -6445,12 +6466,12 @@ function renderJeopardyModal() {
         <div class="modal__return-bar">
           <button type="button" class="button button--primary" data-action="close-jeopardy">Return to Board</button>
         </div>
-        ${renderFlagControl(question)}
         <div class="modal__header">
           <div>
             <span class="pill">$${tile.value}</span>
             <span class="pill">${escapeHtml(question.topic)}</span>
           </div>
+          <button type="button" class="icon-button" data-action="close-jeopardy" aria-label="Close question">&times;</button>
         </div>
         <h3 class="question-text">${formatScientificText(question.question)}</h3>
         ${renderQuestionMedia(question)}
@@ -6825,6 +6846,7 @@ function renderLiveQuestionPanel(session) {
               <span class="pill">$${active.value}</span>
               <span class="pill">${escapeHtml(active.topic)}</span>
             </div>
+            <button type="button" class="icon-button" disabled aria-label="Host controls closing this question">&times;</button>
             <div class="pill">Host controlled</div>
           </div>
           <div class="progress-row">
@@ -6832,7 +6854,6 @@ function renderLiveQuestionPanel(session) {
             <span>${active.answerCount} selection(s) ready</span>
           </div>
           <div class="question-card question-card--live">
-            ${renderFlagControl(active)}
             <div class="question-card__meta">
               <span class="pill">${escapeHtml(formatOnlineCategoryLabel(active.category))}</span>
             </div>
@@ -6898,6 +6919,7 @@ function renderLiveQuestionPanel(session) {
               <span class="pill">$${active.value}</span>
               <span class="pill">${escapeHtml(active.topic)}</span>
             </div>
+            <button type="button" class="icon-button" disabled aria-label="Host controls closing this question">&times;</button>
             <div class="pill">Reveal</div>
           </div>
           <div class="feedback feedback--${viewerResult.correct ? "correct" : "wrong"}">
@@ -7186,6 +7208,7 @@ function renderLiveView() {
 
 function renderApp() {
   const summary = computePerformanceSummary();
+  captureModalScrollState();
 
   if (state.activeView === "quickstart") {
     ensureQuickStartQuestion();
@@ -7225,6 +7248,7 @@ function renderApp() {
       </main>
     </div>
   `;
+  restoreModalScrollState();
 }
 
 app.addEventListener("click", (event) => {
