@@ -253,6 +253,32 @@ a:focus-visible {
 
 .app-header__account {
   justify-content: flex-end;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.about-chip {
+  min-height: 32px;
+  border: 1px solid rgba(0, 55, 103, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 210, 79, 0.5);
+  color: var(--blue-deep);
+  padding: 0.38rem 0.72rem;
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  box-shadow: var(--shadow-soft);
+}
+
+.about-chip:hover {
+  border-color: rgba(0, 55, 103, 0.34);
+  background: rgba(255, 210, 79, 0.72);
+}
+
+[data-theme="dark"] .about-chip {
+  border-color: rgba(255, 210, 79, 0.24);
+  background: rgba(255, 210, 79, 0.16);
+  color: var(--gold);
 }
 
 .app-overline {
@@ -2159,6 +2185,27 @@ a:focus-visible {
   box-shadow: 0 26px 72px rgba(0, 22, 42, 0.26);
 }
 
+.modal--about {
+  width: min(680px, 100%);
+  max-height: min(88vh, 760px);
+}
+
+.about-copy {
+  display: grid;
+  gap: 0.72rem;
+  font-size: clamp(0.64rem, 1.35vw, 0.75rem);
+  line-height: 1.42;
+  color: var(--ink);
+}
+
+.about-copy p {
+  margin: 0;
+}
+
+.about-copy strong {
+  color: var(--accent-text-strong);
+}
+
 .modal__header {
   display: flex;
   align-items: center;
@@ -3117,6 +3164,12 @@ a:focus-visible {
 
   .app-header__account {
     justify-content: flex-end;
+  }
+
+  .about-chip {
+    min-height: 30px;
+    padding: 0.28rem 0.58rem;
+    font-size: 0.68rem;
   }
 
   .app-header__account .account-corner > * {

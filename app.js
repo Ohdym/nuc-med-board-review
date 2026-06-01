@@ -192,6 +192,7 @@ const state = {
     postgresDriverAvailable: false,
     questionBankAuthority: "unknown",
   },
+  aboutOpen: false,
   live: {
     username: loadJSON(STORAGE_KEYS.liveProfile, { username: "" }).username || "",
     joinCode: "",
@@ -5793,6 +5794,39 @@ function renderHeroStatus(summary) {
   `;
 }
 
+function renderAboutChip() {
+  return `
+    <button type="button" class="about-chip" data-action="open-about" aria-label="Open site information">
+      About
+    </button>
+  `;
+}
+
+function renderAboutModal() {
+  if (!state.aboutOpen) {
+    return "";
+  }
+
+  return `
+    <div class="modal-backdrop" data-close-on-backdrop="true" data-modal="about">
+      <article class="modal modal--about">
+        <div class="modal__header">
+          <div>
+            <span class="pill">About This Site</span>
+          </div>
+          <button type="button" class="icon-button" data-action="close-about" aria-label="Close about information">&times;</button>
+        </div>
+        <div class="about-copy">
+          <p>The practice exams included on this site should be used as mock certification exams for your registry. When answering questions, read each one <strong>carefully</strong> and choose the <strong>best answer</strong> from the options provided, even if the overall best answer is not listed. If unsure, eliminate obviously incorrect choices first, then look for clues in the remaining answers. If the topic is completely unfamiliar, make a note to review that material later.</p>
+          <p>Many questions <strong>involve calculations</strong>, so students should use a calculator and decay factor tables when needed. I know we don't use decay factors at Oregon Tech, but you can quickly learn how they're used with some context clues. It is important to complete the <strong>full calculation</strong> and avoid selecting an answer based on an intermediate step, since incorrect choices may reflect common mistakes.</p>
+          <p>Students should also <strong>watch carefully</strong> for <strong>negative wording</strong>, such as <strong>&ldquo;not&rdquo;</strong> or <strong>&ldquo;except.&rdquo;</strong> The questions are not meant to be tricky, but to separate those who are well-prepared from those who are not. Common nuclear medicine <strong>acronyms</strong> may not be spelled out, so students should already be familiar with them. Because nuclear medicine changes quickly, students should also check the current certification agency website for the most up-to-date content guide information.</p>
+          <p><strong>Good Luck!</strong></p>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
 function renderPageHero(summary) {
   const copy = getHeroCopy(state.activeView);
   const isSoloJeopardyQuestionOpen = state.activeView === "jeopardy" && state.jeopardy.mode === "solo" && Boolean(state.jeopardy.activeTile);
@@ -5816,6 +5850,7 @@ function renderPageHero(summary) {
         ${renderTopbarNav()}
       </div>
       <div class="app-header__account">
+        ${renderAboutChip()}
         ${renderAccountCorner()}
       </div>
     </header>
@@ -7253,6 +7288,7 @@ function renderApp() {
         ${viewMap[state.activeView] || viewMap.dashboard}
       </main>
     </div>
+    ${renderAboutModal()}
   `;
   restoreModalScrollState();
 }
@@ -7260,6 +7296,11 @@ function renderApp() {
 app.addEventListener("click", (event) => {
   const soloBackdrop = event.target.closest(".modal-backdrop[data-close-on-backdrop='true']");
   if (soloBackdrop && event.target === soloBackdrop) {
+    if (soloBackdrop.dataset.modal === "about") {
+      state.aboutOpen = false;
+      renderApp();
+      return;
+    }
     flushPendingQuestionFlagsThen(closeJeopardyTile);
     return;
   }
@@ -7304,6 +7345,18 @@ app.addEventListener("click", (event) => {
   if (action === "toggle-theme") {
     state.theme = state.theme === "dark" ? "light" : "dark";
     applyTheme(state.theme);
+    renderApp();
+    return;
+  }
+
+  if (action === "open-about") {
+    state.aboutOpen = true;
+    renderApp();
+    return;
+  }
+
+  if (action === "close-about") {
+    state.aboutOpen = false;
     renderApp();
     return;
   }
