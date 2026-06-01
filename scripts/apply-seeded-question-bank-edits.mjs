@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 
 import { CATEGORY_CONFIG, IMPORT_TEMPLATE, QUESTION_BANK } from "../data.js";
@@ -71,6 +72,37 @@ function parseDelimited(text, delimiter) {
   });
 }
 
+function parseDelimitedWithPython(inputPath, delimiter) {
+  const pythonProgram = `
+import csv
+import json
+import sys
+
+path = sys.argv[1]
+delimiter = sys.argv[2]
+
+with open(path, "r", encoding="utf-8", newline="") as handle:
+    rows = list(csv.DictReader(handle, delimiter=delimiter))
+
+print(json.dumps(rows))
+`.trim();
+
+  const result = spawnSync("python3", ["-c", pythonProgram, inputPath, delimiter], {
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    const errorMessage = result.stderr || result.stdout || "Unknown Python TSV parse error.";
+    throw new Error(errorMessage.trim());
+  }
+
+  const parsed = JSON.parse(result.stdout || "[]");
+  if (!Array.isArray(parsed)) {
+    throw new Error("Python TSV parse did not return an array.");
+  }
+  return parsed;
+}
+
 function loadEditableRecords(inputPath) {
   const extension = path.extname(inputPath).toLowerCase();
   const text = fs.readFileSync(inputPath, "utf8");
@@ -84,11 +116,19 @@ function loadEditableRecords(inputPath) {
   }
 
   if (extension === ".tsv") {
-    return parseDelimited(text, "\t");
+    try {
+      return parseDelimitedWithPython(inputPath, "\t");
+    } catch (error) {
+      return parseDelimited(text, "\t");
+    }
   }
 
   if (extension === ".csv") {
-    return parseDelimited(text, ",");
+    try {
+      return parseDelimitedWithPython(inputPath, ",");
+    } catch (error) {
+      return parseDelimited(text, ",");
+    }
   }
 
   throw new Error(`Unsupported file extension: ${extension}`);
