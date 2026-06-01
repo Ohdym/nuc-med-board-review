@@ -6440,15 +6440,17 @@ function renderJeopardyModal() {
   const correct = selectedIndex === question.answerIndex;
 
   return `
-    <div class="modal-backdrop">
+    <div class="modal-backdrop" data-close-on-backdrop="true">
       <article class="modal modal--question">
+        <div class="modal__return-bar">
+          <button type="button" class="button button--primary" data-action="close-jeopardy">Return to Board</button>
+        </div>
         ${renderFlagControl(question)}
         <div class="modal__header">
           <div>
             <span class="pill">$${tile.value}</span>
             <span class="pill">${escapeHtml(question.topic)}</span>
           </div>
-          <button type="button" class="icon-button" data-action="close-jeopardy">&times;</button>
         </div>
         <h3 class="question-text">${formatScientificText(question.question)}</h3>
         ${renderQuestionMedia(question)}
@@ -6480,7 +6482,7 @@ function renderJeopardyModal() {
         <div class="question-card__actions">
           ${
             submitted
-              ? `<button type="button" class="button button--primary" data-action="close-jeopardy">Return to board</button>`
+              ? ``
               : `<button type="button" class="button button--primary" data-action="submit-jeopardy" ${
                   selectedIndex === null ? "disabled" : ""
                 }>Lock in answer</button>`
@@ -7226,6 +7228,12 @@ function renderApp() {
 }
 
 app.addEventListener("click", (event) => {
+  const soloBackdrop = event.target.closest(".modal-backdrop[data-close-on-backdrop='true']");
+  if (soloBackdrop && event.target === soloBackdrop) {
+    flushPendingQuestionFlagsThen(closeJeopardyTile);
+    return;
+  }
+
   const button = event.target.closest("[data-action], [data-view]");
   if (!button) {
     return;

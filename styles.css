@@ -2163,6 +2163,16 @@ a:focus-visible {
   margin-bottom: 1rem;
 }
 
+.modal__return-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+}
+
+.modal__return-bar .button {
+  min-width: 220px;
+}
+
 .icon-button {
   width: 36px;
   height: 36px;
