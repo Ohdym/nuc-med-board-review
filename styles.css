@@ -1735,7 +1735,7 @@ a:focus-visible {
 
 .flag-control--question {
   position: absolute;
-  top: 0.62rem;
+  top: 0.94rem;
   right: 0.62rem;
   z-index: 3;
   min-height: 28px;
@@ -1748,35 +1748,8 @@ a:focus-visible {
   padding-right: 5.7rem;
 }
 
-.option-shell {
-  position: relative;
-}
-
-.option-shell .option {
-  padding-right: 5.4rem;
-}
-
-.flag-control--answer {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
-  z-index: 2;
-  min-height: 24px;
-  padding: 0.24rem 0.32rem;
-  background: rgba(255, 255, 255, 0.92);
-}
-
 .explanation-content {
   position: relative;
-  padding-top: 1.75rem;
-}
-
-.flag-control--explanation {
-  position: absolute;
-  top: 0;
-  right: 0;
-  min-height: 24px;
-  padding: 0.24rem 0.34rem;
 }
 
 [data-theme="dark"] .flag-control {
@@ -2025,11 +1998,6 @@ a:focus-visible {
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.bank-edit-header .flag-control--explanation {
-  position: static;
-  justify-self: end;
 }
 
 .bank-edit-field input,

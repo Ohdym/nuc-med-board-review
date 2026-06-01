@@ -481,14 +481,28 @@ def public_question_flag(flag):
     }
 
 
-def question_flag_payload_for(username):
+def question_flag_payload_for(username=None):
+    hidden_question_ids = sorted({
+        str(flag.get("questionId") or "").strip()
+        for flag in QUESTION_FLAG_STORE.get("items", {}).values()
+        if str(flag.get("questionId") or "").strip()
+    })
+
+    response = {
+        "mine": [],
+        "hiddenQuestionIds": hidden_question_ids,
+    }
+
+    if not username:
+        return response
+
     flags = [
         public_question_flag(flag)
         for flag in QUESTION_FLAG_STORE.get("items", {}).values()
         if flag.get("username") == username
     ]
     flags.sort(key=lambda item: int(item.get("updatedAt") or item.get("createdAt") or 0), reverse=True)
-    response = {"mine": flags}
+    response["mine"] = flags
 
     user = USER_STORE.get("users", {}).get(username, {})
     if user.get("role") == "instructor":
@@ -2682,11 +2696,11 @@ async def record_attempts(request):
 
 
 async def question_flags(request):
-    username = require_auth_username(request)
-
     if request.method == "GET":
+        username = get_auth_username(request)
         return web.json_response(question_flag_payload_for(username))
 
+    username = require_auth_username(request)
     payload = await json_body(request)
     question_id = str(payload.get("questionId", "")).strip()
     if not question_id:
@@ -2737,9 +2751,7 @@ async def question_flags(request):
         }
     elif payload.get("resolveAll") and user.get("role") == "instructor":
         for item_id, item in list(items.items()):
-            if item.get("questionId") != question_id or item.get("targetType") != target_type:
-                continue
-            if target_type == "answer" and item.get("answerIndex") != answer_index:
+            if item.get("questionId") != question_id:
                 continue
             items.pop(item_id, None)
     elif user.get("role") == "instructor":

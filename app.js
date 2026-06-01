@@ -103,7 +103,7 @@ const state = {
   importedFlashcards: loadJSON(STORAGE_KEYS.importedFlashcards, []),
   questionEdits: loadJSON(STORAGE_KEYS.questionEdits, {}),
   performance: loadJSON(STORAGE_KEYS.performance, []),
-  questionFlags: loadJSON(STORAGE_KEYS.questionFlags, { mine: [], all: [] }),
+  questionFlags: loadJSON(STORAGE_KEYS.questionFlags, { mine: [], all: [], hiddenQuestionIds: [] }),
   pendingQuestionFlags: {},
   account: {
     auth: savedAccountAuth,
@@ -597,8 +597,16 @@ function getAllQuestions() {
   return uniqueById([...getSharedQuestionBank(), ...state.importedQuestions]).map((question) => applyQuestionEdits(question));
 }
 
+function getStudyQuestions() {
+  const questions = getAllQuestions();
+  if (isInstructor()) {
+    return questions;
+  }
+  return questions.filter((question) => !isQuestionHiddenFromGeneralUsers(question.id));
+}
+
 function hasStudyQuestions() {
-  return getAllQuestions().length > 0;
+  return getStudyQuestions().length > 0;
 }
 
 function hasSharedLiveBank() {
@@ -1491,13 +1499,14 @@ function selectQuestions(pool, count, summary) {
 }
 
 function buildMockExamQuestions(count, summary) {
-  const categories = [...new Set(getAllQuestions().map((question) => question.category))];
+  const studyQuestions = getStudyQuestions();
+  const categories = [...new Set(studyQuestions.map((question) => question.category))];
   const buckets = new Map();
 
   for (const category of categories) {
     buckets.set(
       category,
-      shuffle(getAllQuestions().filter((question) => question.category === category)),
+      shuffle(studyQuestions.filter((question) => question.category === category)),
     );
   }
 
@@ -1505,13 +1514,13 @@ function buildMockExamQuestions(count, summary) {
   const usedIds = new Set();
   let categoryIndex = 0;
 
-  while (selected.length < Math.min(count, getAllQuestions().length)) {
+  while (selected.length < Math.min(count, studyQuestions.length)) {
     const category = categories[categoryIndex % categories.length];
     const categoryBucket = buckets.get(category);
     const categoryPool = categoryBucket
       ? categoryBucket.filter((question) => !usedIds.has(question.id))
       : [];
-    const overallPool = getAllQuestions().filter((question) => !usedIds.has(question.id));
+    const overallPool = studyQuestions.filter((question) => !usedIds.has(question.id));
     const pool = categoryPool.length ? categoryPool : overallPool;
     const question = pickWeightedQuestion(pool, summary, { allowUsedIds: usedIds });
 
@@ -1575,8 +1584,8 @@ function startQuiz() {
   const summary = computePerformanceSummary();
   const pool =
     state.quizConfig.category === "all"
-      ? getAllQuestions()
-      : getAllQuestions().filter((question) => question.category === state.quizConfig.category);
+      ? getStudyQuestions()
+      : getStudyQuestions().filter((question) => question.category === state.quizConfig.category);
   const questions = selectQuestions(pool, state.quizConfig.count, summary);
 
   if (!questions.length) {
@@ -1680,11 +1689,12 @@ function finalizeMockExam() {
 }
 
 function chooseJeopardyCategories(summary) {
-  const categoryCounts = getAllQuestions().reduce((map, question) => {
+  const studyQuestions = getStudyQuestions();
+  const categoryCounts = studyQuestions.reduce((map, question) => {
     map[question.category] = (map[question.category] || 0) + 1;
     return map;
   }, {});
-  const allCategories = [...new Set(getAllQuestions().map((question) => question.category))];
+  const allCategories = [...new Set(studyQuestions.map((question) => question.category))];
   const preferredCategories = allCategories.filter((category) => (categoryCounts[category] || 0) >= 5);
   const categories = preferredCategories.length >= 5 ? preferredCategories : allCategories;
   const weighted = categories.map((category) => {
@@ -1733,11 +1743,12 @@ function buildJeopardyBoard() {
 
   const summary = computePerformanceSummary();
   const categories = chooseJeopardyCategories(summary);
+  const studyQuestions = getStudyQuestions();
   const usedIds = new Set();
   const board = categories.map((category) =>
     BOARD_VALUES.map((value, valueIndex) => {
       const targetDifficulty = valueIndex + 1;
-      const categoryPool = getAllQuestions().filter((question) => question.category === category);
+      const categoryPool = studyQuestions.filter((question) => question.category === category);
       const question = pickWeightedQuestion(categoryPool, summary, {
         allowUsedIds: usedIds,
         targetDifficulty,
@@ -2466,7 +2477,7 @@ function scrollPracticeQuestionIntoView() {
 }
 
 function pickQuickStartQuestion() {
-  const pool = getAllQuestions();
+  const pool = getStudyQuestions();
   if (!pool.length) {
     return null;
   }
@@ -2679,7 +2690,10 @@ function syncAccountAttemptsToServer(attempts) {
 function normalizeQuestionFlags(payload) {
   const mine = Array.isArray(payload && payload.mine) ? payload.mine : [];
   const all = Array.isArray(payload && payload.all) ? payload.all : [];
-  return { mine, all };
+  const hiddenQuestionIds = Array.isArray(payload && payload.hiddenQuestionIds)
+    ? [...new Set(payload.hiddenQuestionIds.map((id) => String(id || "").trim()).filter(Boolean))]
+    : [];
+  return { mine, all, hiddenQuestionIds };
 }
 
 function persistQuestionFlags() {
@@ -2687,18 +2701,14 @@ function persistQuestionFlags() {
 }
 
 async function loadQuestionFlags(renderWhenDone = true) {
-  if (!hasAccountSession()) {
-    state.questionFlags = { mine: [], all: [] };
-    persistQuestionFlags();
-    if (renderWhenDone) {
-      renderApp();
-    }
-    return;
-  }
-
   try {
     const data = await apiRequest("/api/question-flags", "GET");
     state.questionFlags = normalizeQuestionFlags(data);
+    if (!hasAccountSession()) {
+      state.questionFlags.mine = [];
+      state.questionFlags.all = [];
+    }
+    synchronizeStudyStateWithHiddenFlags();
     persistQuestionFlags();
     if (renderWhenDone) {
       renderApp();
@@ -2731,6 +2741,10 @@ function getAllQuestionFlags() {
   return isInstructor() ? state.questionFlags.all : state.questionFlags.mine;
 }
 
+function getHiddenQuestionIds() {
+  return Array.isArray(state.questionFlags.hiddenQuestionIds) ? state.questionFlags.hiddenQuestionIds : [];
+}
+
 function getQuestionFlagsForTarget(questionId, targetType = "question", answerIndex = null) {
   const key = getQuestionFlagKey(questionId, targetType, answerIndex);
   return getAllQuestionFlags().filter((flag) => {
@@ -2744,6 +2758,24 @@ function targetHasFlags(questionId, targetType = "question", answerIndex = null)
 
 function questionHasFlags(questionId) {
   return getAllQuestionFlags().some((flag) => String(flag.questionId) === String(questionId));
+}
+
+function isQuestionHiddenFromGeneralUsers(questionId) {
+  if (isInstructor()) {
+    return false;
+  }
+
+  const normalizedQuestionId = String(questionId || "").trim();
+  if (!normalizedQuestionId) {
+    return false;
+  }
+
+  if (getHiddenQuestionIds().includes(normalizedQuestionId)) {
+    return true;
+  }
+
+  const pendingKey = getQuestionFlagKey(normalizedQuestionId, "question", null);
+  return Boolean(state.pendingQuestionFlags[pendingKey] && state.pendingQuestionFlags[pendingKey].flagged);
 }
 
 function getFlagCount(questionId) {
@@ -2877,26 +2909,96 @@ function renderFlagControl(entry, targetType = "question", answerIndex = null) {
 
 function renderFlaggedOption(entry, option, index, classes, action, disabled = false) {
   return `
-    <div class="option-shell">
-      <button
-        type="button"
-        class="${classes}"
-        data-action="${escapeHtml(action)}"
-        data-index="${index}"
-        ${disabled ? "disabled" : ""}
-      >
-        <span>${String.fromCharCode(65 + index)}</span>
-        <strong>${formatScientificText(option)}</strong>
-      </button>
-      ${renderFlagControl(entry, "answer", index)}
-    </div>
+    <button
+      type="button"
+      class="${classes}"
+      data-action="${escapeHtml(action)}"
+      data-index="${index}"
+      ${disabled ? "disabled" : ""}
+    >
+      <span>${String.fromCharCode(65 + index)}</span>
+      <strong>${formatScientificText(option)}</strong>
+    </button>
   `;
+}
+
+function synchronizeStudyStateWithHiddenFlags() {
+  if (isInstructor()) {
+    return;
+  }
+
+  const visibleIds = new Set(getStudyQuestions().map((question) => question.id));
+
+  if (state.quickStart.question && !visibleIds.has(state.quickStart.question.id)) {
+    state.quickStart.question = null;
+    ensureQuickStartQuestion();
+  }
+
+  if (state.quizSession) {
+    const activeQuestion = getActiveQuizQuestion();
+    const filteredQuestions = state.quizSession.questions.filter((question) => visibleIds.has(question.id));
+    if (!filteredQuestions.length) {
+      state.quizSession = null;
+    } else if (filteredQuestions.length !== state.quizSession.questions.length) {
+      const activeIndex = activeQuestion ? filteredQuestions.findIndex((question) => question.id === activeQuestion.id) : -1;
+      state.quizSession.questions = filteredQuestions;
+      state.quizSession.index =
+        activeIndex >= 0 ? activeIndex : Math.min(state.quizSession.index, filteredQuestions.length - 1);
+      if (activeIndex === -1) {
+        state.quizSession.selectedIndex = null;
+        state.quizSession.submitted = false;
+        state.quizSession.finished = false;
+      }
+    }
+  }
+
+  if (state.mockSession && !state.mockSession.submitted) {
+    const currentQuestion = state.mockSession.questions[state.mockSession.currentIndex] || null;
+    const filteredQuestions = state.mockSession.questions.filter((question) => visibleIds.has(question.id));
+    if (!filteredQuestions.length) {
+      resetMock();
+    } else if (filteredQuestions.length !== state.mockSession.questions.length) {
+      const nextAnswers = {};
+      Object.entries(state.mockSession.answers || {}).forEach(([questionId, answerIndex]) => {
+        if (visibleIds.has(questionId)) {
+          nextAnswers[questionId] = answerIndex;
+        }
+      });
+      const currentIndex = currentQuestion ? filteredQuestions.findIndex((question) => question.id === currentQuestion.id) : -1;
+      state.mockSession.questions = filteredQuestions;
+      state.mockSession.answers = nextAnswers;
+      state.mockSession.currentIndex =
+        currentIndex >= 0 ? currentIndex : Math.min(state.mockSession.currentIndex, filteredQuestions.length - 1);
+    }
+  }
+
+  if (state.jeopardy.mode === "solo" && Array.isArray(state.jeopardy.board)) {
+    state.jeopardy.board = state.jeopardy.board.map((column) =>
+      column.map((tile) => {
+        if (!tile.question || visibleIds.has(tile.question.id)) {
+          return tile;
+        }
+        return {
+          ...tile,
+          question: null,
+        };
+      }),
+    );
+
+    if (state.jeopardy.activeTile) {
+      const activeTile = state.jeopardy.board[state.jeopardy.activeTile.columnIndex]?.[state.jeopardy.activeTile.rowIndex];
+      if (!activeTile || !activeTile.question) {
+        closeJeopardyTile();
+      }
+    }
+  }
 }
 
 function updateQuestionFlagsFromPayload(payload, data) {
   state.questionFlags = normalizeQuestionFlags(data);
   const key = getQuestionFlagKey(payload.questionId, payload.targetType, payload.answerIndex);
   delete state.pendingQuestionFlags[key];
+  synchronizeStudyStateWithHiddenFlags();
   persistQuestionFlags();
 }
 
@@ -2965,8 +3067,14 @@ function toggleQuestionFlag(button) {
     return;
   }
 
-  queueQuestionFlag(payload);
-  renderApp();
+  sendQuestionFlagPayload(payload)
+    .catch((error) => {
+      state.questionBank.feedback = {
+        tone: "error",
+        message: error.message || "Could not save the question flag.",
+      };
+    })
+    .finally(renderApp);
 }
 
 function flushPendingQuestionFlagsThen(callback) {
@@ -3117,7 +3225,7 @@ async function logoutAccount() {
   state.account.verifying = false;
   state.account.password = "";
   state.account.placements = [];
-  state.questionFlags = { mine: [], all: [] };
+  state.questionFlags = { mine: [], all: [], hiddenQuestionIds: getHiddenQuestionIds() };
   persistQuestionFlags();
   state.instructor.data = null;
   state.instructor.selectedUser = "all";
@@ -3709,7 +3817,6 @@ function renderExplanationContent(entry) {
   const source = entry && entry.source ? `<p><em>${formatTextWithSourceLinks(entry.source)}</em></p>` : "";
   return `
     <div class="explanation-content">
-      ${renderFlagControl(entry, "explanation")}
       ${difficulty}${explanation}${source}
     </div>
   `;
@@ -3790,12 +3897,9 @@ function renderQuestionBankEditor(question) {
           ${[0, 1, 2, 3, 4]
             .map(
               (index) => `
-                <div class="option-shell">
-                  <div class="option ${index === answerIndex ? "is-correct" : ""}">
-                    <span>${String.fromCharCode(65 + index)}</span>
-                    <strong>${formatScientificText(options[index] || "")}</strong>
-                  </div>
-                  ${renderFlagControl(question, "answer", index)}
+                <div class="option ${index === answerIndex ? "is-correct" : ""}">
+                  <span>${String.fromCharCode(65 + index)}</span>
+                  <strong>${formatScientificText(options[index] || "")}</strong>
                 </div>
               `,
             )
@@ -3851,7 +3955,6 @@ function renderQuestionBankEditor(question) {
                   type="text"
                   value="${escapeHtml(options[index] || "")}"
                 />
-                ${renderFlagControl(question, "answer", index)}
               </label>
             `,
           )
@@ -3887,7 +3990,6 @@ function renderQuestionBankEditor(question) {
       <div class="bank-edit-field bank-edit-field--wide">
         <div class="bank-edit-header">
           <span>Explanation</span>
-          ${renderFlagControl(question, "explanation")}
         </div>
         <textarea data-bank-edit-id="${escapeHtml(question.id)}" data-bank-edit-field="explanation" rows="4">${escapeHtml(
           getQuestionBankEditValue(question, "explanation"),
@@ -4551,7 +4653,7 @@ function renderInstructorFlaggedReview() {
     <div class="panel__header panel__header--inline">
       <div>
         <h3>Flagged question review</h3>
-        <p>Questions, answers, or explanations students marked for possible spelling, missing-letter, or content issues.</p>
+        <p>Questions students marked for possible spelling, missing-letter, or content issues.</p>
       </div>
       <div class="question-card__actions">
         <button type="button" class="button button--ghost button--compact" data-action="open-flagged-question-bank">
@@ -4587,7 +4689,7 @@ function renderInstructorFlaggedReview() {
                 `;
               })
               .join("")
-          : `<div class="empty-state"><strong>No flagged questions yet.</strong><p>When students flag questions or answers, they will appear here and in the Question Bank flagged filter.</p></div>`
+          : `<div class="empty-state"><strong>No flagged questions yet.</strong><p>When students flag a question, it will appear here and in the Question Bank flagged filter.</p></div>`
       }
     </div>
   `;
@@ -7720,6 +7822,7 @@ window.setInterval(() => {
 buildJeopardyBoard();
 renderApp();
 loadSharedQuestionBank();
+loadQuestionFlags();
 restoreAccountSession();
 
 if (state.live.auth && hasSharedLiveBank()) {
