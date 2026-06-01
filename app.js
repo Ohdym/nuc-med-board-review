@@ -182,7 +182,7 @@ const state = {
     hasUnsavedChanges: false,
     feedback: {
       tone: "info",
-      message: "Edit question text directly in the bank, then press Save Changes to keep your updates on this device.",
+      message: "The live site now uses data.js as the source of truth. Edit here for review, then update data.js and redeploy to publish fixes for every user.",
     },
   },
   storageStatus: {
@@ -190,6 +190,7 @@ const state = {
     databaseConfigured: false,
     databaseReady: false,
     postgresDriverAvailable: false,
+    questionBankAuthority: "unknown",
   },
   live: {
     username: loadJSON(STORAGE_KEYS.liveProfile, { username: "" }).username || "",
@@ -565,6 +566,10 @@ function uniqueById(questions) {
 }
 
 function applyQuestionEdits(question) {
+  if (!isInstructor()) {
+    return question;
+  }
+
   const edit = state.questionEdits[question.id];
   if (!edit) {
     return question;
@@ -614,12 +619,17 @@ function applyStorageStatus(status) {
     databaseConfigured: Boolean(status.databaseConfigured),
     databaseReady: Boolean(status.databaseReady),
     postgresDriverAvailable: Boolean(status.postgresDriverAvailable),
+    questionBankAuthority: status.questionBankAuthority || "unknown",
   };
 }
 
 function getQuestionBankStorageSummary() {
   if (!isInstructor()) {
     return "Only the instructor login can edit question text, answers, explanations, and source details.";
+  }
+
+  if (state.storageStatus.questionBankAuthority === "data-js") {
+    return "This live site reads the seeded question bank directly from data.js. To change what every user sees, update data.js in the repo and redeploy.";
   }
 
   if (state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady) {
@@ -636,6 +646,10 @@ function getQuestionBankStorageSummary() {
 function renderQuestionBankStoragePill() {
   if (!isInstructor()) {
     return "";
+  }
+
+  if (state.storageStatus.questionBankAuthority === "data-js") {
+    return '<span class="pill">Source: data.js</span>';
   }
 
   if (state.storageStatus.storageBackend === "postgres" && state.storageStatus.databaseReady) {
@@ -2398,6 +2412,15 @@ async function saveQuestionBankEdits() {
     return;
   }
 
+  if (state.storageStatus.questionBankAuthority === "data-js") {
+    state.questionBank.feedback = {
+      tone: "error",
+      message: "Save Changes is disabled because the live site now reads question content from data.js. Apply the fix to data.js and redeploy to publish it for every user.",
+    };
+    renderApp();
+    return;
+  }
+
   state.questionBank.feedback = {
     tone: "info",
     message: "Saving question bank changes to the persistent database...",
@@ -3107,6 +3130,7 @@ async function logoutAccount() {
     databaseConfigured: false,
     databaseReady: false,
     postgresDriverAvailable: false,
+    questionBankAuthority: "unknown",
   };
   persistAccountAuth();
   setAccountMessage("info", "Signed out. This browser will keep local history, but new attempts will not sync to an account.");
@@ -3999,7 +4023,9 @@ function renderQuestionBankView() {
               <div class="bank-save-bar__actions">
                 <span class="pill">${state.questionBank.hasUnsavedChanges ? "Unsaved edits" : "No unsaved edits"}</span>
                 ${renderQuestionBankStoragePill()}
-                <button type="button" class="button button--primary" data-action="save-question-bank-edits">Save Changes</button>
+                <button type="button" class="button button--primary" data-action="save-question-bank-edits" ${
+                  state.storageStatus.questionBankAuthority === "data-js" ? "disabled" : ""
+                }>Save Changes</button>
               </div>
               <div class="${bankFeedbackClass}">
                 <strong>${escapeHtml(state.questionBank.feedback.message)}</strong>

@@ -426,7 +426,7 @@ def load_question_bank_store():
 
 
 QUESTION_BANK_STORE = load_question_bank_store()
-QUESTION_BANK = QUESTION_BANK_STORE["questions"]
+QUESTION_BANK = list(SEEDED_QUESTION_BANK)
 QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
 
 
@@ -441,10 +441,8 @@ save_question_bank_store()
 
 
 def set_shared_question_bank(question_bank):
-    global QUESTION_BANK, QUESTION_BY_ID, QUESTION_BANK_STORE
+    global QUESTION_BANK_STORE
     QUESTION_BANK_STORE = {"questions": list(question_bank)}
-    QUESTION_BANK = QUESTION_BANK_STORE["questions"]
-    QUESTION_BY_ID = {question["id"]: question for question in QUESTION_BANK}
     save_question_bank_store()
 
 
@@ -454,6 +452,7 @@ def build_storage_status_payload():
         "databaseConfigured": bool(DATABASE_URL),
         "databaseReady": bool(DATABASE_STORE_READY),
         "postgresDriverAvailable": bool(psycopg and Jsonb),
+        "questionBankAuthority": "data-js",
     }
 
 
@@ -2335,7 +2334,7 @@ async def current_user(request):
         "placements": user.get("live_placements", []),
         "customQuizzes": normalize_custom_quiz_library(user.get("custom_quizzes", [])),
         "questionBank": QUESTION_BANK,
-        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "questionEdits": {},
         "storageStatus": build_storage_status_payload(),
     })
 
@@ -2345,27 +2344,10 @@ async def question_bank(request):
         return web.json_response(build_question_bank_response())
 
     require_instructor_username(request)
-    payload = await json_body(request)
-    raw_bank = payload.get("questionBank")
-
-    if isinstance(raw_bank, list):
-        normalized_bank = normalize_shared_question_bank({"questions": raw_bank})["questions"]
-        set_shared_question_bank(normalized_bank)
-        return web.json_response({
-            "saved": True,
-            **build_question_bank_response(),
-        })
-
-    normalized = normalize_question_edit_store(payload.get("questionEdits", {}))
-    QUESTION_EDIT_STORE["edits"] = normalized["edits"]
-    QUESTION_EDIT_STORE["updated_at"] = int(time.time() * 1000)
-    save_question_edit_store()
-    set_shared_question_bank(apply_question_edit_store(QUESTION_BANK, normalized))
     return web.json_response({
-        "saved": True,
-        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "error": "The live site now uses data.js as the question-bank source of truth. Edit data.js and redeploy to change what every user sees.",
         **build_question_bank_response(),
-    })
+    }, status=409)
 
 
 async def instructor_stats(request):
@@ -2397,24 +2379,18 @@ async def question_edits(request):
     if request.method == "GET":
         require_auth_username(request)
         return web.json_response({
-            "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+            "questionEdits": {},
             "questionBank": QUESTION_BANK,
             "storageStatus": build_storage_status_payload(),
         })
 
     require_instructor_username(request)
-    payload = await json_body(request)
-    normalized = normalize_question_edit_store(payload.get("questionEdits", {}))
-    QUESTION_EDIT_STORE["edits"] = normalized["edits"]
-    QUESTION_EDIT_STORE["updated_at"] = int(time.time() * 1000)
-    save_question_edit_store()
-    set_shared_question_bank(apply_question_edit_store(QUESTION_BANK, normalized))
     return web.json_response({
-        "questionEdits": QUESTION_EDIT_STORE.get("edits", {}),
+        "error": "Question-bank Save Changes is disabled on the live site because data.js is now the source of truth. Update data.js and redeploy to publish fixes for every user.",
+        "questionEdits": {},
         "questionBank": QUESTION_BANK,
-        "saved": True,
         "storageStatus": build_storage_status_payload(),
-    })
+    }, status=409)
 
 
 async def instructor_import_students(request):
